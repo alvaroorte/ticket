@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  clicket-frontend:
+    image: registrycbbadev.et.bo/clicket/clicket-frontend:$TAG_IMAGE
+    ports:
+      - "9032:80"
+    networks:
+      - et-clicket-prod-net
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    deploy:
+      mode: replicated
+      replicas: 3
+
+networks:
+  et-clicket-prod-net:
+    external: true

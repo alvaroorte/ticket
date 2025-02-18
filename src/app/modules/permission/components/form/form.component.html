@@ -1,0 +1,76 @@
+<form [formGroup]="formPermission">
+
+    <div class="grid">
+        <div class="col-12">
+            <p-dialog [(visible)]="openModal" styleClass="w-10 md:w-6 lg:w-4" header={{tittleForm}} [modal]="true" class="p-fluid">
+                <ng-template pTemplate="content">
+                    
+                    <p class="text-center mb-6"><p-badge [value]="'Los campos marcados con * son obligatorios'"></p-badge></p>
+                   
+                    <div class="form-group field mt-6">
+                        <span class="p-float-label">
+                            <input type="text" pInputText id="code" [(ngModel)]="permission.code" formControlName="code" class="p-inputtext-sm mt-1" />
+                            <label htmlFor="code" class="text-lg font-bold text-800"><span class="text-red-500">*</span> Código</label>
+                        </span>
+                        <small class="p-error block mt-2" *ngIf="formPermission.controls['code'].touched && formPermission.get('code')?.hasError('required')" >El campo Código es obligatorio</small>
+                        <small class="p-error block mt-2" *ngIf="formPermission.get('code')?.hasError('pattern')">{{ messages.deniedCharactersCode }}</small>
+                        <small class="p-error block mt-2" *ngIf="formPermission.get('code')?.hasError('minlength')">{{ messages.requiredMinLength }}</small>
+                    </div>
+                    
+                    <div class="form-group field mt-6">
+                        <span class="p-float-label">
+                            <input type="text" pInputText id="name" [(ngModel)]="permission.name" formControlName="name" class="p-inputtext-sm mt-1" />
+                            <label htmlFor="name" class="text-lg font-bold text-800"><span class="text-red-500">*</span> Nombre</label>
+                        </span>
+                        <small class="p-error block mt-2" *ngIf="formPermission.controls['name'].touched && formPermission.get('name')?.hasError('required')" >El campo Nombre es obligatorio</small>
+                        <small class="p-error block mt-2" *ngIf="formPermission.get('name')?.hasError('pattern')">{{ messages.deniedCharactersName }}</small>
+                    </div>
+                    
+                    <div class="form-group field mt-6">
+                        <span class="p-float-label">
+                            <input type="text" pInputText id="url" [(ngModel)]="permission.url" formControlName="url" class="p-inputtext-sm mt-1" />
+                            <label htmlFor="url" class="text-lg font-bold text-800"><span class="text-red-500">*</span> Url</label>
+                        </span>
+                        <small class="p-error block mt-2" *ngIf="formPermission.controls['url'].touched && formPermission.get('url')?.hasError('required')" >El campo Url es obligatorio</small> 
+                    </div>
+                    
+                    <div class="form-group field mt-6">
+                        <span class="p-float-label">
+                            <input type="text" pInputText id="description" [(ngModel)]="permission.description" formControlName="description" class="p-inputtext-sm mt-1" />
+                            <label htmlFor="description" class="text-lg font-bold text-800"><span class="text-red-500">*</span> Descripción</label>
+                        </span>
+                        <small class="p-error block mt-2" *ngIf="formPermission.controls['description'].touched && formPermission.get('description')?.hasError('required')" >El campo Descripción es obligatorio</small>
+                    </div>
+                    <div class="form-group field mt-5">
+                        <span class="p-float-label">
+                            <p-dropdown 
+                                inputId="httpMethod" 
+                                formControlName="httpMethod" 
+                                [options]="optionsMethod"  
+                                optionLabel="label" 
+                                optionValue="value" 
+                                [filter]="true" 
+                                filterBy="value" 
+                                styleClass="p-inputtext-sm mt-1 w-full" 
+                                placeholder="Tipo de tickets"
+                                [(ngModel)]="permission.httpMethod"
+                                appendTo="body">
+                            </p-dropdown>
+                            <label for="httpMethod" class="text-lg font-bold text-800"><span class="text-red-500">*</span> Método</label>
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="footer">
+                    <div class="p-2 pb-3">
+                        <input type="hidden" pInputText id="id" [(ngModel)]="permission.id" formControlName="id"/>
+                        <button type="button" pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-secondary p-button-rounded mr-2 p-button-sm sombra-black" (click)="hideModal()"></button>
+                        <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-rounded mr-2 sombra-black p-button-sm" (click)="savePermission()"
+                            [loading]="isLoading"
+                            [disabled]="formPermission.invalid">
+                        </button>
+                    </div>
+                </ng-template>
+            </p-dialog>
+        </div>
+    </div>
+</form>

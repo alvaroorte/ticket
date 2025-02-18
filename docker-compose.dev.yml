@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  clicket-frontend:
+    image: registrycbbadev.et.bo/clicket/clicket-frontend:dev
+    container_name: clicket-frontend
+    ports:
+      - "9002:80"
+    networks:
+      - et-clicket-dev-net
+    restart: always
+
+networks:
+  et-clicket-dev-net:
+    external: true

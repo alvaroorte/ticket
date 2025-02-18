@@ -1,0 +1,28 @@
+
+<p-pickList 
+        [source]="sourceProducts()" 
+        [target]="targetProducts()" 
+        sourceHeader="Disponibles" 
+        targetHeader="Asignados" 
+        [dragdrop]="true" 
+        [responsive]="true" 
+        [sourceStyle]="{ height: '30rem' }"
+        [targetStyle]="{ height: '30rem' }" 
+        filterBy="name" 
+        sourceFilterPlaceholder="Buscar" 
+        targetFilterPlaceholder="Buscar" 
+        breakpoint="800px"
+        [showSourceControls]="false"
+        [showTargetControls]="false"
+        (onMoveToSource)="removeItem($event)"
+        (onMoveToTarget)="addItem($event)"
+        (onMoveAllToSource)="allRemoveItems($event)"
+        (onMoveAllToTarget)="allAddItems($event)">
+        <ng-template let-subCategory pTemplate="item">
+            <div class="flex flex-wrap p-2 align-items-center gap-3">
+                <div class="flex-1 flex flex-column gap-2">
+                    <span class="font-bold"><i [class]="'mr-2 pi '+ subCategory.detail "></i> {{ subCategory.name }} </span>
+                </div>
+            </div>
+        </ng-template>
+</p-pickList>

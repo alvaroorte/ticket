@@ -1,0 +1,20 @@
+<section *ngIf="showSwitch" class="flex justify-content-center">
+    <div class="flex background-gray-blured p-2 align-items-center">
+        <h4 class="mr-2 inline"> Ver tickets en: </h4> 
+        <p-selectButton [options]="showOptions" [(ngModel)]="typeShowSelection" optionLabel="label" optionValue="value"></p-selectButton>
+    </div>
+</section>
+<section *ngIf="!typeShowSelection">
+    <app-tickets-card [typeTicketCard]="typeTicketCard"></app-tickets-card>
+</section>
+<section *ngIf="typeShowSelection">
+    <app-tickest-table></app-tickest-table>
+</section>
+<p-toast>
+    <ng-template let-message pTemplate="message">
+        <div class="flex flex-column" style="flex: 1">
+            <h3 class="mb-2">{{message.summary}}</h3>
+            <p [innerHTML]="message.detail"></p>
+        </div>
+    </ng-template>
+</p-toast>

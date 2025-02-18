@@ -1,0 +1,9 @@
+<app-toolbar-common  
+    [serviceGeneric]="supervisorCategoryService" 
+    tooltipCreate="Asignar categoría" 
+    [showCreate]="supervisor() && supervisor().id? true: false"
+    [showDelete]="false" 
+    [showEdit]="false" 
+    [object]="supervisorCategory()"/> 
+<app-modal-form></app-modal-form>
+<app-table [supervisor]="supervisor"></app-table>

@@ -1,0 +1,15 @@
+<app-toolbar-common
+    tooltipCreate="Agregar miembro al equipo"
+    tooltipDelete="Eliminar miembro de equipo"
+    [serviceGeneric]="teamMemberService"
+    [showCreate]="(team().id)? true: false"
+    [showEdit]="false"
+    [showDelete]="(team().id)? true: false"
+    [object]="teamMember()"
+>
+    <p-button *ngIf="teamMember().id" [icon]="'pi ' + iconButton" label="" [pTooltip]="tootilpButton + ' usuario en todos los equipos'"  styleClass="p-button-sm p-button-rounded mr-2 p-button-warning sombra-black hover-warning fadeinup animation-ease-in-out animation-duration-300" (click)="openModalDisabledUserOfAllTeams()"></p-button>
+</app-toolbar-common>
+<app-modal-form/>
+<app-modal-disable-user-all-teams></app-modal-disable-user-all-teams>
+<app-modal-delete [serviceGeneric]="teamMemberService" [object]="teamMember().id"/>
+<app-table [team]="team" (rowSelected)="setObject($event)"/>

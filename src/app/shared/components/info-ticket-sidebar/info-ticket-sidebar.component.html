@@ -1,0 +1,233 @@
+<div class="card flex justify-content-center">
+    <p-dialog
+        [(visible)]="modalVisible"
+        [styleClass]="widthModal"
+        contentStyleClass="p-0 relative"
+        [modal]="true"
+        (onShow)="fillDescriptionTicket(descriptionTicket)"
+        position="top">
+        <ng-template pTemplate="header">
+            <h2 class="flex-1 text-center capitalize lynch-50">{{ ticket().title }}
+        </h2>
+        </ng-template>
+        <ng-template pTemplate="content">
+            <section class="flex justify-content-center mt-3 ">
+                <div class="flex gap-6 mb-4">
+                    <button *ngIf="!isRoleApplicant()" pButton pRipple label="Asociar ticket" icon="pi pi-link" class="p-button-help p-button-rounded p-button-sm sombra-black hover-help" (click)="handleOpenFormTicketModal(false)"></button>
+                    <button *ngIf="!isRoleApplicant()" pButton pRipple label="Derivar ticket" icon="pi pi-angle-double-right" class="p-button-warning p-button-rounded p-button-sm sombra-black hover-warning" (click)="handleOpenFormTicketModal(true)"></button>
+                    <button pButton pRipple label="Gantt por estados" icon="pi pi-chart-line" class="p-button-success p-button-rounded p-button-sm sombra-black hover-success" (click)="handleOpenModalGrapGantt(true)"></button>
+                    <!-- <p-splitButton 
+                        icon="pi pi-chart-line"
+                        label="Gantt" 
+                        [model]="optionsGantt"
+                        styleClass="p-button-rounded p-button-sm sombra-black hover-success p-button-success"
+                        rounded /> -->
+                </div>
+            </section>
+            <section class="grid col-12 justify-content-center">
+                <p-tabView [(activeIndex)]="activeIndex" (onChange)="changeTab()">
+                    <p-tabPanel>
+                        <ng-template pTemplate="header">
+                            <div class="flex align-items-center gap-2">
+                                <span class="font-bold text-teal-500 white-space-nowrap m-0">
+                                    <i class="pi pi-info-circle"></i>
+                                    Información
+                                </span>
+                            </div>
+                        </ng-template>
+                        <ng-template pTemplate="content">
+                            <div class="grid justify-content-center">
+                                <section class="col-12 lg:col-5">
+                                    <div class="grid ">
+                                        <div class="col-12 text-center px-3 align-items-center flex justify-content-center">
+                                            <div class="rotate-360 pb-2">
+                                                <span class="lynch-900"><i class="pi pi-arrow-up-right rotate-360-active mr-2"></i> Prioridad:</span>
+                                                <h4 [class]="textColor + ' ml-3 mt-2 inline'">{{ ticket().priority }}</h4>
+                                            </div>
+                                        </div>
+            
+                                        <div class="col-12 md:col-6 text-center px-3 align-items-center flex justify-content-center">
+                                            <div class="rotate-360 pb-2">
+                                                <span class="lynch-900"><i class="pi pi-ticket rotate-360-active mr-2"></i> Código</span>
+                                                <h4 class="mt-2">{{ ticket().code }}</h4>
+                                            </div>
+                                        </div>
+            
+                                        <div class="col-12 md:col-6 text-center px-3 align-items-center flex justify-content-center">
+                                            <div class="rotate-360 pb-2">
+                                                <span class="lynch-700"><i class="pi pi-building rotate-360-active mr-2"></i> Empresa</span>
+                                                <h4 class="lynch-900 mt-2">{{ ticket().enterprise }}</h4>
+                                            </div>
+                                        </div>
+            
+                                        <div class="col-12 md:col-6 text-center px-3 align-items-center flex justify-content-center">
+                                            <div class="rotate-360 pb-2">
+                                                <span class="lynch-700"><i class="pi pi-calendar rotate-360-active mr-2"></i> Fecha Creación</span>
+                                                <h4 class="lynch-900 mt-2 cursor-pointer">{{ ticket().created | formatDateWhitHour }}</h4>
+                                            </div>
+                                        </div>
+            
+                                        <div class="col-12 md:col-6 text-center px-3 align-items-center flex justify-content-center">
+                                            <div class="rotate-360 pb-2">
+                                                <span class="lynch-700"><i class="pi pi-folder rotate-360-active mr-2"></i> Categoría</span>
+                                                <h4 class="lynch-900 mt-2 uppercase">{{ ticket().category }}</h4>
+                                            </div>
+                                        </div>
+            
+                                        <div class="col-12 md:col-6 text-center px-3 align-items-center flex justify-content-center">
+                                            <div class="rotate-360 pb-2">
+                                                <span class="lynch-700"><i class="pi pi-shield rotate-360-active mr-2"></i> Estado</span>
+                                                <h4 class="lynch-900 mt-2">{{ ticket().status }}</h4>
+                                            </div>
+                                        </div>
+            
+                                        <div class="col-12 md:col-6 text-center px-3 align-items-center flex justify-content-center">
+                                            <div class="rotate-360 pb-2">
+                                                <span class="lynch-700"><i class="pi pi-folder-open rotate-360-active mr-2"></i> Subcategoría</span>
+                                                <h4 class="lynch-900 mt-2 capitalize">{{ ticket().subCategory }}</h4>
+                                            </div>
+                                        </div>
+            
+                                        <div class="col-12 md:col-6 text-center px-3 align-items-center flex justify-content-center">
+                                            <div class="rotate-360 pb-2">
+                                                <span class="lynch-700"><i class="pi pi-user rotate-360-active mr-2"></i> Moderador</span>
+                                                <h4 class="lynch-900 mt-2">{{ (ticket().moderator)? ticket().moderator: 'No corresponde' }}</h4>
+                                            </div>
+                                        </div>
+            
+                                        <div class="col-12 md:col-6 text-center px-3 align-items-center flex justify-content-center">
+                                            <div class="rotate-360 pb-2">
+                                                <span class="lynch-700"><i class="pi pi-user rotate-360-active mr-2"></i> Aprobador</span>
+                                                <h4 class="lynch-900 mt-2">{{ (ticket().approver)? ticket().approver: 'No corresponde' }}</h4>
+                                            </div>
+                                        </div>
+            
+                                        <div class="col-12 md:col-6  text-center px-3 align-items-center flex justify-content-center">
+                                            <div class="rotate-360 pb-2">
+                                                <span class="lynch-700"><i class="pi pi-user rotate-360-active mr-2"></i> Solicitante</span>
+                                                <h4 class="lynch-900 mt-2">{{ ticket().applicant }}</h4>
+                                            </div>
+                                        </div>
+            
+                                        <div class="col-12 md:col-6 text-center px-3 align-items-center flex justify-content-center">
+                                            <div class="rotate-360 pb-2">
+                                                <span class="lynch-700"><i class="pi pi-wrench rotate-360-active mr-2"></i> Técnico Asignado</span>
+                                                <h4 class="lynch-900 mt-2">{{ (ticket().technical)? ticket().technical: 'Sin Técnico' }}</h4>
+                                            </div>
+                                        </div>
+            
+                                        <div *ngIf="ticket().applicantPhone" class="col-12 md:col-6  text-center px-3 align-items-center flex justify-content-center">
+                                            <div class="rotate-360 pb-2">
+                                                <span class="lynch-700"><i class="pi pi-user rotate-360-active mr-1"></i> <i class="pi pi-phone rotate-360-active mr-2"></i> Contacto solicitante</span>
+                                                <h4 class="lynch-900 mt-2">{{ ticket().applicantPhone }}</h4>
+                                            </div>
+                                        </div>
+            
+                                        <div *ngIf="ticket().technicalPhone" class="col-12 md:col-6 text-center px-3 align-items-center flex justify-content-center">
+                                            <div class="rotate-360 pb-2">
+                                                <span class="lynch-700">
+                                                    <i class="pi pi-wrench rotate-360-active mr-1"></i>
+                                                    <i class="pi pi-phone mr-2"></i> Contacto técnico
+                                                </span>
+                                                <h4 class="lynch-900 mt-2">{{ (ticket().technical)? ticket().technicalPhone: 'Sin Número' }}</h4>
+                                            </div>
+                                        </div>
+            
+                                        <div *ngIf="ticket().applicantUbication" class="col-12 md:col-6  text-center px-3 align-items-center flex justify-content-center">
+                                            <div class="rotate-360 pb-2">
+                                                <span class="lynch-700"><i class="pi pi-user rotate-360-active mr-1"></i> <i class="pi pi-map-marker rotate-360-active mr-2"></i> Ubicación solicitante</span>
+                                                <h4 class="lynch-900 mt-2">{{ ticket().applicantUbication }}</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                                <section class="col-12 lg:col-7 align-items-center flex">
+                                    <div class="grid col-12 px-5">
+                                        <div class="mt-2 col-12 rotate-360 text-center">
+                                            <span class="lynch-900 text-lg font-semibold"><i class="pi pi-align-justify rotate-360-active mr-2"></i> Descripción</span>
+                                            <div #descriptionTicket id="descriptionTicket"  class="col-12 bg-lynch-100 lynch-700 border-round-xl mt-2 p-4 sombra-yellow"></div>
+                                        </div>
+                                        <div *ngIf="ticket().fileName" class="mt-4 col-12 rotate-360 text-center">
+                                            <span class="lynch-900 text-lg font-semibold"><i class="pi pi-download rotate-360-active mr-2"></i> Archivo adjunto</span>
+                                            <div class="col-12 bg-lynch-100 border-round-xl p-4 sombra-yellow text-center">
+                                                <a [href]="serverUrl+ 'media/' + ticket().fileName" class="font-semibold lynch-800">
+                                                    {{ ticket().fileName!.substring(ticket().fileName!.indexOf('-') + 1, ticket().fileName!.length)}}
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div *ngIf="ticket().image" class="mt-2 col-12 rotate-360 text-center">
+                                            <span class="lynch-900 text-lg font-semibold"><i class="pi pi-image rotate-360-active mr-2"></i> Imagen</span>
+                                            <div class="col-12 bg-lynch-100 lynch-700 border-round-xl mt-2 p-4 sombra-yellow">
+                                                <img width="100%" [src]="ticket().image" alt="">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                                <section class="col-12 lg:col-7 mt-3">
+                                    <div *ngIf="posibleSolution" class="mt-5 col-12 rotate-360 text-center">
+                                        <span class="lynch-900 text-lg font-semibold"><i class="pi pi-verified rotate-360-active mr-2"></i> Solución propuesta del {{posibleSolution.closeAt | date: 'dd-MM-yyyy'}}</span>
+                                        <div class="col-12 bg-lynch-100 lynch-700 border-round-xl mt-2 p-4 sombra-yellow" [innerHTML]="posibleSolution.description">
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        </ng-template>
+                    </p-tabPanel>
+                    <p-tabPanel>
+                        <ng-template pTemplate="header">
+                            <div class="flex align-items-center gap-2">
+                                <span class="font-bold text-teal-500 white-space-nowrap m-0">
+                                    <i class="pi pi-chart-line"></i>
+                                    Línea de tiempo
+                                </span>
+                            </div>
+                        </ng-template>
+                        <div #cardsmessages id="cardsmessages" style="max-height: 60vh; overflow-y: auto;">
+                            <app-timeline-ticket [idTicket]="idTicket" [timelineList]="timelineList()" (eventReloadTimeline)="getTimeline()"></app-timeline-ticket>
+                        </div>
+                    </p-tabPanel>
+                    <p-tabPanel>
+                        <ng-template pTemplate="header">
+                            <div class="flex align-items-center gap-2">
+                                <span class="font-bold text-teal-500 white-space-nowrap m-0">
+                                    <i class="pi pi-eye"></i>
+                                    Observadores
+                                </span>
+                            </div>
+                        </ng-template>
+                        <div class="grid col-12 ">
+                            <div class="bg-lynch-100 lynch-700 border-round-xl mt-2 p-4 sombra-yellow">
+                                <div class="pb-2 flex align-items-center justify-content-center">
+                                    <app-select-generic-users (selectedFullUser)="selectObservers($event)" [userId]="userId" [fullUser]="true"></app-select-generic-users>
+                                    <button pButton pRipple icon="pi pi-plus" class="p-button mx-3 sombra-black p-button-sm p-button-rounded" (click)="addObserver()">
+                                    </button>
+                                </div>
+                                <div class="flex justify-content-center">
+                                    <p-table
+                                        [value]="setObserver()"
+                                        [scrollable]="true"
+                                        scrollHeight="350px"
+                                        [tableStyle]="">
+                                            <ng-template pTemplate="body" let-observer>
+                                            <tr class="obs-body">
+                                                <td>{{observer.value}}</td>
+                                                <td>
+                                                    <a class="cursor-pointer text-red-500" (click)="removeObserver(observer)">
+                                                        <i class="pi pi-trash "></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            </ng-template>
+                                    </p-table>
+                                </div>
+                                </div>
+                            </div>
+                    </p-tabPanel>
+                </p-tabView>
+            </section>
+                
+            <!-- </div> -->
+            
+        </ng-template>
+    </p-dialog>
+</div>

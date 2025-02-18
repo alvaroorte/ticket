@@ -1,0 +1,36 @@
+<div class="grid">
+    <div class="col-12">
+        <p-dialog [(visible)]="openModal" styleClass="w-10" header={{tittleForm}} [modal]="true" [baseZIndex]="222" (onHide)="actionsHideModal()" class="p-fluid">
+            <ng-template pTemplate="content">
+                <div class="card flex justify-content-center align-items-center mb-4 mr-8">
+                    <label class="text-lg font-bold text-800 mr-3"><span class="text-red-500">*</span> Equipo: </label>
+                    <p-dropdown [style]="{width: '150%'}" inputId="team" [(ngModel)]="team" [options]="teams"  optionLabel="name" optionValue="id" [filter]="true" filterBy="name" styleClass="p-inputtext-sm mt-1" [showClear]="true" placeholder="Equipo                ">
+                        <ng-template pTemplate="selectedFolder">
+                            <div class="flex align-items-center gap-2" *ngIf="team">
+                                <div>{{ team }}</div>
+                            </div>
+                        </ng-template>
+                        <ng-template let-team pTemplate="team">
+                            <div class="flex align-items-center gap-2">
+                                <div>{{ team.name }}</div>
+                            </div>
+                        </ng-template>
+                    </p-dropdown>
+                </div>
+                   
+                <app-table-double 
+                            (add)="add($event)" 
+                            (allAdd)="allAdd($event)" 
+                            (remove)="remove($event)" 
+                            (allRemove)="allRemove($event)" 
+                            [sourceProducts]="sourceProducts"
+                            [targetProducts]="targetProducts"
+                            [serviceGeneric]="enterpriseCategoriesService"
+                        ></app-table-double>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>

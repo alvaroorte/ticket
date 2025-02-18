@@ -1,0 +1,8 @@
+<div class="block">
+    <div class="stepper-wrapper background-gray-blured py-2 shadow-2">
+      <div *ngFor="let step of steps; let i = index " [class]="(indexCurrent == (i+1))? 'stepper-item active': (indexCurrent > (i+1))? 'stepper-item completed': 'stepper-item'">
+        <div class="step-counter cursor-pointer" (click)="setStep(i+1)">{{ i+1 }}</div>
+        <div class="step-name">{{ step }}</div>
+      </div>
+    </div>
+</div>

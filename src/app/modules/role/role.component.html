@@ -1,0 +1,48 @@
+<div class="container mx-3 mb-0 pb-4">
+    <p-fieldset styleClass="sombra-black">
+        <ng-template pTemplate="header">
+            <div class="flex align-items-center text-primary fadeinleft animation-duration-400">
+                <h2 class="text-white">Seguridad <span class="text-sm"> Gestión de seguridad</span> </h2>
+            </div>
+        </ng-template>
+            <div class="grid">
+                <div class="col-6 fadeindown animation-duration-400">
+                    <div class="sombra-black border-round-xl p-2 surface-0">
+                        <app-toolbar></app-toolbar> 
+                        <app-form></app-form> 
+                        <app-modal-delete [serviceGeneric]="roleService" [object]="idDelete()" ></app-modal-delete>
+                        <app-table (changeRole)="setSelectedRole($event)" ></app-table>
+                    </div>
+                </div>
+                <div class="col-6 fadeindown animation-duration-400">
+                    <div class="sombra-black border-round-xl p-2 surface-0">
+                        <app-permission (eventChangePermission)="getPermissionAssignedByRole()"></app-permission>
+                    </div>
+                </div>
+            </div>
+    </p-fieldset>
+    <div class="mt-3 mx-5 px-5 mb-0 pb-4 ">
+        <p-fieldset styleClass="sombra-black">
+            <ng-template pTemplate="header">
+                <div class="flex align-items-center text-primary">
+                    <h3 class="text-white">Permisos asignados al rol</h3>
+                </div>
+            </ng-template>
+            <div class="grid">
+                <div class="col-12 zoomin animation-duration-300">
+                    <div class="sombra-black border-round-xl p-2 surface-0">
+                        <app-table-double 
+                            (add)="add($event)" 
+                            (allAdd)="allAdd($event)" 
+                            (remove)="remove($event)" 
+                            (allRemove)="allRemove($event)" 
+                            [sourceProducts]="sourceProducts"
+                            [targetProducts]="targetProducts"
+                            [serviceGeneric]="roleService"
+                        ></app-table-double>
+                    </div>
+                </div>
+            </div>
+        </p-fieldset>
+    </div>
+</div>

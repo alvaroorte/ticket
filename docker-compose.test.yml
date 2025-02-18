@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  clicket-frontend:
+    image: registrycbbadev.et.bo/clicket/clicket-frontend:test
+    container_name: clicket-frontend
+    ports:
+      - "9012:80"
+    networks:
+      - et-clicket-test-net
+    deploy:
+      mode: replicated
+      replicas: 1
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+networks:
+  et-clicket-test-net:
+    external: true

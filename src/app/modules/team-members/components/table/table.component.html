@@ -1,0 +1,40 @@
+<p-table
+    #dt1
+    [value]="teamMembers()"
+    [paginator]="true"
+    [rows]="rows"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} elementos"
+    [rowsPerPageOptions]="optionsPage()"
+    styleClass="p-datatable-sm p-datatable-gridlines"
+    [(first)]="firstPage"
+    selectionMode="single"
+    dataKey="id"
+    (onRowSelect)="onRowSelect($event)"
+    (onRowUnselect)="onRowUnselect()"
+    [loading]="loading()"
+    [globalFilterFields]="['member']"
+>
+    <ng-template pTemplate="caption">
+        <div class="flex align-items-center">
+            <h3 >Listado de Miembros de Equipo</h3>
+            <span class="p-input-icon-left ml-auto">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" (input)="onGlobalFilter(dt1, $event)" placeholder="Buscar en la tabla" />
+            </span>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+        <tr>
+            <th pSortableColumn="member" >Nombre <p-sortIcon field="member"></p-sortIcon></th>
+            <th >Estado</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-member>
+        <tr [pSelectableRow]="member">
+            <td>{{ member.member }}</td>
+            <td><p-inputSwitch [(ngModel)]="member.status" (onChange)="switchStatus(member)"/></td>
+        </tr>
+    </ng-template>
+</p-table>

@@ -1,0 +1,3 @@
+<app-toolbar-common tooltipCreate="Asignar aprobador y moderador" [serviceGeneric]="enterpriseCategoryDetailService" [showDelete]="false" [showEdit]="false" [object]="enterpriseCategory()"/>
+<app-modal-form></app-modal-form>
+<app-table [enterprise]="enterprise" [enterpriseCategory]="enterpriseCategory" (rowSelected)="setEnterpriseCategory($event)"></app-table>

@@ -1,0 +1,18 @@
+<div class="form-group field mt-3">
+    <label *ngIf="showLabel" class="text-lg font-bold text-800 mb-2"> {{ label }}
+        <span class="text-orange-500 text-sm font-normal ml-3">(Este campo solo acepta archivos de hasta 25Mb.)</span>
+    </label>
+    <p-fileUpload 
+        (onSelect)="cargarArchivo($event)" 
+        (onRemove)="cargarArchivo($event)" 
+        [multiple]="false" 
+        accept="" 
+        [maxFileSize]="25000000" 
+        chooseLabel="{{ labelButton }}" 
+        [showUploadButton]="false"
+        invalidFileSizeMessageSummary="Tamaño del archivo invalido"
+        invalidFileSizeMessageDetail="El tamaño maximo permitido es de 25 Mb"
+        [showCancelButton]="false" 
+        chooseStyleClass="p-button-sm p-buttom-info">
+    </p-fileUpload>
+</div>

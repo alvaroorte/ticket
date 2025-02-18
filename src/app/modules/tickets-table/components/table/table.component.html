@@ -1,0 +1,94 @@
+<p-toolbar>
+    <ng-template pTemplate="left">
+        <div class="my-2">
+            <p-tabMenu [model]="teams" [activeItem]="activeTeam" styleClass="flex-wrap py-0 px-3 mr-3"></p-tabMenu>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="right">
+        <button pButton pRipple type="button" icon="pi pi-sync" class="p-button-rounded p-button-info p-button-text" (click)="reload()"></button>
+    </ng-template>
+    <ng-template pTemplate="right">
+        <button pButton pRipple type="button" icon="pi pi-sync" class="p-button-rounded p-button-info p-button-text" (click)="reload()"></button>
+    </ng-template>
+</p-toolbar>
+<p-table
+    #dt1
+    [value]="tickets()"
+    [paginator]="true"
+    [rows]="rows"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} elementos"
+    [rowsPerPageOptions]="optionsPage()"
+    styleClass="p-datatable-sm p-datatable-gridlines"
+    [(first)]="firstPage"
+    [selection]="ticketSelected()"
+    selectionMode="single"
+    dataKey="ticket"
+    [loading]="loading()"
+    [globalFilterFields]="['code', 'title', 'enterprise', 'created', 'applicant', 'technical', 'priority', 'status']"
+    (onRowSelect)="onRowSelect($event)"
+    (onRowUnselect)="onRowUnselect()"
+>
+    <ng-template pTemplate="caption">
+        <div class="flex align-items-center">
+            <h3 >Listado de tickets</h3>
+            <span class="p-input-icon-left ml-auto">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" (input)="onGlobalFilter(dt1, $event)" placeholder="Buscar en la tabla" />
+            </span>
+        </div>
+    </ng-template>
+    
+    <ng-template pTemplate="header">
+        <tr>
+            <th pSortableColumn="code" >Código <p-sortIcon field="code"></p-sortIcon></th>
+            <th pSortableColumn="created" >Fecha <p-sortIcon field="created"></p-sortIcon></th>
+            <th pSortableColumn="title" >Título <p-sortIcon field="title"></p-sortIcon></th>
+            <th pSortableColumn="enterprise" >Empresa <p-sortIcon field="enterprise"></p-sortIcon></th>
+            <th pSortableColumn="category" >Categoría <p-sortIcon field="category"></p-sortIcon></th>
+            <th pSortableColumn="applicant" >Solicitante <p-sortIcon field="applicant"></p-sortIcon></th>
+            <th pSortableColumn="technical" >Técnico <p-sortIcon field="technical"></p-sortIcon></th>
+            <th pSortableColumn="priority" >Prioridad <p-sortIcon field="priority"></p-sortIcon></th>
+            <th pSortableColumn="status" >Estado <p-sortIcon field="status"></p-sortIcon></th>
+            <th pSortableColumn="accionality" >Acciones <p-sortIcon field="accionality"></p-sortIcon></th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-ticket>
+        <tr [pSelectableRow]="ticket">
+            <td>{{ ticket.code }}</td>
+            <td>{{ ticket.created | formatDateWhitHour }}</td>
+            <td>{{ ticket.title }}</td>
+            <td>{{ ticket.enterprise }}</td>
+            <td>{{ ticket.category }}</td>
+            <td>{{ ticket.applicant.replace('.', ' ') }}</td>
+            <td>{{ ticket.technical.replace('.', ' ') }}</td>
+            <td class="capitalize">{{ ticket.priority }}</td>
+            <td class="capitalize">{{ ticket.status }}</td>
+            <td>
+                <div class="flex">
+                    <ng-container *ngFor="let button of stringToObject(ticket.functionality);">
+                        <button *ngIf="button.enable"
+                            [class]="'button-ticket button-'+ button.color.toLowerCase() +' hover-'+ button.color.toLowerCase() +' mr-2 mt-2 sombra-black'" 
+                            [pTooltip]="(button.enable)? button.label: 'Desactivado'" 
+                            [disabled]="!button.enable" 
+                            (click)="ticketFuncion(ticket.ticket!, ticket.typeTicket!, button.function, button.preFunction)">
+                            <i [class]="'pi ' + button.icon"></i> 
+                        </button>
+                    </ng-container>
+                    <button class="button-ticket button-warning hover-warning mr-2 mt-2 sombra-black" pTooltip="Ver linea de tiempo" (click)="openTimelineSidebar(ticket.ticket!, ticket.title!)" >
+                        <i class="pi pi-chart-line"></i> 
+                    </button>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+
+<app-modal-form-description [title]="titleModalDescription" [selector]="selectorTicketFunction" [nameFunction]="nameFunction" [idTicket]="idTicket" (updateStatusOfButtons)="emitReloadTicketsCard()" ></app-modal-form-description>
+<app-info-ticket-sidebar [idTicket]="idTicket"></app-info-ticket-sidebar>
+<app-modal-timeline-ticket [idTicket]="idTicket" [title]="titleTicket()"></app-modal-timeline-ticket>
+<app-form-ticket-modal (reloadTicketsCard)="emitReloadTicketsCard()"></app-form-ticket-modal>
+<app-modal-ticket-gant [idTicket]="idTicket" [title]="titleTicket()"></app-modal-ticket-gant>
+<app-modal-graph-gantt></app-modal-graph-gantt>
+<app-modal-type-ticket [idTicket]="idTicket" (saveTypeTicket)="saveTypeTicket($event)"></app-modal-type-ticket>

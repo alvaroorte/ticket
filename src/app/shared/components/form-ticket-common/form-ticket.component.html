@@ -1,0 +1,63 @@
+
+<div class="overflow-hidden">
+    <div class="flex justify-content-center align-items-center">
+        <p-card class="border-round-3xl fadeinright animation-ease-in-out animation-duration-500 mb-5 background-gray-blured p-4 shadow-2 w-12 lg:w-6">
+            <form [formGroup]="formTicket">
+                <div class="grid">
+                    <div class="col-12">
+                        <div class="form-group field mt-4">
+                            <span class="p-float-label">
+                                <input type="text" pInputText id="title" formControlName="title" class="p-inputtext-sm mt-1 w-full" />
+                                <label htmlFor="title" class="text-lg font-bold lynch-600"> Título</label>
+                            </span>
+                        </div>
+
+                        <div class="form-group field mt-4 flex align-items-center flex-wrap">
+                            <label class="text-lg font-bold lynch-600 mr-5"><span class="text-red-500">*</span> Prioridad</label>
+                            <p-slider formControlName="priorityId" class="w-7 pr-2" (onChange)="changeInputSlider($event.value)" [animate]="true"  [min]="0" [max]="priorities().length-1"></p-slider>
+                            <span class="ml-4">{{ labelInputSlider() }}</span>
+                            <br><span class="ml-8 text-sm pl-4 font-bold">{{ labelDescriptionSlider() }}</span>
+                        </div>
+
+                        <div class="form-group field mt-4">
+                            <label class="text-lg font-bold lynch-600"><span class="text-red-500">*</span> Detalle</label>
+                            <p-editor id="description" (onTextChange)="getEditorChanges($event)" formControlName="description"></p-editor>
+                            <small class="p-error block mt-2" *ngIf="formTicket.controls['description'].touched && formTicket.get('description')?.hasError('required')" >El campo Detalle es obligatorio</small>
+                        </div>
+
+                        <div class="flex">
+                            <div class="col-6 form-group field mt-5">
+                                <span class="p-float-label">
+                                    <input type="text" pInputText id="ubication" formControlName="ubication" class="p-inputtext-sm mt-1 w-full" />
+                                    <label htmlFor="ubication" class="text-lg font-bold lynch-600">Lugar de trabajo</label>
+                                </span>
+                            </div>
+
+                            <div class="col-6 form-group field mt-5">
+                                <span class="p-float-label">
+                                    <p-inputNumber
+                                        id="phone"
+                                        [useGrouping]="false"
+                                        [min]="0"
+                                        formControlName="phone"
+                                        styleClass="w-full"
+                                        class="w-full"
+                                    />
+                                    <label htmlFor="phone" class="text-lg font-bold lynch-600">Mi celular</label>
+                                </span>
+                            </div>
+                        </div>
+
+                        <app-input-file *ngIf="showUploadFile()" (archivoUploaded)="cargarArchivo($event)"></app-input-file>
+
+                        <div class="text-right mt-3">
+                            <button pButton pRipple label="Crear Ticket" icon="pi pi-check" class="hover-warning p-button-rounded mr-2 sombra-black p-button-warning p-button-sm" (click)="createTicket()"
+                                [disabled]="formTicket.invalid">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </p-card>
+    </div>
+</div>

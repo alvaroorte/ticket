@@ -1,0 +1,36 @@
+<div class="grid">
+    <div class="col-12">
+        <p-dialog [(visible)]="openModal" styleClass="w-10" header={{tittleForm}} [modal]="true" [baseZIndex]="222" (onHide)="actionsHideModal()" class="p-fluid">
+            <ng-template pTemplate="content">
+                <div class="card flex justify-content-center align-items-center mb-4 mr-8">
+                    <label class="text-lg font-bold text-800 mr-3"><span class="text-red-500">*</span> Empresa: </label>
+                    <p-dropdown 
+                        inputId="enterprises" 
+                        [(ngModel)]="enterpriseId" 
+                        [options]="enterprises"  
+                        optionLabel="name" 
+                        optionValue="id" 
+                        [filter]="true" 
+                        filterBy="name" 
+                        styleClass="p-inputtext-sm mt-1 w-15rem" 
+                        placeholder="Empresa"
+                        (onChange)="getCategories()">
+                    </p-dropdown>
+                </div>
+                   
+                <app-table-double 
+                            (add)="add($event)" 
+                            (allAdd)="allAdd($event)" 
+                            (remove)="remove($event)" 
+                            (allRemove)="allRemove($event)" 
+                            [sourceProducts]="sourceProducts"
+                            [targetProducts]="targetProducts"
+                            [serviceGeneric]="supervisorCategoriesService"
+                        ></app-table-double>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>
