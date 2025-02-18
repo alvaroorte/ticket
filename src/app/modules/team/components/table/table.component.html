@@ -1,0 +1,45 @@
+<p-table
+    #dt1
+    [value]="teams()"
+    [paginator]="true"
+    [rows]="rows"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} elementos"
+    [rowsPerPageOptions]="optionsPage()"
+    styleClass="p-datatable-sm p-datatable-gridlines"
+    [(first)]="firstPage"
+    selectionMode="single"
+    [selection]="selectedTeam()"
+    dataKey="id"
+    [loading]="loading()"
+    [globalFilterFields]="['name', 'phone', 'username']"
+    (onRowSelect)="onRowSelect($event)"
+    (onRowUnselect)="onRowUnselect()"
+>
+    <ng-template pTemplate="caption">
+        <div class="flex align-items-center">
+            <h3 >Listado de Equipos</h3>
+            <span class="p-input-icon-left ml-auto">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" (input)="onGlobalFilter(dt1, $event)" placeholder="Buscar en la tabla" />
+            </span>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+        <tr>
+            <th pSortableColumn="name" >Nombre <p-sortIcon field="name"></p-sortIcon></th>
+            <th pSortableColumn="username" >Lider <p-sortIcon field="username"></p-sortIcon></th>
+            <th pSortableColumn="technical" >Técnicos Automaticos <p-sortIcon field="technical"></p-sortIcon></th>
+            <th pSortableColumn="technical" >Estado</th>
+         </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-enterprise>
+        <tr [pSelectableRow]="enterprise">
+            <td>{{ enterprise.name }}</td>
+            <td>{{ enterprise.username }}</td>
+            <td class="text-center"><i [class]="(enterprise.technical)? 'text-green-600 pi pi-thumbs-up-fill': 'text-red-600 pi pi-thumbs-down-fill'"></i> </td>
+            <td class="text-center"><p-inputSwitch [(ngModel)]="enterprise.status" (onChange)="switchStatus(enterprise)"/></td>
+         </tr>
+    </ng-template>
+</p-table>

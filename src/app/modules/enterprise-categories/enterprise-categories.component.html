@@ -1,0 +1,9 @@
+<app-toolbar-common
+    [serviceGeneric]="enterpriseCategoryService"
+    tooltipCreate="Asignar categoría"
+    [showCreate]="enterprise() && enterprise().id? true: false"
+    [showDelete]="false"
+    [showEdit]="false"
+    [object]="enterpriseCategory()"/>
+<app-modal-form></app-modal-form>
+<app-table [enterprise]="enterprise" (rowSelected)="setEnterpriseCategory($event)"></app-table>

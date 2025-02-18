@@ -1,0 +1,34 @@
+<div class="grid my-3 fadeinup animation-duration-400">
+    <div *ngIf="teams.length < 5" class="col-6 p-0 flex align-items-center">
+        <p-tabMenu [model]="teams" [activeItem]="activeTeam" styleClass="background-gray-blured p-2 mr-0"></p-tabMenu>
+    </div>
+    <div *ngIf="teams.length >= 5" class="flex align-items-center justify-content-center background-gray-blured p-2">
+        <label for="teams" class="lynch-800 pr-3"><h4>Equipo:</h4></label>
+        <div class="search-border-bottom border-2 border-round-xl p-2">
+            <p-dropdown inputId="teams" [options]="teams" [(ngModel)]="selectedIdTeam" (onChange)="changeTeam($event.value)" optionLabel="label" optionValue="id" styleClass="input-search" appendTo="body" [showClear]="false" placeholder="Equipo"></p-dropdown>
+        </div>
+    </div>
+    <div class="flex-grow-1 align-items-center p-0">
+        <div class="flex flex-wrap justify-content-end gap-2">
+            <div class="flex align-items-center justify-content-center background-gray-blured p-2">
+                <div class="search-border-bottom border-2 border-round-xl p-2">
+                    <p-dropdown [options]="orderFields" [(ngModel)]="selectedOrderField" (onChange)="getAll()" optionLabel="name" optionValue="code" styleClass="input-search" appendTo="body" [showClear]="true" placeholder="Ordenar por"></p-dropdown>
+                </div>
+            </div>
+            <div class="flex align-items-center background-gray-blured p-2">
+                <i pTooltip="Ordenar ascendentemente" class="pi pi-arrow-circle-down font-bold color-yellow text-2xl cursor-pointer mr-3" (click)="setSort('asc')"></i>
+                <i pTooltip="Ordenar descendentemente" class="pi pi-arrow-circle-up font-bold color-yellow text-2xl cursor-pointer" (click)="setSort('desc')"></i>
+            </div>
+            <div class="flex justify-content-center background-gray-blured p-2">
+                <div class="search-border-bottom border-2 border-round-xl p-2">
+                    <input type="text" class="input-search pl-2" placeholder="Buscar..." [(ngModel)]="searchInput" (keyup)="filterTickets()">
+                    <i class="pi pi-search"></i>
+                </div>
+                <div class="flex align-items-center refresh-card cursor-pointer" pTooltip="Refrescar Datos" tooltipPosition="left">
+                    <i class="pi pi-sync text-xl cursor-pointer" (click)="getAll()" ></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<app-cards [tickets]="tickets" (reloadTicketsCard)="getAll()"></app-cards>

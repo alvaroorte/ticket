@@ -1,0 +1,23 @@
+<div class="grid">
+    <div class="col-12">
+        <p-dialog [(visible)]="openModal" styleClass="w-10 md:w-6 lg:w-4" header="Activar o desactivar usuario" [modal]="true" class="p-fluid">
+            <ng-template pTemplate="content">
+                
+                <p *ngIf="statusTechnical" class="text-center mb-3"><p-badge [severity]="'warning'" [value]="'Los equipos afectados seran ' + statusTechnical.technicalOf"></p-badge></p>
+                
+                <div class="flex align-items-center justify-content-center">
+                    <label for="" class="mr-3">Estado: </label>
+                    <p-inputSwitch [(ngModel)]="userIsEnabled" />
+                </div>
+                
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <div class="p-2 pb-3">
+                    <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-secondary p-button-rounded mr-2 p-button-sm sombra-black" (click)="hideModal()"></button>
+                    <button pButton pRipple label="Agregar" icon="pi pi-check" class="p-button-rounded mr-2 sombra-black p-button-sm" (click)="saveStatus()">
+                    </button>
+                </div>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>

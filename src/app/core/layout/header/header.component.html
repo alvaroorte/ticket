@@ -1,0 +1,31 @@
+<header class="pt-2 pb-1 px-4 flex overflow-hidden sticky top-0 header-main-custom" [style]="{'width': '101%', 'z-index': 100, 'background-color': backgroundColorHeader}">
+    <div class="flex-none flex align-items-center justify-content-center px-2">
+        <img src="/assets/images/endeSyc.png" alt="" routerLink="/welcome" class="image-logo-header px-3 border-2 border-round-3xl cursor-pointer">
+    </div>
+    <nav class="flex-grow-1 flex justify-content-center">
+        <ul class="flex flex-wrap gap-3 justify-content-center font-semibold align-items-center">
+            <ng-container *ngFor="let option of optionsHeader()">
+                <li *ngIf="option.access.includes(rolUser())">
+                    <a class="py-1 yellow-hover-round px-2 py-1 lynch-800 flex text-center" [routerLink]="option.routerLink" routerLinkActive='header-active'>{{option.label}}</a>
+                </li>
+            </ng-container>
+        </ul>
+    </nav>
+    <div class="flex-wrap flex align-items-center justify-content-center px-2"> 
+        <p-inputSwitch [(ngModel)]="themeSelection" [pTooltip]="labelMode()" tooltipPosition="bottom" (onChange)="changeTheme($event.checked)" class="mr-2" ></p-inputSwitch>
+        <a *ngIf="username() != 'Ingresar'; else elseBlock" (click)="menu.toggle($event)" class="yellow-hover-round lynch-600 font-medium px-2 py-1 text-center">
+            <span class="cursor-pointer"  >{{ username() }}</span> 
+            <i class="pi pi-user ml-2 "></i> 
+        </a>
+        <ng-template #elseBlock>
+            <a (click)="setOpenModalLogin()" class="yellow-hover-round lynch-600 font-medium px-2 py-1">
+                <span class="cursor-pointer" >Ingresar</span>
+                <i class="pi pi-user ml-2 "></i>  
+            </a>
+        </ng-template>
+    </div>
+    
+</header>
+<p-menu #menu [model]="optionsUser" [popup]="true"></p-menu>
+<app-modal-info-user></app-modal-info-user>
+

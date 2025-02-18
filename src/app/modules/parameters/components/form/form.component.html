@@ -1,0 +1,63 @@
+<form [formGroup]="formParameter">
+
+    <div class="grid">
+        <div class="col-12">
+            <p-dialog [(visible)]="openModal" styleClass="w-10 md:w-6 lg:w-4" header={{tittleForm}} [modal]="true" class="p-fluid">
+                <ng-template pTemplate="content">
+                    
+                    <p class="text-center mb-6"><p-badge [value]="'Los campos marcados con * son obligatorios'"></p-badge></p>
+                    
+                    <div class="form-group field mt-6">
+                        <span class="p-float-label">
+                            <input type="text" pInputText id="value" formControlName="value" class="p-inputtext-sm mt-1" />
+                            <label htmlFor="value" class="text-lg font-bold text-800"><span class="text-red-500">*</span> Nombre</label>
+                        </span>
+                        <small class="p-error block mt-2" *ngIf="formParameter.controls['value'].touched && formParameter.get('value')?.hasError('required')" >El campo Nombre es obligatorio</small>
+                        <small class="p-error block mt-2" *ngIf="formParameter.get('value')?.hasError('noSpace')" >El campo Nombre no acepta solo espacios en blanco</small>
+                    </div>
+
+                    <div class="form-group field mt-6">
+                        <span class="p-float-label">
+                            <p-inputNumber [min]="0" formControlName="ranking"></p-inputNumber>
+                            <label htmlFor="ranking" class="text-lg font-bold text-800"> Ranking / Valor numérico</label>
+                        </span>
+                        <small class="p-error block mt-2" *ngIf="formParameter.controls['ranking'].touched && formParameter.get('ranking')?.hasError('required')" >El campo Nombre es obligatorio</small>
+                        <small class="p-error block mt-2" *ngIf=" formParameter.get('ranking')?.hasError('minlength')">El campo Nombre debe tener 5 caracteres como mínimo</small>
+                    </div>
+                    
+                    <div class="form-group field mt-6">
+                        <span class="p-float-label">
+                            <p-dropdown inputId="icon" [options]="iconsPrime" formControlName="icon" optionLabel="name" optionValue="name" [filter]="true" filterBy="name" styleClass="p-inputtext-sm mt-1" [showClear]="true" placeholder="Icono">
+                                <ng-template let-icon pTemplate="item">
+                                    <div class="flex align-items-center gap-2">
+                                        <div><i [class]="'pi '+ icon.name"></i> {{ icon.name }}</div>
+                                    </div>
+                                </ng-template>
+                            </p-dropdown>
+                            <label for="icon" class="text-lg font-bold text-800"> Icono</label>
+                        </span>
+                    </div>
+                    
+                    <div class="form-group field mt-6">
+                        <span class="p-float-label">
+                            <input type="color" pInputText id="color" formControlName="color" class="p-inputtext-sm mt-1" [style]="'background-color: '+formParameter.value.color+';'" />
+                            <label htmlFor="color" class="text-lg font-bold text-800"> Color</label>
+                        </span>
+                        <small class="p-error block mt-2" *ngIf="formParameter.controls['color'].touched && formParameter.get('color')?.hasError('required')" >El campo Color es obligatorio</small>
+                    </div>
+
+                </ng-template>
+                <ng-template pTemplate="footer">
+                    <div class="p-2 pb-3">
+                        <input type="hidden" pInputText id="id" formControlName="id"/>
+                        <input type="hidden" pInputText id="folder" formControlName="folder"/>
+                        <button type="button" pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-secondary p-button-rounded mr-2 p-button-sm sombra-black" (click)="hideModal()"></button>
+                        <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-rounded mr-2 sombra-black p-button-sm" (click)="saveParameter()"
+                            [disabled]="formParameter.invalid">
+                        </button>
+                    </div>
+                </ng-template>
+            </p-dialog>
+        </div>
+    </div>
+</form>

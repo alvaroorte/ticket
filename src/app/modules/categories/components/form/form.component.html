@@ -1,0 +1,49 @@
+<form [formGroup]="formCategory">
+
+    <div class="grid">
+        <div class="col-12">
+            <p-dialog [(visible)]="openModal" styleClass="w-4" header={{tittleForm}} [modal]="true" class="p-fluid">
+                <ng-template pTemplate="content">
+
+                    <p class="text-center mb-6"><p-badge [value]="'Los campos marcados con * son obligatorios'"></p-badge></p>
+
+                    <div class="form-group field mt-6">
+                        <span class="p-float-label">
+                            <input type="text" pInputText id="value" formControlName="value" class="p-inputtext-sm mt-1" [class]="tittleForm.includes('Sub')? 'capitalize': 'uppercase'"/>
+                            <label htmlFor="value" class="text-lg font-bold text-800"><span class="text-red-500">*</span>Nombre</label>
+                        </span>
+                        <small class="p-error block mt-2" *ngIf="formCategory.controls['value'].touched && formCategory.get('value')?.hasError('required')" >El campo Nombre es obligatorio</small>
+                        <small class="p-error block mt-2" *ngIf="formCategory.get('value')?.hasError('pattern')">{{ messages.deniedCharactersName }}</small>
+                        <small class="p-error block mt-2" *ngIf="formCategory.get('value')?.hasError('minlength')">{{ messages.requiredMinLength }}</small>
+                        <small class="p-error block mt-2" *ngIf="formCategory.get('value')?.hasError('noSpace')" >{{ messages.noOnlySpace }}</small>
+                    </div>
+
+                    <div class="form-group field mt-6">
+                        <span class="p-float-label">
+                            <input type="text" pInputText id="urlImage" formControlName="urlImage" class="p-inputtext-sm mt-1" />
+                            <label htmlFor="urlImage" class="text-lg font-bold text-800"><span class="text-red-500">*</span>Url Imagen</label>
+                        </span>
+                        <small class="p-error block mt-2" *ngIf="formCategory.get('urlImage')?.hasError('maxlength')">{{ messages.urlImageMaxlength }}</small>
+                    </div>
+                    
+                    <div class="form-group field mt-6 flex">
+                        <label htmlFor="urlImage" class="text-lg font-bold text-800 mr-3"><span class="text-red-500">*</span>Estado</label>
+                        <p-inputSwitch formControlName="status" />
+                        <small class="p-error block mt-2" *ngIf="formCategory.get('urlImage')?.hasError('maxlength')">{{ messages.urlImageMaxlength }}</small>
+                    </div>
+
+                </ng-template>
+                <ng-template pTemplate="footer">
+                    <div class="p-2 pb-3">
+                        <input type="hidden" pInputText id="id" formControlName="id"/>
+                        <input type="hidden" pInputText id="folder" formControlName="folder"/>
+                        <button type="button" pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-secondary p-button-rounded mr-2 p-button-sm sombra-black" (click)="hideModal()"></button>
+                        <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-rounded mr-2 sombra-black p-button-sm" (click)="saveCategory()"
+                            [disabled]="formCategory.invalid">
+                        </button>
+                    </div>
+                </ng-template>
+            </p-dialog>
+        </div>
+    </div>
+</form>

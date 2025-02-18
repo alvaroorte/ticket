@@ -1,0 +1,7 @@
+<div class="grid">
+    <div class="col-12">
+        <p-dialog [(visible)]="modalformTicketVisible" [header]="titleSidebar()" styleClass="w-10" [modal]="true" [maximizable]="true" class="p-fluid">
+            <app-home *ngIf="modalformTicketVisible" [idRecursive]="data.idRecursive" [dataRecursive]="data.dataTicket" [isDerivation]="data.isDerivation" (eventTicketCreated)="ticketCreated()"></app-home>
+        </p-dialog>
+    </div>
+</div>

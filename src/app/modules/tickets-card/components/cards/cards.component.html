@@ -1,0 +1,52 @@
+<div class="grid p-2 justify-content-center background-gray-blured">
+    <ng-container *ngIf="tickets().length > 0; else elseBlock">
+        <div *ngFor="let ticket of tickets(); let i = index;" class="col-12 md:col-6 lg:col-3 align-items-center ticket-container justify-content-center fadeinleft animation-ease-in-out animation-duration-500 px-4">
+            <article class="ticket-card shadow-3" [style]="'border-left: 8px solid '+ ticket.priorityColour + ';'">
+                <section (click)="openInfoSidebar(ticket.ticket!)" class="ticket-body-card p-2 cursor-pointer">
+                    <div class="flex justify-content-between flex-wrap">
+                        <h6 class="ticket-header-card"><i class="pi pi-building mr-1 text-xs"></i>{{ ticket.enterprise }}</h6>
+                        <h6 class="ticket-header-card text-center"> <i class="-rotate-45 pi pi-ticket mr-1 text-xs"></i> {{ ticket.code }}</h6>
+                        <h6 class="ticket-header-card"><i class="pi pi-calendar mr-1 text-xs"></i>{{ ticket.created | formatDateWhitHour }}</h6>
+                    </div>
+                    <h4 class="ticket-title mx-3 text-center"> {{ ticket.title }} </h4>
+                    <div class="flex justify-content-between flex-wrap">
+                        <p class="ticket-header-card mb-0 text-xs text-capitalize" pTooltip="Solicitante"><i class="pi pi-user mr-1"></i>{{ ticket.applicant?.replace('.', ' ') }}</p>
+                        <p class="ticket-header-card mb-0 text-xs" pTooltip="Técnico"><i class="pi pi-wrench mr-1"></i>{{ ticket.technical }}</p>
+                    </div>
+                </section>
+                <section class="ticket-footer-card p-2" >
+                    <div class="grid">
+                        <div class="col-6 flex align-items-center text-sm">
+                            Estado: <span class="font-semibold ml-1"> {{ ticket.status }}</span>
+                        </div>
+                        <div class="col-6 flex align-items-center justify-content-end">
+                            <ng-container *ngFor="let button of stringToObject(ticket.functionality);">
+                                <button *ngIf="button.enable"
+                                    [class]="'button-ticket button-'+ button.color.toLowerCase() +' hover-'+ button.color.toLowerCase() +' mr-1 sombra-black'"
+                                    [pTooltip]="(button.enable)? button.label: 'Desactivado'"
+                                    [disabled]="!button.enable"
+                                    (click)="ticketFuncion(ticket.ticket!, ticket.typeTicket!, button.function, button.preFunction)">
+                                    <i [class]="'text-xs pi ' + button.icon"></i>
+                                </button>
+                            </ng-container>
+                            <button class="button-ticket button-warning hover-warning mr-2 sombra-black" pTooltip="Ver linea de tiempo" (click)="openTimelineSidebar(ticket.ticket!, ticket.title!)" >
+                                <i class="pi pi-chart-line text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </ng-container>
+    <ng-template #elseBlock>
+        <h1 class="py-2 lynch-800">Ooops, no se encontro un ticket relacionado.</h1>
+    </ng-template>
+</div>
+<app-modal-form-description [title]="titleModalDescription" [selector]="selectorTicketFunction" [nameFunction]="nameFunction" [idTicket]="idTicket" (updateStatusOfButtons)="emitReloadTicketsCard()" [solutionTemp]="solutionTemp"></app-modal-form-description>
+<app-info-ticket-sidebar [idTicket]="idTicket"></app-info-ticket-sidebar>
+<app-modal-timeline-ticket [idTicket]="idTicket" [title]="titleTicket()"></app-modal-timeline-ticket>
+<app-form-ticket-modal (reloadTicketsCard)="emitReloadTicketsCard()"></app-form-ticket-modal>
+<app-modal-ticket-gant [idTicket]="idTicket" [title]="titleTicket()"></app-modal-ticket-gant>
+<app-modal-graph-gantt></app-modal-graph-gantt>
+<app-modal-type-ticket [idTicket]="idTicket" (saveTypeTicket)="saveTypeTicket($event)"></app-modal-type-ticket>
+

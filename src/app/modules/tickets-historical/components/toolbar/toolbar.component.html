@@ -1,0 +1,18 @@
+<p-toolbar>
+    <ng-template pTemplate="left">
+        <div class="my-2">
+            <p-button icon="pi pi-info" label="" pTooltip="Información del ticket" styleClass="p-button-sm p-button-rounded mr-2 p-button-info sombra-black hover-info"
+                (click)="showInfoTicket()"></p-button>
+            <p-button icon="pi pi-chart-line" label="" pTooltip="Ver linea de tiempo" styleClass="p-button-sm p-button-rounded mr-2 p-button-help sombra-black hover-help"
+                (click)="showTimeline()"></p-button>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="right">
+        <button pButton pRipple type="button" icon="pi pi-sync" class="p-button-rounded p-button-info p-button-text" (click)="reload()"></button>
+    </ng-template>
+</p-toolbar>
+
+<app-info-ticket-sidebar [idTicket]="idTicket"></app-info-ticket-sidebar>
+<app-modal-timeline-ticket [idTicket]="idTicket" [title]="titleTicket()"></app-modal-timeline-ticket>
+<app-form-ticket-modal (reloadTicketsCard)="reload()"></app-form-ticket-modal>
+<app-modal-graph-gantt></app-modal-graph-gantt>

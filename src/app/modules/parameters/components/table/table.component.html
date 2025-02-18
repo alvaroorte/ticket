@@ -1,0 +1,68 @@
+<p-toolbar>
+    <ng-template pTemplate="left">
+        <h4>Folder:
+            <p-dropdown
+              inputId="folder"
+              [options]="folders"
+              optionLabel="name"
+              [filter]="true"
+              filterBy="name"
+              [showClear]="false"
+              placeholder="Seleccione un folder"
+              optionValue="name"
+              appendTo="body"
+              [(ngModel)]="folderNameSelected"
+              (onChange)="getAll()"
+            />
+        </h4>
+    </ng-template>
+</p-toolbar>
+
+<p-table
+    #dt1
+    [value]="parameters()"
+    [paginator]="true"
+    [rows]="10"
+    [showCurrentPageReport]="true"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} elementos"
+    [rowsPerPageOptions]="optionsPage()"
+    styleClass="p-datatable-sm p-datatable-gridlines"
+    [(first)]="firstPage"
+    [selection]="selectedParameter()"
+    selectionMode="single"
+    dataKey="id"
+    [loading]="loading()"
+    [globalFilterFields]="['folder', 'value', 'icon', 'kind']"
+    (onRowSelect)="onRowSelect($event)"
+    (onRowUnselect)="onRowUnselect()"
+>
+    <ng-template pTemplate="caption">
+        <div class="flex align-items-center">
+            <h3 >Listado de Parámetros</h3>
+            <span class="p-input-icon-left ml-auto">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" (input)="onGlobalFilter(dt1, $event)" placeholder="Buscar en la tabla" />
+            </span>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+        <tr>
+            <th pSortableColumn="folder" >Folder <p-sortIcon field="folder"></p-sortIcon></th>
+            <th pSortableColumn="ranking" >Ranking <p-sortIcon field="ranking"></p-sortIcon></th>
+            <th pSortableColumn="value" >Valor <p-sortIcon field="value"></p-sortIcon></th>
+            <th pSortableColumn="icon" >Icono <p-sortIcon field="icon"></p-sortIcon></th>
+            <th pSortableColumn="color" >color <p-sortIcon field="color"></p-sortIcon></th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-parameter>
+        <tr [pSelectableRow]="parameter" >
+            <td class="capitalize">{{ parameter.folder }}</td>
+            <td>{{ parameter.ranking }}</td>
+            <td>{{ parameter.value }}</td>
+            <td class="text-center"><i [class]="'pi ' + parameter.icon "></i></td>
+            <td><p-badge styleClass="sombra-black w-12" [style]="{'background-color': parameter.color}"></p-badge></td>
+        </tr>
+    </ng-template>
+</p-table>

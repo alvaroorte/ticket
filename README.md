@@ -1,2 +1,2 @@
-# ticket
-Sistema de gestiónde tickets de incidencias
+# clicketFrontEnd
+aplicación de tickets

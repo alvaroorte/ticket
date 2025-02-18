@@ -1,0 +1,18 @@
+<app-stepper 
+    [steps]="steps()" 
+    [indexCurrent]="indexCurrent()" 
+    (changeStep)="changeIndex($event)"/>
+<app-cards-categories 
+    *ngIf="indexCurrent() == 1" 
+    (selectedCategory)="setSelectedCategory($event)"/>
+<app-cards-categories 
+    *ngIf="indexCurrent() == 2" 
+    (selectedSubcategory)="setSelectedSubcategory($event)" 
+    [numberColumns]="numberColumns" 
+    [category]="category" 
+    [enterprise]="enterprise"/>
+<app-form-ticket-common 
+    *ngIf="indexCurrent() == 3" 
+    (saveTicket)="createTicket($event)" 
+    [showUploadFile]="showUploadFile" 
+    [domain]="category().folder!"/>

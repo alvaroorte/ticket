@@ -1,0 +1,57 @@
+<p-table
+    #tbOnDemand
+    [value]="tickets()"
+    [paginator]="true"
+    [(rows)]="rows"
+    [showCurrentPageReport]="true"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} elementos"
+    [rowsPerPageOptions]="optionsPage()"
+    styleClass="p-datatable-sm p-datatable-gridlines"
+    [(first)]="firstPage"
+    selectionMode="single"
+    dataKey="ticketId"
+    [loading]="loading()"
+    (onRowSelect)="onRowSelect($event)"
+    (onRowUnselect)="onRowUnselect()"
+    [lazy]="true"
+    (onLazyLoad)="loadTickets($event)"
+    [totalRecords]="totalRecords"
+>
+    <ng-template pTemplate="caption">
+        <div class="flex align-items-center">
+            <h3 >Listado de Tickets</h3>
+            <span class="p-input-icon-left ml-auto">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" (input)="onGlobalFilter(tbOnDemand, $event)" placeholder="Buscar en la tabla" />
+            </span>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+        <tr>
+            <th pSortableColumn="code" >Código <p-sortIcon field="code"></p-sortIcon></th>
+            <th pSortableColumn="enterprise" >Empresa <p-sortIcon field="enterpriseId.name"></p-sortIcon></th>
+            <th pSortableColumn="title" >Título <p-sortIcon field="title"></p-sortIcon></th>
+            <th pSortableColumn="category" >Categoría <p-sortIcon field="category"></p-sortIcon></th>
+            <th pSortableColumn="applicant" >Usuario <p-sortIcon field="applicant"></p-sortIcon></th>
+            <th pSortableColumn="technical" >Técnico <p-sortIcon field="technical"></p-sortIcon></th>
+            <th pSortableColumn="priority" >Prioridad <p-sortIcon field="priority"></p-sortIcon></th>
+            <th pSortableColumn="created" >Creado <p-sortIcon field="created"></p-sortIcon></th>
+            <th pSortableColumn="status" >Estado <p-sortIcon field="status"></p-sortIcon></th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-ticket>
+        <tr [pSelectableRow]="ticket" >
+            <td>{{ ticket.code }} {{ ticket.number }}</td>
+            <td>{{ ticket.enterprise }}</td>
+            <td>{{ ticket.title }}</td>
+            <td>{{ ticket.category }}</td>
+            <td>{{ ticket.applicant }}</td>
+            <td>{{ ticket.technicalName }}</td>
+            <td>{{ ticket.priority }}</td>
+            <td>{{ ticket.created | formatDate }}</td>
+            <td>{{ ticket.status }}</td>
+        </tr>
+    </ng-template>
+</p-table>

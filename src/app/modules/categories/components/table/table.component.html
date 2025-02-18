@@ -1,0 +1,46 @@
+<p-table
+    #dt1
+    [value]="categories()"
+    [paginator]="true"
+    [rows]="10"
+    [showCurrentPageReport]="true"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} elementos"
+    [rowsPerPageOptions]="optionsPage()"
+    styleClass="p-datatable-sm p-datatable-gridlines"
+    [(first)]="firstPage"
+    [(selection)]="selectedCategory"
+    selectionMode="single"
+    dataKey="id"
+    [loading]="loading()"
+    [globalFilterFields]="['value', 'folder', 'icon']"
+    (onRowSelect)="onRowSelect($event)"
+    (onRowUnselect)="onRowUnselect()"
+>
+    <ng-template pTemplate="caption">
+        <div class="flex align-items-center">
+            <h3 >{{ title }}</h3>
+            <span class="p-input-icon-left ml-auto">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" (input)="onGlobalFilter(dt1, $event)" placeholder="Buscar en la tabla" />
+            </span>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+        <tr>
+            <th pSortableColumn="value" >Categoría <p-sortIcon field="value"></p-sortIcon></th>
+            <th pSortableColumn="icon" >Icono <p-sortIcon field="icon"></p-sortIcon></th>
+            <th pSortableColumn="urlImage" >Url Image <p-sortIcon field="urlImage"></p-sortIcon></th>
+            <th>Estado</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-category>
+        <tr [pSelectableRow]="category" >
+            <td>{{ category.value }}</td>
+            <td class="text-center"><i [class]="'pi ' + category.icon "></i></td>
+            <td>{{ category.urlImage }}</td>
+            <td><p-inputSwitch [(ngModel)]="category.status" (onChange)="switchStatus(category)" /></td>
+        </tr>
+    </ng-template>
+</p-table>

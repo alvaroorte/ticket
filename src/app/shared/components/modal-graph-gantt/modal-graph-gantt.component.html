@@ -1,0 +1,31 @@
+<div class="card">
+    <div class="card flex justify-content-center">
+        <p-dialog
+            [(visible)]="showModalGantt"
+            styleClass="w-full lg:w-8"
+            [contentStyle]="{ 'background': 'rgb(255 255 255 / 55%)', 'backdrop-filter': 'blur(5px)' }"
+            contentStyleClass="p-0 relative"
+            [modal]="true"
+            position="top">
+            <ng-template pTemplate="header">
+                <h3 class="flex-1 text-center capitalize lynch-50">
+                    <i class="font-semibold pi pi-clock mr-1 text-xl"></i> {{title}}
+                </h3>
+            </ng-template>
+            <ng-template pTemplate="content" style="position: relative;">
+                <section class="my-2 mx-4">
+                    <highcharts-chart
+                        *ngIf="chartOptions"
+                        [Highcharts]="Highcharts"
+                        [constructorType]="'ganttChart'"
+                        [options]="chartOptions"
+                        class="p-3 block w-full">
+                    </highcharts-chart>
+                </section>
+            </ng-template>
+            <ng-template pTemplate="footer" class="p-5">
+                    
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>

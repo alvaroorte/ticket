@@ -1,0 +1,30 @@
+
+$lynch-950: #f6f7f9;
+$lynch-900: #eceef2;
+$lynch-800: #d5d9e2;
+$lynch-700: #b1bbc8;
+$lynch-600: #8695aa;
+$lynch-500: #64748b;
+$lynch-400: #526077;
+$lynch-300: #434e61;
+$lynch-200: #3a4252;
+$lynch-100: #343a46;
+$lynch-50: #23272e;
+
+$base-dark: #051121;
+
+$background-primario: $base-dark; 
+$background-secundario: $lynch-200; 
+
+$border-yellow: #ffc505;
+
+.sombra-black {  
+    box-shadow:0 10px 10px 0 rgba(46, 47, 49, 0.24), 0 10px 30px 0 rgba(31, 29, 29, 0.19);
+}
+.sombra-white {  
+    box-shadow: 0px -2px 5px 0 rgb(209 209 209 / 32%), 0px 0px 30px 0 rgb(223 223 223 / 42%);
+}
+
+.sombra-yellow {  
+    box-shadow: 0 10px 10px 0 rgba(105, 88, 28, 0.84), 0 10px 30px 0 rgba(147, 115, 10, 0.29);
+}

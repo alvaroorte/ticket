@@ -1,0 +1,83 @@
+<form [formGroup]="formEnterprise">
+
+    <div class="grid">
+        <div class="col-12">
+            <p-dialog [(visible)]="openModal" styleClass="w-10 md:w-6 lg:w-4" header={{tittleForm}} [modal]="true" class="p-fluid">
+                <ng-template pTemplate="content">
+
+                    <p class="text-center mb-6"><p-badge [value]="'Los campos marcados con * son obligatorios'"></p-badge></p>
+
+                    <div class="form-group field mt-5">
+                        <span class="p-float-label">
+                            <input type="text" pInputText id="code" formControlName="code" class="p-inputtext-sm uppercase mt-1" />
+                            <label htmlFor="code" class="text-lg font-bold text-800"><span class="text-red-500">*</span> Código</label>
+                        </span>
+                        <small class="p-error block mt-2" *ngIf="formEnterprise.controls['code'].touched && formEnterprise.get('code')?.hasError('required')" >El campo Código es obligatorio</small>
+                        <small class="p-error block mt-2" *ngIf="formEnterprise.get('code')?.hasError('pattern')" > {{ messages.deniedCharactersCode }} </small>
+                    </div>
+
+                    <div class="form-group field mt-5">
+                        <span class="p-float-label">
+                            <input type="text" pInputText id="name" formControlName="name" class="p-inputtext-sm capitalize mt-1" />
+                            <label htmlFor="name" class="text-lg font-bold text-800"><span class="text-red-500">*</span> Nombre</label>
+                        </span>
+                        <small class="p-error block mt-2" *ngIf="formEnterprise.controls['name'].touched && formEnterprise.get('name')?.hasError('required')" >El campo Nombre es obligatorio.</small>
+                        <small class="p-error block mt-2" *ngIf="formEnterprise.get('name')?.hasError('pattern')">{{ messages.deniedCharactersName }}</small>
+                        <small class="p-error block mt-2" *ngIf="formEnterprise.get('name')?.hasError('minlength')">{{ messages.requiredMinLength }}</small>
+                        <small class="p-error block mt-2" *ngIf="formEnterprise.get('name')?.hasError('noSpace')">{{ messages.noOnlySpace }}</small>
+                    </div>
+
+                    <div class="form-group field mt-5">
+                        <span class="p-float-label">
+                            <input type="text" pInputText id="domain" formControlName="domain" class="p-inputtext-sm mt-1" />
+                            <label htmlFor="domain" class="text-lg font-bold text-800"><span class="text-red-500">*</span> Dominio</label>
+                        </span>
+                        <small class="p-error block mt-2" *ngIf="formEnterprise.controls['domain'].touched && formEnterprise.get('domain')?.hasError('required')" >El campo Dominio es obligatorio.</small>
+                        <small class="p-error block mt-2" *ngIf="formEnterprise.get('domain')?.hasError('pattern')">{{ messages.deniedCharactersName }}</small>
+                        <small class="p-error block mt-2" *ngIf="formEnterprise.controls['domain'].touched && formEnterprise.get('domain')?.hasError('maxlength')" >El campo Dominio acepta como máximo 20 caracteres.</small>
+
+                    </div>
+
+                    <div class="form-group field mt-5">
+                        <span class="p-float-label">
+                            <p-dropdown
+                                inputId="dedicationTime"
+                                formControlName="dedicationTime"
+                                [options]="dedicationTime()"
+                                optionLabel="value"
+                                optionValue="id"
+                                [filter]="true"
+                                filterBy="value"
+                                styleClass="p-inputtext-sm mt-1 w-full"
+                                placeholder="Tipo de tickets"
+                                appendTo="body">
+                            </p-dropdown>
+                            <label for="dedicationTime" class="text-lg font-bold text-800"><span class="text-red-500">*</span> Tiempo de dedicación</label>
+                        </span>
+                    </div>
+
+                    <div class="form-group field mt-5">
+                        <span class="p-float-label">
+                            <input type="text" pInputText id="urlLogo" formControlName="urlLogo" class="p-inputtext-sm mt-1" />
+                            <label htmlFor="urlLogo" class="text-lg font-bold text-800"><span class="text-red-500">*</span> Url Logo</label>
+                        </span>
+                        <small class="p-error block mt-2" *ngIf="formEnterprise.controls['urlLogo'].touched && formEnterprise.get('urlLogo')?.hasError('required')" >El campo Url logo es obligatorio</small>
+                        <small class="p-error block mt-2" *ngIf="formEnterprise.get('urlLogo')?.hasError('maxlength')" >El campo Url logo supero el limite de caracteres</small>
+                        <small class="p-error block mt-2" *ngIf="formEnterprise.get('urlLogo')?.hasError('noSpace')">{{ messages.noOnlySpace }}</small>
+                    </div>
+
+                </ng-template>
+                <ng-template pTemplate="footer">
+                    <div class="p-2 pb-3">
+                        <input type="hidden" pInputText id="id" formControlName="id"/>
+                        <button  type="button" pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-secondary p-button-rounded mr-2 p-button-sm sombra-black" (click)="hideModal()"></button>
+                        <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-rounded mr-2 sombra-black p-button-sm" (click)="saveEnterprise()"
+                            [loading]="isLoading"
+                            [disabled]="formEnterprise.invalid">
+                        </button>
+                    </div>
+                </ng-template>
+            </p-dialog>
+        </div>
+    </div>
+</form>

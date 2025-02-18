@@ -1,0 +1,50 @@
+<form [formGroup]="formRole">
+
+    <div class="grid">
+        <div class="col-12">
+            <p-dialog [(visible)]="openModal" styleClass="w-10 md:w-6 lg:w-4" header={{tittleForm}} [modal]="true" class="p-fluid">
+                <ng-template pTemplate="content">
+                    
+                    <p class="text-center mb-6"><p-badge [value]="'Los campos marcados con * son obligatorios'"></p-badge></p>
+                   
+                    <div class="form-group field mt-6">
+                        <span class="p-float-label">
+                            <input type="text" pInputText id="code" formControlName="code" class="p-inputtext-sm mt-1" />
+                            <label htmlFor="code" class="text-lg font-bold text-800"><span class="text-red-500">*</span> Código</label>
+                        </span>
+                        <small class="p-error block mt-2" *ngIf="formRole.controls['code'].touched && formRole.get('code')?.hasError('required')" >El campo Código es obligatorio</small>
+                        <small class="p-error block mt-2" *ngIf="formRole.get('code')?.hasError('pattern')">{{ messages.deniedCharactersCode }}</small>
+                        <small class="p-error block mt-2" *ngIf="formRole.get('code')?.hasError('minlength')">{{ messages.requiredMinLength }}</small>
+                    </div>
+                    
+                    <div class="form-group field mt-6">
+                        <span class="p-float-label">
+                            <input type="text" pInputText id="name" formControlName="name" class="p-inputtext-sm mt-1" />
+                            <label htmlFor="name" class="text-lg font-bold text-800"><span class="text-red-500">*</span> Nombre</label>
+                        </span>
+                        <small class="p-error block mt-2" *ngIf="formRole.controls['name'].touched && formRole.get('name')?.hasError('required')" >El campo Nombre es obligatorio</small>
+                        <small class="p-error block mt-2" *ngIf="formRole.get('name')?.hasError('pattern')">{{ messages.deniedCharactersName }}</small>
+                    </div>
+                    
+                    <div class="form-group field mt-6">
+                        <span class="p-float-label">
+                            <input type="text" pInputText id="description" formControlName="description" class="p-inputtext-sm mt-1" />
+                            <label htmlFor="description" class="text-lg font-bold text-800"><span class="text-red-500">*</span> Descripción</label>
+                        </span>
+                        <small class="p-error block mt-2" *ngIf="formRole.controls['description'].touched && formRole.get('description')?.hasError('required')" >El campo Descripción es obligatorio</small>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="footer">
+                    <div class="p-2 pb-3">
+                        <input type="hidden" pInputText id="id" formControlName="id"/>
+                        <button type="button" pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-secondary p-button-rounded mr-2 p-button-sm sombra-black" (click)="hideModal()"></button>
+                        <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-rounded mr-2 sombra-black p-button-sm" (click)="saveRole()"
+                            [loading]="isLoading"
+                            [disabled]="formRole.invalid">
+                        </button>
+                    </div>
+                </ng-template>
+            </p-dialog>
+        </div>
+    </div>
+</form>

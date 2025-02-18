@@ -1,0 +1,23 @@
+<div class="grid mt-3 justify-content-center">
+    <ng-container *ngIf="categories().length > 0; else elseBlock">
+        <div *ngFor="let category of categories(); let i = index;"  [class]="classMain">
+            <article class="card cursor-pointer" (click)="setSelectedCategory(category)">
+                <img *ngIf="!category.urlImage" class="image" src="/assets/images/endeSyc.png" alt="Imagen no encontrada" >
+                <img *ngIf="category.urlImage" class="image" [src]="category.urlImage.includes('https')? category.urlImage :'/assets/images/categories/'+ category.urlImage" alt="" >
+                <section class="body w-12">
+                    <h3 [class]="(columnsNumber > 3 )? 'title-sm capitalize':'title uppercase'">{{ category.name }}</h3>
+                </section>
+                <div class="flex justify-content-center ">
+                    <section class="footer-card" [style]="(columnsNumber > 3 )? 'font-size: 0.8rem;':''">
+                        <ng-container *ngIf=" category.service">
+                            <p *ngFor="let subCategory of category.service.split(', ')" > - {{ subCategory }}</p>
+                        </ng-container>
+                    </section>
+                    </div>
+            </article>
+        </div>
+    </ng-container>
+    <ng-template #elseBlock>
+        <h1 class="py-2 lynch-800">Ooops. Usted aun no tiene Categorías asignadas</h1>
+    </ng-template>
+</div>

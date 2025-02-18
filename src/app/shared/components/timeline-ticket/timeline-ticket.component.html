@@ -1,0 +1,38 @@
+
+<section #cardsmessages id="cardsmessages" class="my-2 mx-4 relative">
+    <p-timeline [value]="timelineList" [align]="'alternate'" class="w-full mt-2" >
+        <ng-template pTemplate="marker" let-comment>
+            <span [class]="( comment.correlative % 2 == 0 )? 'border-circle w-2rem h-2rem text-xl shadow-3 flex align-items-center justify-content-center bg-lynch-100 lynch-600': 'border-circle w-2rem h-2rem text-xl shadow-3 flex align-items-center justify-content-center bg-lynch-600 lynch-100'"
+                [pTooltip]="comment.created | formatDateWhitHour: this"
+                [tooltipPosition]="( comment.correlative % 2 == 0 )? 'right': 'left'">
+                <i class="pi pi-calendar"></i>
+            </span>
+        </ng-template>
+        <ng-template pTemplate="content" let-comment>
+            <p-card [styleClass]="( comment.correlative % 2 == 0 )? 'bg-lynch-700 lynch-50 border-1 border-round-2xl mb-2': 'border-round-2xl mb-2'">
+                <ng-template pTemplate="subtitle">
+                    <h4 [class]="( comment.correlative % 2 == 0 )? 'flex justify-content-end lynch-50 mb-2': 'flex justify-content-end lynch-700 mb-2'">  <i class="pi pi-user mr-2"></i> {{ comment.user }} </h4>
+                </ng-template>
+                <p class="text-left" [innerHTML]="comment.comment" > </p>
+                <section *ngIf="comment.fileName" class="card text-center my-2" >
+                        <a  class="{{comment.idStatus + ' grid w-full mt-3 pt-2 p-1 border-round-2xl shadow-2'}}" [href]="serverUrl+ 'media/' + comment.fileName">
+                        <div class="col-3">
+                            <i *ngIf="comment.fileName.includes('docx')" class="pi pi-file-word text-blue-500 text-3xl"></i>
+                            <i *ngIf="comment.fileName.includes('xlsx')" class="pi pi-file-excel text-green-500 text-3xl"></i>
+                            <i *ngIf="comment.fileName.includes('pdf')" class="pi pi-file-pdf text-red-500 text-3xl"></i>
+                            <i *ngIf="comment.fileName.includes('txt')" class="pi pi-file text-gray-500 text-3xl"></i>
+                            <i *ngIf="!comment.fileName.includes('docx') && !comment.fileName.includes('xlsx') && !comment.fileName.includes('pdf') && !comment.fileName.includes('txt')"  class="pi pi-image text-yellow-500 text-3xl"></i>
+                        </div>
+                        <div class="col-9 white-space-nowrap overflow-hidden text-overflow-ellipsis">
+                            {{ comment.fileName!.substring(comment.fileName!.indexOf('-') + 1, comment.fileName!.length) }}
+                        </div>
+                    </a>
+                    </section>
+                <p class="mt-3 flex justify-content-end"> {{ comment.created | formatDateWhitHour }} </p>
+            </p-card>
+        </ng-template>
+    </p-timeline>
+</section>
+<div class="sticky  bottom-0 left-0 w-full">
+    <app-ticket-flow [idTicket]="idTicket()" (eventSendMessageFollow)="reloadTimeline()" ></app-ticket-flow>
+</div>

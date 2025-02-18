@@ -1,0 +1,18 @@
+<p-dropdown inputId="categoryId" [(ngModel)]="userId"
+    [options]="users"
+    optionLabel="name"
+    optionValue="id"
+    [filter]="true"
+    filterBy="name"
+    (onChange)="setUser($event)"
+    styleClass="p-inputtext-sm mt-1"
+    [showClear]="true"
+    appendTo="body"
+    placeholder="Buscar por nombre o apellidos"
+    emptyFilterMessage="No se encontraron coincidencias."
+    emptyMessage="No se encontraron coincidencias."
+    filterPlaceholder="Introduzca un caracter"
+    [virtualScroll]="true"
+    [virtualScrollItemSize]="30">
+</p-dropdown>
+

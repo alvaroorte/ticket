@@ -1,0 +1,61 @@
+<div class="grid">
+    <div *ngIf="teamsByLeader.length < 5" class="col-6 p-0 flex align-items-center">
+        <p-tabMenu [model]="teamsByLeader" [activeItem]="activeTeam" styleClass="background-gray-blured py-2 px-3"></p-tabMenu>
+    </div>
+    <div *ngIf="teamsByLeader.length >= 5" class="flex align-items-center justify-content-center background-gray-blured p-2">
+        <label for="teamsByLeader" class="lynch-800 pr-3"><h4>Equipo:</h4></label>
+        <div class="search-border-bottom border-2 border-round-xl p-2">
+            <p-dropdown inputId="teamsByLeader" [options]="teamsByLeader" [(ngModel)]="idTeam" (onChange)="changeTeam($event.value)" optionLabel="label" optionValue="id" styleClass="input-search" appendTo="body" [showClear]="false" placeholder="Equipo"></p-dropdown>
+        </div>
+    </div>
+    <div class="flex-grow-1">
+        <div class="flex flex-wrap justify-content-end gap-2">
+            <div class="flex align-items-center justify-content-center background-gray-blured p-2 shadow-2">
+                <div class="search-border-bottom">
+                    <input type="text" class="input-search pl-2" placeholder="Buscar..." (keyup)="filterCategories($event)">
+                    <i class="pi pi-search"></i>
+                </div>
+                <div class="refresh-card" pTooltip="Refrescar Datos" tooltipPosition="left">
+                    <i class="pi pi-sync text-xl cursor-pointer" (click)="getTcketsByTeam()" ></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid my-2">
+    <div class="col-12 background-gray-blured">
+        <div class="card flex flex-wrap gap-3 justify-content-center ">
+            <div *ngFor="let technical of membersByTeam(); let i = index" class="p-2 border-round-2xl w-22rem h-full sombra-black bg-transparent" pDroppable (onDrop)="drop(technical.id!)">
+                <h4 class="text-center border-round-xl shadow-2 bg-lynch-800 lynch-50 mb-2 p-2"> <i class="pi pi-user mr-2"></i> {{ technical.member }} </h4>
+                <ul class="list-none flex flex-column gap-2 p-0 m-0" >
+                    <li *ngFor="let ticket of ticketsByTechnical()[i]" class="py-2" pDraggable (onDragStart)="dragStart(ticket)" style="font-size: 0.8rem;">
+                        <app-card [ticket]="ticket" (eventOpenModalTimeline)="openModalTimeline($event, ticket.title)" (eventOpenModalInfo)="openModalInfo($event)" ></app-card>
+                    </li>
+                    <li *ngIf="ticketsByTechnical()[i].length == 0 "> 
+                        <article class="ticket-card shadow-3 bg-lynch-100 text-center p-2 text-lg fadeinup animation-duration-400"> Aun sin Tickets. </article>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<app-modal-timeline-ticket [idTicket]="idTicket" [title]="titleTicket()"></app-modal-timeline-ticket>
+<app-info-ticket-sidebar [idTicket]="idTicket"></app-info-ticket-sidebar>
+<app-form-ticket-modal (reloadTicketsCard)="getTcketsByTeam(true)"></app-form-ticket-modal>
+<app-modal-graph-gantt></app-modal-graph-gantt>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

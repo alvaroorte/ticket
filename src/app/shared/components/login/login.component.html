@@ -1,0 +1,37 @@
+<form [formGroup]="formLogin" (ngSubmit)="submitLogin()">
+
+    <div class="grid">
+        <div class="col-12">
+            <p-dialog [(visible)]="openModal" header="¿Quién anda ahí?" styleClass="w-12 md:w-6 lg:w-3" [modal]="true" class="p-fluid">
+                <ng-template pTemplate="content">
+                
+                    <div class="form-group field mt-2 fadeinup animation-duration-500">
+                        <span class="p-float-label pt-2">
+                            <input type="text" pInputText id="email" formControlName="email" class="p-inputtext-sm" />
+                            <label htmlFor="email" class="text-lg font-bold lynch-600"><span class="text-red-500">*</span> Correo</label>
+                        </span>
+                        <small class="p-error block mt-2" *ngIf="formLogin.controls['email'].touched && formLogin.get('email')?.hasError('required')" >El campo Correo es obligatorio</small>
+                        <small class="p-error block mt-2" *ngIf="formLogin.get('email')?.hasError('email')" >El Correo ingresado no es válido</small>
+                    </div>
+                    
+                    <div class="form-group field mt-5 fadeinup animation-duration-500">
+                        <span class="p-float-label pt-2">
+                            <p-password id="password" formControlName="password" class="p-inputtext-sm" [toggleMask]="true" [feedback]="false"></p-password>
+                            <label htmlFor="password" class="text-lg font-bold lynch-600"><span class="text-red-500">*</span> Contraseña</label>
+                        </span>
+                        <small class="p-error block mt-2" *ngIf="formLogin.controls['password'].touched && formLogin.get('password')?.hasError('required')" >El campo Contraseña es obligatorio</small>
+                    </div>
+                    
+                </ng-template>
+                <ng-template pTemplate="footer">
+                    <div class="p-2 pb-3">
+                        <button type="button" pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-secondary p-button-rounded mr-2 p-button-sm sombra-black hover-secondary" (click)="hideModal()"></button>
+                        <button type="submit" pButton pRipple label="Ingresar" icon="pi pi-sign-in" class="p-button-warning p-button-rounded mr-2 sombra-black p-button-sm hover-warning" 
+                            [disabled]="formLogin.invalid">
+                        </button>
+                    </div>
+                </ng-template>
+            </p-dialog>
+        </div>
+    </div>
+</form>

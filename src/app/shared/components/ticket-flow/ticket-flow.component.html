@@ -1,0 +1,32 @@
+<p-accordion class="w-full" [activeIndex]="activeIndex" (activeIndexChange)="stateAcordion($event)" >
+    <p-accordionTab contentStyleClass="bg-lynch-200">
+        <ng-template pTemplate="header">
+            <div class="flex align-items-center">
+                <i class="pi pi-send mr-2"></i>
+                <span class="vertical-align-middle">Enviar Mensaje</span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="content">
+                <p-splitter *ngIf="activeIndex == 0 " styleClass="mb-5" [panelSizes]="[65, 35]">
+                    <ng-template pTemplate>
+                        <div class="px-3 col flex align-items-center justify-content-center">
+                            <p-editor [(ngModel)]="description" [style]="{'height':'200px', 'max-width': '35vw'}" styleClass="h-full" ></p-editor>
+                        </div>
+                    </ng-template>
+                    <ng-template pTemplate>
+                        <div class="col flex align-items-center justify-content-center">
+                            <div class="col-12">
+                                <app-input-file (archivoUploaded)="cargarArchivo($event)" [showLabel]="false"></app-input-file>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-splitter>
+                <div class="flex justify-content-center">
+                    <button pButton pRipple label="Enviar mensaje" icon="pi pi-check" class="hover-warning p-button-rounded mr-2 sombra-black p-button-warning p-button-sm" (click)="createTicketFlow()"
+                        [loading]="isLoading()"
+                        [disabled]="(description != null && description.length <= 0)">
+                    </button>
+                </div>
+        </ng-template>
+    </p-accordionTab>
+</p-accordion>

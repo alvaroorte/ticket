@@ -1,0 +1,39 @@
+
+<div class="grid">
+    <div class="col-6">
+        <div *ngIf="havePermissions" class="flex flex-row flex-wrap">
+            <div class="flex align-items-center justify-content-center background-gray-blured p-2">
+                <label for="enterprise" class="lynch-800 pr-3"><h4>Empresa:</h4></label>
+                <div class="search-border-bottom">
+                    <p-dropdown 
+                        inputId="enterprise"
+                        [options]="enterprises" 
+                        [(ngModel)]="enterpriseSelected" 
+                        (onChange)="getCategoriesByEnterprise()" 
+                        optionLabel="name" 
+                        styleClass="input-search w-full" 
+                        appendTo="body"
+                        placeholder="Empresas..."
+                    />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="flex flex-row-reverse flex-wrap">
+            <div class="flex align-items-center justify-content-center background-gray-blured p-2 shadow-2">
+                <div class="search-border-bottom">
+                    <input type="text" class="input-search pl-2" placeholder="Buscar..." (keyup)="filterCategories($event)">
+                    <i class="pi pi-search"></i>
+                </div>
+                <div class="refresh-card" pTooltip="Refrescar Datos" tooltipPosition="left">
+                    <i class="pi pi-sync text-xl cursor-pointer" (click)="getData()" ></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="background-gray-blured">
+    <app-card-category [categories]="categories" [columnsNumber]="numberColumns()" (selectedCategory)="setSelectedCategory($event)" class="mb-5"></app-card-category>
+</div>

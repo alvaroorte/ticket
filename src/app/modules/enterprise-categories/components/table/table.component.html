@@ -1,0 +1,47 @@
+<p-table
+    #dt1
+    [value]="enterpriseCategories()"
+    [paginator]="true"
+    [rows]="rows"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} elementos"
+    [rowsPerPageOptions]="optionsPage()"
+    styleClass="p-datatable-sm p-datatable-gridlines"
+    [(first)]="firstPage"
+    selectionMode="single"
+    [selection]="selectedEnterpriseCategories()"
+    dataKey="id"
+    [loading]="loading()"
+    [globalFilterFields]="['category', 'team', 'leader']"
+    (onRowSelect)="onRowSelect($event)"
+    (onRowUnselect)="onRowUnselect()"
+>
+    <ng-template pTemplate="caption">
+        <div class="flex align-items-center">
+            <h3 >Listado de Categorías</h3>
+            <span class="p-input-icon-left ml-auto">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" (input)="onGlobalFilter(dt1, $event)" placeholder="Buscar en la tabla" />
+            </span>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+        <tr>
+            <th pSortableColumn="categoria" >Categoría <p-sortIcon field="categoria"></p-sortIcon></th>
+            <th pSortableColumn="subCategory" >Subcategoría <p-sortIcon field="subCategory"></p-sortIcon></th>
+            <th pSortableColumn="equipo" >Equipo <p-sortIcon field="equipo"></p-sortIcon></th>
+            <th pSortableColumn="lider" >Lider <p-sortIcon field="lider"></p-sortIcon></th>
+            <th>Público</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-enterpriseCategory>
+        <tr [pSelectableRow]="enterpriseCategory">
+            <td>{{ enterpriseCategory.category }}</td>
+            <td>{{ enterpriseCategory.subCategory }}</td>
+            <td>{{ enterpriseCategory.teamName }}</td>
+            <td>{{ enterpriseCategory.leader }}</td>
+            <td class="text-center"><p-inputSwitch [(ngModel)]="enterpriseCategory.isPublic" (onChange)="switchStatus(enterpriseCategory)" /></td>
+        </tr>
+    </ng-template>
+</p-table>

@@ -1,0 +1,146 @@
+stages:
+  - build
+  - deploy_dev
+  - build_test
+  - deploy_test
+  - build_qa
+  - deploy_qa
+  - build_prod
+  - deploy_prod
+  - rollback
+
+variables:
+  GITLAB_REGISTRY: registrycbbadev.et.bo
+  PROJECT_NAME: clicket-frontend
+  DOCKER_IMAGE_BASE: $GITLAB_REGISTRY/clicket/$PROJECT_NAME
+  DOCKER_COMPOSE_PATH: /opt/volumenes-nfs/et-clicket-test/docker-composes/frontend
+  DOCKER_COMPOSE_DEV_PATH: /opt/dockers/et-clicket-dev/docker-composes
+  REMOTE_TEST_QA_HOST: root@10.240.74.20
+  REMOTE_DEV_HOST: root@10.240.74.12
+  PRODUCTION_VERSION: $PRODUCTION_VERSION
+  PREVIOUS_VERSION: $PREVIOUS_VERSION
+  # CI_DEBUG_TRACE: "true"
+
+build:
+  stage: build
+  tags:
+    - clicket-runner-test
+  script:
+    - |
+      docker build -f Dockerfile.dev -t $DOCKER_IMAGE_BASE:dev .
+      docker push $DOCKER_IMAGE_BASE:dev
+  only:
+    - develop
+
+deploy_dev:
+  stage: deploy_dev
+  tags:
+    - runner-clicket-dev
+  script:
+    - |
+      docker stop $PROJECT_NAME || true
+      docker rm $PROJECT_NAME || true
+      docker rmi $DOCKER_IMAGE_BASE:dev || true
+
+      echo "Desplegando servicio con Docker Compose..."
+      docker compose -f docker-compose.dev.yml up -d
+  only:
+    - develop
+
+build_test:
+  stage: build_test
+  tags:
+    - clicket-runner-test
+  script:
+    - |
+      if [ $(docker images $DOCKER_IMAGE_BASE:test -q )]; then
+        echo "La imagen TEST existe y se eliminará..."
+        docker rmi $DOCKER_IMAGE_BASE:test
+      fi
+      echo "GENERANDO IMAGEN :TEST para $DOCKER_IMAGE_BASE ..."
+      docker image tag $DOCKER_IMAGE_BASE:dev $DOCKER_IMAGE_BASE:test
+      docker build -f Dockerfile.test -t $DOCKER_IMAGE_BASE:test .
+      docker push $DOCKER_IMAGE_BASE:test
+  only:
+    - test
+
+deploy_test:
+  stage: deploy_test
+  tags:
+    -  clicket-runner-test
+  script:
+    - echo "DESPLIEGUE FINAL EN AMBIENTE TEST..."
+    - scp -p docker-compose.test.yml root@10.240.74.20:/opt/volumenes-nfs/et-clicket-test/docker-composes/frontend
+    - ssh root@10.240.74.20 'docker stack deploy -c /opt/volumenes-nfs/et-clicket-test/docker-composes/frontend/docker-compose.test.yml --with-registry-auth et-clicket-test'
+  only:
+    - test
+
+build_qa:
+  stage: build_qa
+  tags:
+    - clicket-runner-test
+  script:
+    - |
+      if [ $(docker images $DOCKER_IMAGE_BASE:qa -q )]; then
+        echo "La imagen QA existe y se eliminará..."
+        docker rmi $DOCKER_IMAGE_BASE:qa
+      fi
+      echo "GENERANDO IMAGEN :QA para $DOCKER_IMAGE_BASE ..."
+      docker image tag $DOCKER_IMAGE_BASE:dev $DOCKER_IMAGE_BASE:qa
+      docker build -f Dockerfile.qa -t $DOCKER_IMAGE_BASE:qa .
+      docker push $DOCKER_IMAGE_BASE:qa
+  only:
+    - test
+
+deploy_qa:
+  stage: deploy_qa
+  tags:
+    -  clicket-runner-test
+  script:
+    - echo "DESPLIEGUE FINAL EN AMBIENTE QA..."
+    - scp -p docker-compose.qa.yml root@10.240.74.20:/opt/volumenes-nfs/et-clicket-qa/docker-composes/frontend
+    - ssh root@10.240.74.20 'docker stack deploy -c /opt/volumenes-nfs/et-clicket-qa/docker-composes/frontend/docker-compose.qa.yml --with-registry-auth et-clicket-qa'
+  only:
+    - test
+
+build_prod:
+  stage: build_prod
+  tags:
+    - runner-production-ticket-cbba
+  script:
+    - |
+      if [ $(docker images $DOCKER_IMAGE_BASE:$PRODUCTION_VERSION) ]; then
+        docker rmi $DOCKER_IMAGE_BASE:$PRODUCTION_VERSION
+      fi
+      echo "PROD VERSION IS: $PRODUCTION_VERSION "
+
+      docker build -f Dockerfile.prod -t $DOCKER_IMAGE_BASE:latest .
+      docker build -f Dockerfile.prod -t $DOCKER_IMAGE_BASE:$PRODUCTION_VERSION .
+
+      docker push $DOCKER_IMAGE_BASE:latest
+      docker push $DOCKER_IMAGE_BASE:$PRODUCTION_VERSION
+  only:
+    - master
+
+deploy_prod:
+  stage: deploy_prod
+  tags:
+    - runner-production-ticket-cbba
+  script:
+    - |
+      export TAG_IMAGE=latest
+      docker stack deploy -c docker-compose.prod.yml --with-registry-auth et-clicket-production
+  only:
+    - master
+
+rollback:
+  stage: rollback
+  tags:
+    - runner-production-ticket-cbba
+  script:
+    - |
+      export TAG_IMAGE=$PREVIOUS_VERSION
+      docker stack deploy -c docker-compose.prod.yml --with-registry-auth et-clicket-production
+  when: on_failure
+  only:
+    - master

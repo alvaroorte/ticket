@@ -1,0 +1,89 @@
+<form [formGroup]="formTicket">
+
+    <div class="grid">
+        <div class="col-12">
+            <p-dialog [(visible)]="openModal" styleClass="w-10 md:w-6 lg:w-4" [header]="tittleForm()" [modal]="true" class="p-fluid">
+                <ng-template pTemplate="content">
+                    
+                    <p class="text-center mb-6"><p-badge [value]="'Los campos marcados con * son obligatorios'"></p-badge></p>
+                    
+                    <div class="form-group field mt-6">
+                        <span class="p-float-label">
+                            <input type="text" pInputText id="description" [(ngModel)]="ticketSend().title" formControlName="title" class="p-inputtext-sm capitalize mt-1" />
+                            <label htmlFor="title" class="text-lg font-bold text-800 text-800"><span class="text-red-500">*</span> Título</label>
+                        </span>
+                        <small class="p-error block mt-2" *ngIf="formTicket.controls['title'].touched && formTicket.get('title')?.hasError('required')" >El campo Nombre es obligatorio</small>
+                        <small class="p-error block mt-2" *ngIf=" formTicket.get('title')?.hasError('minlength')">El campo Nombre debe tener 5 caracteres como mínimo</small>
+                    </div>
+                    
+                    <div class="form-group field mt-6">
+                        <label class="text-lg font-bold text-800 text-800"><span class="text-red-500">*</span> Detalle</label>
+                        <p-editor id="description" [(ngModel)]="ticketSend().description" formControlName="description" [style]="{ height: '220px' }"></p-editor>
+                        
+                        <small class="p-error block mt-2" *ngIf="formTicket.controls['description'].touched && formTicket.get('description')?.hasError('required')" >El campo Detalle es obligatorio</small>
+                    </div>
+                    
+                    <div class="form-group field mt-6">
+                        <span class="p-float-label">
+                            <p-dropdown inputId="categoryId" [(ngModel)]="ticketSend().categoryId" formControlName="categoryId" [options]="categories()"  optionLabel="value" optionValue="id" [filter]="true" filterBy="value" (onChange)="getSubCategories($event.value)" styleClass="p-inputtext-sm mt-1" [showClear]="true" placeholder="Categoría">
+                                <ng-template pTemplate="selectedFolder">
+                                    <div class="flex align-items-center gap-2" *ngIf="ticketSend().categoryId">
+                                        <div>{{ ticketSend().categoryId }}</div>
+                                    </div>
+                                </ng-template>
+                                <ng-template let-category pTemplate="category">
+                                    <div class="flex align-items-center gap-2">
+                                        <div>{{ category.value }}</div>
+                                    </div>
+                                </ng-template>
+                            </p-dropdown>
+                            <label for="categoryId" class="text-lg font-bold text-800"><span class="text-red-500">*</span> Categoría</label>
+                        </span>
+                    </div>
+                    
+                    <div class="form-group field mt-6">
+                        <span class="p-float-label">
+                            <p-dropdown inputId="subCategoryId" [(ngModel)]="ticketSend().subCategoryId" formControlName="subCategoryId" [options]="subCategories()"  optionLabel="name" optionValue="id" [filter]="true" filterBy="name" styleClass="p-inputtext-sm mt-1" [showClear]="true" placeholder="Subcategoría">
+                                <ng-template pTemplate="selectedFolder">
+                                    <div class="flex align-items-center gap-2" *ngIf="ticketSend().subCategoryId">
+                                        <div>{{ ticketSend().subCategoryId }}</div>
+                                    </div>
+                                </ng-template>
+                                <ng-template let-subCategory pTemplate="subCategory">
+                                    <div class="flex align-items-center gap-2">
+                                        <div>{{ subCategory.name }}</div>
+                                    </div>
+                                </ng-template>
+                            </p-dropdown>
+                            <label for="subCategoryId" class="text-lg font-bold text-800"><span class="text-red-500">*</span> SubcCategoría</label>
+                        </span>
+                    </div>
+
+                    <div class="form-group field mt-4 px-4">
+                        <label htmlFor="image" class="text-lg font-bold text-800 mb-2"> Imagen</label>
+                        <div class="">
+                            <p-fileUpload (onSelect)="cargarArchivo($event)" (onRemove)="cargarArchivo($event)" [multiple]="false" accept="image/*" [maxFileSize]="1000000" chooseLabel="Subir Imagen" [showUploadButton]="false" [showCancelButton]="false" chooseStyleClass="p-button-sm">
+                                <ng-template pTemplate="content">
+                                    <ul *ngIf="uploadedImage().length">
+                                        <li *ngFor="let file of uploadedImage()">{{ file.name }} - {{ file.size }} bytes</li>
+                                    </ul>
+                                </ng-template>
+                            </p-fileUpload>
+                        </div>
+                    </div>
+                    
+                </ng-template>
+                <ng-template pTemplate="footer">
+                    <div class="p-2 pb-3">
+                        <input type="hidden" pInputText id="id" [(ngModel)]="ticketSend().id" formControlName="id"/>
+                        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-secondary p-button-rounded mr-2 p-button-sm sombra-black" (click)="hideModal()"></button>
+                        <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-rounded mr-2 sombra-black p-button-sm" (click)="saveTicket()"
+                            [loading]="isLoading()"
+                            [disabled]="formTicket.invalid">
+                        </button>
+                    </div>
+                </ng-template>
+            </p-dialog>
+        </div>
+    </div>
+</form>

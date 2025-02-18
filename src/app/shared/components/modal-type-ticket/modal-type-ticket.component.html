@@ -1,0 +1,39 @@
+<form [formGroup]="formTicket" (ngSubmit)="submitForm()">
+
+    <div class="grid">
+        <div class="col-12">
+            <p-dialog [(visible)]="openModal" header="Seleccione un tipo de ticket" styleClass="w-10 md:w-6 lg:w-4" [modal]="true" class="p-fluid">
+                <ng-template pTemplate="content">
+                
+                    <div class="form-group field mt-2 fadeinup animation-duration-500">
+                        <span class="p-float-label">
+                            <p-dropdown 
+                                inputId="typeTicket" 
+                                formControlName="typeTicket" 
+                                [options]="typeTickets()"  
+                                optionLabel="value" 
+                                optionValue="value" 
+                                [filter]="true" 
+                                filterBy="value" 
+                                styleClass="p-inputtext-sm mt-1 w-full" 
+                                placeholder="Tipo de tickets"
+                                appendTo="body">
+                            </p-dropdown>
+                            <label for="typeTicket" class="text-lg font-bold text-800"> Tipo de tickets</label>
+                        </span>
+                    </div>
+                    
+                </ng-template>
+                <ng-template pTemplate="footer">
+                    <div class="p-2 pb-3">
+                        <button type="button" pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-secondary p-button-rounded mr-2 p-button-sm sombra-black hover-secondary" (click)="hideModal()"></button>
+                        <button type="submit" pButton pRipple label="Enviar" icon="pi pi-check" class="p-button-warning p-button-rounded mr-2 sombra-black p-button-sm hover-warning" 
+                            [loading]="isLoading"
+                            [disabled]="formTicket.invalid">
+                        </button>
+                    </div>
+                </ng-template>
+            </p-dialog>
+        </div>
+    </div>
+</form>

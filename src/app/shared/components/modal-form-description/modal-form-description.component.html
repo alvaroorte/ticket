@@ -1,0 +1,172 @@
+<form [formGroup]="formDescription">
+
+    <div class="grid">
+        <div class="col-12">
+            <p-dialog [(visible)]="openModal"
+                [header]="title()"
+                [style]="{ height:'90vh' }"
+                styleClass="w-10 lg:w-7"
+                [modal]="true"
+                class="p-fluid"
+                [closable]="false"
+                >
+                <ng-template pTemplate="content">
+                    <div *ngIf="openModal" class="grid">
+                        <div *ngIf="selector().prioridad && selector().prioridad!.length > 0" class="form-group field mt-3 col-12 lg:col-4">
+                            <span class="p-float-label">
+                                <p-dropdown
+                                    inputId="folder"
+                                    formControlName="priority"
+                                    [options]="selector().prioridad!"
+                                    optionLabel="name"
+                                    optionValue="name"
+                                    [filter]="false"
+                                    filterBy="name"
+                                    styleClass="p-inputtext-sm mt-1"
+                                    [showClear]="true"
+                                    placeholder="Seleccione una opción">
+                                    <ng-template let-prioridad pTemplate="item">
+                                        <div class="flex align-items-center gap-2">
+                                            <div>{{ prioridad.name }}</div>
+                                        </div>
+                                    </ng-template>
+                                </p-dropdown>
+                                <label for="folder" class="text-lg font-bold text-800"><span class="text-red-500">*</span> Prioridad</label>
+                            </span>
+                        </div>
+
+                        <div *ngIf="selector().causaincidente && selector().causaincidente!.length > 0" class="form-group field mt-3 col-12 lg:col-4">
+                            <span class="p-float-label">
+                                <p-dropdown
+                                    inputId="folder"
+                                    formControlName="causeIncident"
+                                    [options]="selector().causaincidente!"
+                                    optionLabel="name"
+                                    optionValue="name"
+                                    [filter]="false"
+                                    filterBy="name"
+                                    styleClass="p-inputtext-sm mt-1"
+                                    [showClear]="true"
+                                    placeholder="Seleccione una opción">
+                                    <ng-template let-causa pTemplate="item">
+                                        <div class="flex align-items-center gap-2">
+                                            <div>{{ causa.name }}</div>
+                                        </div>
+                                    </ng-template>
+                                </p-dropdown>
+                                <label for="folder" class="text-lg font-bold text-800"><span class="text-red-500">*</span> Causa del Incidente</label>
+                            </span>
+                        </div>
+
+                        <div *ngIf="selector().calidaddeservicio && selector().calidaddeservicio!.length > 0" class="form-group field mt-3 col-12">
+                                <label for="folder" class="text-lg font-bold text-800">
+                                    <span class="text-red-500 mr-2">*</span>
+                                    <span class="mr-3">Calidad de atención:</span>
+                                    <p-rating
+                                        formControlName="qualityService"
+                                        [stars]="selector().calidaddeservicio!.length"
+                                        [cancel]="false"
+                                        styleClass="inline">
+                                    </p-rating>
+                                    <span class="font-semibold ml-3">{{ (selector().calidaddeservicio && formDescription.value.qualityService) ? selector().calidaddeservicio![formDescription.value.qualityService-1].name: '' }}</span>
+                                </label>
+                        </div>
+
+                        <div *ngIf="selector().impacto && selector().impacto!.length > 0" class="form-group field mt-3 col-12 lg:col-4">
+                            <span class="p-float-label">
+                                <p-dropdown
+                                    inputId="folder"
+                                    formControlName="impact"
+                                    [options]="selector().impacto!"
+                                    optionLabel="name"
+                                    optionValue="name"
+                                    [filter]="false"
+                                    filterBy="name"
+                                    styleClass="p-inputtext-sm mt-1"
+                                    [showClear]="true"
+                                    placeholder="Seleccione una opción">
+                                    <ng-template let-impacto pTemplate="item">
+                                        <div class="flex align-items-center gap-2">
+                                            <div>{{ impacto.name }}</div>
+                                        </div>
+                                    </ng-template>
+                                </p-dropdown>
+                                <label for="folder" class="text-lg font-bold text-800"><span class="text-red-500">*</span> Impacto</label>
+                            </span>
+                        </div>
+
+                        <div *ngIf="selector().actividad && selector().actividad!.length > 0" class="form-group field mt-2 col-12 lg:col-4">
+                            <span class="p-float-label">
+                                <p-dropdown
+                                    inputId="folder"
+                                    formControlName="activity"
+                                    [options]="selector().actividad!"
+                                    optionLabel="name"
+                                    optionValue="name"
+                                    [filter]="false"
+                                    filterBy="name"
+                                    styleClass="p-inputtext-sm mt-1"
+                                    [showClear]="true"
+                                    placeholder="Seleccione una opción">
+                                    <ng-template let-actividad pTemplate="item">
+                                        <div class="flex align-items-center gap-2">
+                                            <div>{{ actividad.name }}</div>
+                                        </div>
+                                    </ng-template>
+                                </p-dropdown>
+                                <label for="folder" class="text-lg font-bold text-800"> Actividad</label>
+                            </span>
+                        </div>
+
+                        <div *ngIf="selector().sistema && selector().sistema!.length > 0" class="form-group field mt-2 col-12 lg:col-4">
+                            <span class="p-float-label">
+                                <p-dropdown
+                                    inputId="folder"
+                                    formControlName="system"
+                                    [options]="selector().sistema!"
+                                    optionLabel="name"
+                                    optionValue="name"
+                                    [filter]="false"
+                                    filterBy="name"
+                                    styleClass="p-inputtext-sm mt-1"
+                                    [showClear]="true"
+                                    placeholder="Seleccione una opción">
+                                    <ng-template let-sistema pTemplate="item">
+                                        <div class="flex align-items-center gap-2">
+                                            <div>{{ sistema.name }}</div>
+                                        </div>
+                                    </ng-template>
+                                </p-dropdown>
+                                <label for="folder" class="text-lg font-bold text-800"> Sistema</label>
+                            </span>
+                        </div>
+
+                        <div class="col-12 form-group field mt-1">
+                            <label class="text-lg font-bold lynch-800"><span *ngIf="isRequired" class="text-red-500">*</span> Descripción</label>
+                            <p-editor id="description" (onTextChange)="changeTextValueDescription($event.textValue)" formControlName="description" [style]="{ height: '150px' }"></p-editor>
+                        </div>
+                    </div>
+
+                    <div *ngIf="solutionTemp" class="grid">
+                        <div class="mt-2 col-12 text-center px-8">
+                            <span class="lynch-900 text-lg font-semibold"><i class="pi pi-verified mr-2"></i> Solución propuesta del {{ solutionTemp.closeAt | date: 'dd-MM-yyyy' }} </span>
+                            <div class="col-12 bg-lynch-100 lynch-700 border-round-xl mt-2 p-4 sombra-yellow" [innerHTML]="solutionTemp.description">
+                            </div>
+                        </div>
+                    </div>
+
+                </ng-template>
+
+                <ng-template pTemplate="footer">
+                    <div class="p-2 pb-3">
+                        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-secondary p-button-rounded mr-2 p-button-sm sombra-black hover-secondary" (click)="reset()"></button>
+                        <button pButton pRipple label="Enviar" icon="pi pi-check" class="p-button-warning p-button-rounded mr-2 sombra-black p-button-sm hover-warning" (click)="submitModalDescription()"
+                            [loading]="isLoading"
+                            [disabled]="formDescription.invalid">
+                        </button>
+                    </div>
+                </ng-template>
+            </p-dialog>
+        </div>
+    </div>
+</form>

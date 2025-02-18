@@ -1,0 +1,29 @@
+
+<div class="grid p-2 gap-2 mb-3 justify-content-center align-items-center">
+    <div *ngFor="let item of averageByTypeticket(); let i = index" class="background-gray-blured flex flex-grap p-2 fadeinup animation-ease-in-out animation-duration-500">
+        <p-card styleClass="{{ i % 2 == 0? 'py-0 bg-lynch-800 lynch-50 shadow-3': 'py-0 bg-lynch-50 lynch-800 shadow-3' }}">
+            <div class="grid align-items-center ">
+                <div class="col-12 p-2">
+                    <h2 class="text-center">{{ item.quantity }}</h2>
+                    <h4 class="text-center">{{ item.typeticket }}</h4>
+                </div>
+            </div>
+        </p-card>
+    </div>
+</div>
+<div class="grid background-gray-blured justify-content-center">
+    <ng-container *ngIf="graphics().length > 0; else elseBlock">
+        <div *ngFor="let item of graphics(); let i = index " class="col-4 p-2 fadeinleft animation-ease-in-out" [style]="'animation-duration: ' + i * 400 + 'ms !important;'">
+            <highcharts-chart
+                *ngIf="item"
+                [Highcharts]="Highcharts"
+                [options]="item"
+                style="width: 100%; height: 40vh; display: block;"
+                class="p-3">
+            </highcharts-chart>
+        </div>
+    </ng-container>
+    <ng-template #elseBlock>
+        <h1 class="py-2 lynch-800">Ooops. No existen gráficos para mostrar.</h1>
+    </ng-template>   
+</div>
