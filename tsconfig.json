@@ -3,21 +3,48 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "@category/*": ["src/app/modules/categories/*"],
-      "@team/*": ["src/app/modules/team/*"],
-      "@team-members/*": ["src/app/modules/team-members/*"],
-      "@enterprise/*": ["src/app/modules/enterprises/*"],
-      "@enterpriseCategory/*": ["src/app/modules/enterprise-categories/*"],
-      "@enterpriseCategoryDetail/*": ["src/app/modules/enterprise-category-detail/*"],
-      "@supervisor/*": ["src/app/modules/supervisor/*"],
-      "@supervisorCategory/*": ["src/app/modules/supervisor-categories/*"],
-      "@parameter/*": ["src/app/modules/parameters/*"],
-      "@ticket-historical/*": ["src/app/modules/tickets-historical/*"],
-      "@ticketCard/*": ["src/app/modules/tickets-card/*"],
-      "@core/*": ["src/app/core/*"],
-      "@shared/*": ["src/app/shared/*"],
+      "@category/*": [
+        "src/app/modules/categories/*"
+      ],
+      "@team/*": [
+        "src/app/modules/team/*"
+      ],
+      "@team-members/*": [
+        "src/app/modules/team-members/*"
+      ],
+      "@enterprise/*": [
+        "src/app/modules/enterprises/*"
+      ],
+      "@enterpriseCategory/*": [
+        "src/app/modules/enterprise-categories/*"
+      ],
+      "@enterpriseCategoryDetail/*": [
+        "src/app/modules/enterprise-category-detail/*"
+      ],
+      "@supervisor/*": [
+        "src/app/modules/supervisor/*"
+      ],
+      "@supervisorCategory/*": [
+        "src/app/modules/supervisor-categories/*"
+      ],
+      "@parameter/*": [
+        "src/app/modules/parameters/*"
+      ],
+      "@ticket-historical/*": [
+        "src/app/modules/tickets-historical/*"
+      ],
+      "@ticketCard/*": [
+        "src/app/modules/tickets-card/*"
+      ],
+      "@core/*": [
+        "src/app/core/*"
+      ],
+      "@shared/*": [
+        "src/app/shared/*"
+      ]
     },
     "outDir": "./dist/out-tsc",
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noImplicitOverride": true,
@@ -27,17 +54,12 @@
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
     "declaration": false,
-    "downlevelIteration": true,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",
-    "useDefineForClassFields": false,
-    "lib": [
-      "ES2022",
-      "dom"
-    ]
+    "useDefineForClassFields": false
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

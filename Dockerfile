@@ -1,21 +1,25 @@
-# Utiliza una imagen de Node.js para construir la aplicación Angular
-FROM node:18-alpine
+# Use an official Node.js runtime as a parent image
+FROM node:22-alpine as build-env
 
-# Directorio de trabajo en el contenedor
+# Set the working directory to /app
 WORKDIR /app
 
-# Copia los archivos de configuración de la aplicación
-COPY package.json package-lock.json /app/
+# Copy package.json and package-lock.json to /app
+COPY package*.json ./
 
-# Instala las dependencias y el Angular CLI
-RUN npm install -g @angular/cli
+# Install app dependencies
 RUN npm install
 
-# Copia el resto de los archivos del proyecto
-COPY . /app/
+# Copy app source code to /app
+COPY . .
 
-# Expone el puerto 4200 utilizado por el servidor de desarrollo de Angular
-EXPOSE 4200
+# Build the app for production
+ARG BUILD_ENV=dev
+RUN npm run build:$BUILD_ENV
 
-# Comando para iniciar el servidor de desarrollo de Angular
-CMD ["ng", "serve", "--host", "0.0.0.0", "--poll", "2000"]
+FROM nginx:alpine
+
+COPY --from=build-env /app/dist/ticket/browser /usr/share/nginx/html
+COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 8080
