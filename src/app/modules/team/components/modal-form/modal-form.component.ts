@@ -1,138 +1,124 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HelpersService } from '@core/services/helpers.service';
-import { TeamsService } from '../../services/teams.service';
-import { TeamSend } from '@core/models/Team';
-import { TableComponent } from '../table/table.component';
-import { DataCommon } from '@core/models/FieldsCommons';
-import { limits, regex, messages } from '@core/constants/constants';
+import { TeamService } from '../../services/teams.service';
+import { Team, TeamSend } from '@core/models/Team';
 import { noSpaceValidator } from '@core/validators/noSpaceValidator';
+import { MESSAGES } from '@core/constants/messages';
+import { LIMITS } from '@core/constants/limits';
+import { regex } from '@core/constants/regexs';
+import { LABELS } from '@core/constants/labels';
+import { Severity } from '@core/enums/severity';
+import { MessageRequiredFieldComponent } from '../../../../shared/components/message-required-field/message-required-field.component';
+import { SelectGenericUsersComponent } from '../../../../shared/components/select-generic-users/select-generic-users.component';
+import { MultiSelectGenericUsersComponent } from '../../../../shared/components/multi-select-generic-users/multi-select-generic-users.component';
+import { PrimeModules } from '@shared/prime-components/prime-components.module';
+import { TypeSubmitEnum } from '@core/enums/type-submit';
+import { ICredentialUser } from '@core/interfaces/user.interface';
 
 @Component({
-  selector: 'app-modal-form',
-  templateUrl: './modal-form.component.html'
+    selector: 'app-modal-form',
+    templateUrl: './modal-form.component.html',
+    imports: [ReactiveFormsModule, MessageRequiredFieldComponent, SelectGenericUsersComponent, MultiSelectGenericUsersComponent, PrimeModules]
 })
 export class ModalFormComponent {
 
   private formBuilder = inject(FormBuilder);
   private helpersService = inject(HelpersService);
-  private teamService = inject(TeamsService);
+  private teamService = inject(TeamService);
 
-  messages = messages;
-  teamId: number = 0;
-  openModal: boolean = false;
-  tittleForm: string = "";
-  tableComponent!: TableComponent;
-  isLoading = false;
-  lider = signal<number>(0);
-  liderData = signal(new DataCommon);
+  public readonly messages = MESSAGES;
+  public readonly labels = LABELS;
+  public openModal = false;
+  public titleForm = "";
+  private tableComponent = this.teamService.eventTableComponent;
+  public teamEdited = signal<Team>(null);
+  public teamMembers = signal<ICredentialUser[]>([]);
+  private isEdit = false;
 
   public formTeam: FormGroup = this.formBuilder.group({
     id: [],
-    name: [, [Validators.required, Validators.minLength(limits.minLength), Validators.pattern(regex.fieldName), noSpaceValidator]],
-    credentialLeaderId: [ ],
+    name: [, [Validators.required, Validators.minLength(LIMITS.minLengthFive), Validators.pattern(regex.fieldName), noSpaceValidator]],
+    leaderCredentialId: [, [Validators.required]],
+    technicianCredentialsId: [],
     technicalAutomatic: [],
-    status: []
+    active: [, [Validators.required]]
   });
 
   ngOnInit() {
-    this.teamService.eventFormComponent.emit(this);
-    this.teamService.eventTableComponent.subscribe((tableComponent) => {
-      this.tableComponent = tableComponent;
-    });
+    this.teamService.eventFormComponent.set(this);
   };
 
-  setUser(idUser: number) {
-    this.lider.set(idUser);
+  public setLeader(userId: number) {
+    this.formTeam.patchValue({ leaderCredentialId: userId })
+  }
+  
+  public setTechnicianCredentialsId(ids: number[]) {
+    this.formTeam.patchValue({ technicianCredentialsId: ids })
   }
 
-  hideModal() {
+  public hideModal() {
     this.openModal = false;
-    this.isLoading = false;
   };
 
-  openCreate(){
+  public openCreate() {
+    this.isEdit = false;
     this.reset();
-    this.tittleForm = "Nuevo Equipo";
+    this.titleForm = this.labels.newRegistration("equipo");
     this.openModal = true;
   };
 
-  openEdit(id: number ){
+  public openEdit(id: number ) {
+    this.isEdit = true;
     this.reset();
-    this.tittleForm="Editar Equipo";
+    this.titleForm = this.labels.editRegistration("equipo");
     this.teamService.getById(id).subscribe({
       next: (res) => {
-        this.teamId = res.id!;
-        this.formTeam.patchValue({ name: res.name, technicalAutomatic: res.technicalAutomatic });
-        this.liderData().id = res.credentialLeaderId!.id;
-        this.liderData().name = res.credentialLeaderId!.userAppId!.username;
-        this.openModal=true;
-      },
-      error: (err) => {
-        console.log(err);
-        this.helpersService.messageNotification("error", 'Error', err.message, 3000);
+        this.formTeam.patchValue(res);
+        this.teamEdited.set(res);
+        this.teamMembers.set(res.teamMembers.map(member => ({email: member.technicianCredentialEmail, credentialId: member.technicianCredentialId})));
+        this.openModal = true;
       }
     })
   };
 
-  saveTeam() {
-    this.isLoading = true;
-    if (this.formTeam.valid && this.lider() ) {
-      if ( this.teamId > 0 ) {
-        this.submitUpdate(this.teamId);
-      } else {
-        this.submitCreate();
-      }
-    } else {
-      this.helpersService.messageNotification("warn", "Por Favor", "Seleccione un lider", 3000);
-      this.isLoading = false;
+  public saveTeam() {
+    if (this.formTeam.valid ) {
+      this.isEdit
+        ? this.submit(TypeSubmitEnum.UPDATE)
+        : this.submit(TypeSubmitEnum.CREATE);
     }
   };
 
-  reset(): void {
-    this.liderData.set(new DataCommon);
+  private reset(): void {
+    this.teamEdited.set(null);
+    this.teamMembers.set([]);
     this.formTeam.reset();
-    this.teamId = 0;
-
+    this.formTeam.patchValue({
+      technicalAutomatic: true,
+      active: true
+    });
   };
 
-  submitCreate() {
+  private submit(type: TypeSubmitEnum) {
     const data: TeamSend = {
-      ...this.formTeam.value,
+      ...this.formTeam.value
     };
-    data.credentialLeaderId = this.lider();
-    this.teamService.create(data).subscribe({
-      next: (res) => {
-        this.tableComponent.reload();
-        this.helpersService.messageNotification("success", "Correcto", `El Equipo ${res.name} ha sido creado.`, 3000);
+    const service = type == TypeSubmitEnum.CREATE?
+      this.teamService.create(data)
+      : this.teamService.update(this.teamEdited().id, data);
+    const message: string = type == TypeSubmitEnum.CREATE?
+      this.messages.recordCreated
+      : this.messages.recordUpdated;
+    service.subscribe({
+      next: () => {
+        this.helpersService.messageNotification(Severity.success, "Correcto", message);
         this.hideModal();
         this.reset();
-      },
-      error: (err) => {
-        this.isLoading = false;
-        console.log(err);
-        this.helpersService.messageNotification("error", 'Error', err.message, 3000);
+      }, complete: () => {
+        this.tableComponent().reload();
       }
     })
   };
 
-  submitUpdate(idEnterprise : number) {
-    const data: TeamSend = {
-      ...this.formTeam.value,
-    };
-    data.credentialLeaderId = this.lider();
-    this.teamService.update(idEnterprise, data).subscribe({
-        next: (res) => {
-          this.tableComponent.reload();
-          this.helpersService.messageNotification("success", "Correcto", `El equipo ${res.name} ha sido actualizada.`, 3000);
-          this.hideModal();
-          this.reset();
-        },
-        error: (err) => {
-          console.log(err);
-          this.helpersService.messageNotification("error", 'Error', err.message, 3000);
-          this.isLoading = false;
-        }
-    });
-  }
 }

@@ -1,0 +1,122 @@
+<form [formGroup]="formSla">
+      <p-dialog [focusOnShow]="false" [(visible)]="openModal" styleClass="w-4" [header]="titleForm" [modal]="true" class="p-fluid" appendTo="body">
+        <ng-template pTemplate="content">
+
+          <app-message-required-field />
+
+          <div class="p-fluid mt-3">
+
+            <div class="form-group field mt-5">
+              <p-floatlabel>
+                <p-select inputId="ticketTypeParameterId"
+                  formControlName="ticketTypeParameterId"
+                  [options]="ticketType()"
+                  optionLabel="value"
+                  optionValue="id"
+                  [showClear]="false"
+                  styleClass="w-full"
+                 />
+                <label for="ticketTypeParameterId" class="text-lg font-bold text-800 required-field">
+                  {{ labels.ticketType }}
+                </label>
+              </p-floatlabel>
+              @if (formSla.controls['ticketTypeParameterId'].touched && formSla.get('ticketTypeParameterId')?.hasError('required')) {
+                <small class="p-error block mt-2" >
+                  {{ messages.requiredField }}
+                </small>
+              }
+            </div>
+
+            <div class="form-group field mt-5">
+              <p-floatlabel>
+                <p-select inputId="staffAvailability"
+                  [options]="staffAvailabilities"
+                  appendTo="body"
+                  formControlName="staffAvailability"
+                  styleClass="w-full"
+                  [showClear]="false"
+                 />
+                <label for="staffAvailability" class="text-lg font-bold text-800 required-field">
+                  {{ labels.staffAvailability }}
+                </label>
+              </p-floatlabel>
+              @if (formSla.controls['staffAvailability'].touched && formSla.get('staffAvailability')?.hasError('required')) {
+                <small class="p-error block mt-2" >
+                  {{ messages.requiredField }}
+                </small>
+              }
+            </div>
+
+            <div class="form-group field mt-5">
+              <p-floatlabel>
+                <p-select inputId="ticketPriorityParameterId"
+                  [options]="priorities()"
+                  optionLabel="value"
+                  appendTo="body"
+                  optionValue="id"
+                  formControlName="ticketPriorityParameterId"
+                  styleClass="w-full"
+                  [showClear]="false"
+                 />
+                <label for="ticketPriorityParameterId" class="text-lg font-bold text-800 required-field">
+                  {{ labels.priority }}
+                </label>
+              </p-floatlabel>
+              @if (formSla.controls['ticketPriorityParameterId'].touched && formSla.get('ticketPriorityParameterId')?.hasError('required')) {
+                <small class="p-error block mt-2" >
+                  {{ messages.requiredField }}
+                </small>
+              }
+            </div>
+
+            <div class="form-group field mt-5">
+              <p-floatlabel class="p-floatlabel">
+                <p-inputNumber
+                  id="firstResponseTime"
+                  [useGrouping]="false"
+                  [min]="1"
+                  formControlName="firstResponseTime"
+                  styleClass="w-full"
+                />
+                  <label htmlFor="firstResponseTime" class="text-lg font-bold text-800 required-field">{{ labels.firstResponseTime }} (Hrs.) </label>
+                </p-floatlabel>
+                @if (formSla.controls['firstResponseTime'].touched && formSla.get('firstResponseTime')?.hasError('required')) {
+                  <small class="p-error block mt-2" > {{ messages.requiredField }} </small>
+                }
+                @if (formSla.get('firstResponseTime')?.hasError('min')) {
+                  <small class="p-error block mt-2"> {{ messages.minNumberField(1) }} </small>
+                }
+                @if (formSla.get('firstResponseTime')?.hasError('max')) {
+                  <small class="p-error block mt-2"> {{ messages.maxNumberField(24) }} </small>
+                }
+              </div>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <div class="p-2 pb-3">
+              <button
+                type="button"
+                pButton pRipple
+                [label]="labels.cancel"
+                icon="pi pi-times"
+                severity="secondary"
+                [rounded]="true"
+                size="small"
+                class="mr-2 shadow-3"
+                (click)="hideModal()"
+              ></button>
+              <button
+                type="button"
+                pButton pRipple
+                [label]="labels.save"
+                icon="pi pi-check"
+                [rounded]="true"
+                size="small"
+                class="mr-2 shadow-3 hover-primary"
+                (click)="save()"
+                [disabled]="formSla.invalid"
+              ></button>
+            </div>
+          </ng-template>
+        </p-dialog>
+  </form>

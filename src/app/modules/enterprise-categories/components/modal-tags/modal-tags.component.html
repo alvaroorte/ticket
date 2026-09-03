@@ -1,0 +1,44 @@
+<div class="grid">
+    <div class="col-12">
+        <p-dialog [focusOnShow]="false" [(visible)]="openModal" styleClass="w-4" [header]="tittleForm" [modal]="true" appendTo="body">
+            <ng-template pTemplate="content">
+                <div class="text-center mt-4">
+                    <app-multi-select-generic 
+                        [maxSelectedLabels]="2" 
+                        (eventSelectedIds)="setTagIds($event)" 
+                        [options]="parameterTags"
+                        [selectedIds]="selectedIds"
+                        [label]="labels.tags"
+                        [showListNames]="true"
+                     />
+                </div>                  
+                
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <div class="p-2 pb-3">
+                    <button 
+                        pButton 
+                        pRipple 
+                        [label]="labels.cancel" 
+                        icon="pi pi-times"
+                        severity="secondary"
+                        [rounded]="true"
+                        size="small"
+                        class="mr-2 shadow-3" 
+                        (click)="hideModal()"
+                    ></button>
+                    <button 
+                        pButton 
+                        pRipple 
+                        [label]="labels.save" 
+                        icon="pi pi-check"
+                        [rounded]="true"
+                        size="small"
+                        class="mr-2 shadow-3" 
+                        (click)="saveChanges()"
+                    ></button>
+                </div>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>

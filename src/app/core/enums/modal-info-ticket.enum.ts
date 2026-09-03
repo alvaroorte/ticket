@@ -1,0 +1,8 @@
+export enum AccordionValueEnum  {
+    DESCRIPTION,
+    OBSERVERS,
+    INCIDENT_DATES,
+    ESTIMATED_DATES,
+    ASSOCIATED_TICKETS,
+    SOLUTIONS,
+}

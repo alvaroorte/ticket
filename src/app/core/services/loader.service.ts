@@ -1,17 +1,24 @@
-import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoaderService {
-  isLoading = new Subject<boolean>();
+  public isLoading = signal<boolean>(false);
+  public countIn: number = 0;
+  public countOut: number = 0;
 
-  show(): void {
-    this.isLoading.next(true);
+  public show(): void {
+    this.countIn++;
+    this.isLoading.set(true);
   }
-
-  hide(): void {
-    this.isLoading.next(false);
+  
+  public hide(): void {
+    this.countOut++;
+    if (this.countIn === this.countOut) {
+      this.isLoading.set(false);
+      this.countIn = 0;
+      this.countOut = 0;
+    }
   }
 }

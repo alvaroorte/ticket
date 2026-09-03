@@ -1,32 +1,57 @@
 <div class="container mx-3 mb-0 pb-4">
-    <p-fieldset styleClass="sombra-black">
-        <ng-template pTemplate="header">
-            <div class="flex align-items-center text-primary fadeinleft animation-duration-400">
-                <h2 class="text-white">Empresas <span class="text-sm"> Gestión de empresas</span> </h2>
-            </div>
-        </ng-template>
-            <div class="grid">
-                <div class="col-5 fadeindown animation-duration-400">
-                    <div class="sombra-black border-round-xl p-2 surface-0">
-                        <app-toolbar-common
-                            [serviceGeneric]="enterprisesService" tooltipCreate="Crear Empresa" [object]="object()"/>
-                        <app-form ></app-form>
-                        <app-modal-delete [serviceGeneric]="enterprisesService" [object]="object().id"></app-modal-delete>
-                        <app-table (rowSelected)="setObject($event)" ></app-table>
-                    </div>
-                </div>
-                <div class="col-7 fadeindown animation-duration-400">
-                    <div class="sombra-black border-round-xl p-2 surface-0">
-                        <app-enterprise-categories [enterprise]="object" (changeEnterpriseCategory)="setEnterpriseCategory($event)"></app-enterprise-categories>
-                    </div>
-                </div>
-            </div>
-            <div class="grid">
-                <div class="col-12 fadeindown animation-duration-400 mt-2">
-                    <div class="sombra-black border-round-xl p-2 surface-0">
-                        <app-enterprise-category-detail [enterprise]="object" [enterpriseCategory]="enterpriseCategory"></app-enterprise-category-detail>
-                    </div>
-                </div>
-            </div>
-    </p-fieldset>
+  <p-fieldset styleClass="sombra-black">
+    <ng-template pTemplate="header">
+      <div class="flex align-items-center text-primary fadeinleft animation-duration-400">
+        <h2 class="text-white"> {{ this.labels.enterprises }} <span class="text-sm"> Gestión de empresas</span> </h2>
+      </div>
+    </ng-template>
+    <div class="grid">
+      <div class="col-12 fadeindown animation-duration-400">
+        <div class="sombra-black border-round-xl p-2 surface-0">
+          <app-toolbar-common
+            [serviceGeneric]="enterpriseService" 
+            tooltipCreate="Crear Empresa"
+            [object]="enterpriseSelected()"
+          />
+          <app-form />
+          <app-modal-delete [serviceGeneric]="enterpriseService" [objectId]="enterpriseSelected()?.id" />
+          <app-generic-table [titleTable]="titleTable"
+            [items]="enterprises()"
+            [tableColumnDefinitions]="tableColumnDefinitions"
+            (onSelection)="setObject($event)"
+            (requestData)="getEnterprises()"
+            (selfEmitter)="onTableSelfEmision($event)"
+            [tableProps]="tableProps"
+           />
+        </div>
+      </div>
+    </div>
+
+  </p-fieldset>
+  @if (enterpriseSelected()?.id) {
+    <div class="p-fieldset p-3 sombra-black mt-3 pb-0">
+      <p-selectButton
+        [(ngModel)]="selectedView"
+        [options]="viewOptions()"
+        optionLabel="label"
+        optionValue="value"
+        class="mb-3"
+        styleClass="mr-3 border-round-xl"
+        [unselectable]="true"
+      />
+      @if (selectedView() === enterpriseViewsEnum.CATEGORIES) {
+        <app-enterprise-categories [enterpriseId]="enterpriseSelected().id"/>
+      }
+      @if (selectedView() == enterpriseViewsEnum.BRANCHS) {
+        <app-branch [enterpriseId]="enterpriseSelected().id"/>
+      }
+      @if (selectedView() == enterpriseViewsEnum.SLAS) {
+        <app-sla [enterpriseId]="enterpriseSelected().id"/>
+      }
+      @if (selectedView() == enterpriseViewsEnum.COST_CENTERS) {
+        <app-cost-center [enterpriseId]="enterpriseSelected().id"/>
+      }
+    </div>
+  }
+
 </div>

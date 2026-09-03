@@ -1,0 +1,176 @@
+<p-toolbar>
+  <ng-template pTemplate="left">
+    <h3>{{ titleTable() }}</h3>
+    <ng-content select="[leftToolbarTemplate]"></ng-content>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="mt-1 flex flex-wrap">
+      @if (showMultiselect()) {
+      <p-multiSelect 
+        [options]="columns()"
+        [(ngModel)]="displayedColumns"
+        [placeholder]="messages.selectColumns"
+        (onChange)="onToggleColumns($event)"
+        optionLabel="header"
+        dropdownIcon="pi pi-cog"
+        display="chip"
+        [pTooltip]="messages.selectColumns"
+        tooltipPosition="top"
+        styleClass="mr-3"
+        appendTo="body"
+       />
+      }
+      @if (showInputSearch()) {
+        <p-iconfield class="ml-auto">
+          <p-inputicon class="pi pi-search"/>
+          <input
+            #filter
+            type="text" 
+            pInputText
+            class="mr-2"
+            (input)="onGlobalFilter(tbOnDemand, $event)" 
+            [placeholder]="placeholders.searchInCurrentView"
+            tooltipPosition="top"
+            tooltipPosition="left"
+          />
+        </p-iconfield>
+      }
+
+      @if (showFilterButton()) {
+        <button
+          pButton
+          [rounded]="true"
+          severity="secondary"
+          [text]="true"
+          class="mr-3"
+          icon="pi pi-filter-slash"
+          (click)="clearFilters(tbOnDemand)"
+          [pTooltip]="labels.cleanFilters"
+          tooltipPosition="top"
+        ></button>
+      }
+
+      <button
+        pButton
+        pRipple
+        type="button"
+        icon="pi pi-sync"
+        class="p-button-outlined p-button-secondary"
+        (click)="reload()"
+        [pTooltip]="tooltips.reload"
+        tooltipPosition="top">
+      </button>
+
+    </div>
+  </ng-template>
+</p-toolbar>
+  <p-table
+    #tbOnDemand
+    [value]="dataList()"
+    [sortOrder]="-1"
+    [paginator]="true"
+    [rows]="rows()"
+    [showCurrentPageReport]="true"
+    [tableStyle]="{ 'min-width': '50rem'}"
+    [currentPageReportTemplate]="messages.showingFirstToLastOfItems"
+    [rowsPerPageOptions]="optionsPage()"
+    [(first)]="firstPage"
+    selectionMode="single"
+    dataKey="id"
+    [lazy]="true"
+    (onLazyLoad)="loadItems($event)"
+    [totalRecords]="totalElements()"
+    [resizableColumns]="true"
+    [rowHover]="true"
+    responsiveLayout="scroll"
+    [reorderableColumns]="true"
+    [columns]="displayedColumns()"
+    [(selection)]="rowSelected"
+    (onPage)="onRowUnselect()"
+    (onRowSelect)="onRowSelect()"
+    (onRowUnselect)="onRowUnselect()"
+    >
+    <ng-template pTemplate="header">
+      <tr>
+        @for (column of displayedColumns(); track column.field) {
+          <th
+            pReorderableColumn
+            [pSortableColumn]="column.field"
+            >
+            {{ column.header }}
+            <p-sortIcon [field]="column.field" />
+          </th>
+        }
+      </tr>
+    </ng-template>
+    <ng-template
+      pTemplate="body"
+      let-row
+      rowIndex="rowIndex"
+      >
+      <tr [pSelectableRow]="row" [class]="row.waitingTimeClass">
+        @for (column of displayedColumns(); track column.field) {
+          <td [class]="column.align">
+            @switch (column.columnType) {
+              @case (tableColumnType.NUMBER) {
+                <span>
+                  {{
+                  column.isDecimal
+                  ? (row[column.field] | number : "1.2-2" : "en-US")
+                  : row[column.field]
+                  }}
+                </span>
+              }
+              @case (tableColumnType.TEXT) {
+                <span >
+                  {{ row[column.field] }}
+                </span>
+              }
+              @case (tableColumnType.DATE) {
+                <span>
+                  {{ row[column.field] | date: formatDate }}
+                </span>
+              }
+              @case (tableColumnType.DATETIME) {
+                <span>
+                  {{ row[column.field] | date: formatDateTime }}
+                </span>
+              }
+              @case (tableColumnType.TIME) {
+                <span>
+                  {{ row[column.field] | date: formatTime }}
+                </span>
+              }
+              @case (tableColumnType.BOOLEAN) {
+                <span
+                  [ngClass]="[row[column.field]? 'text-green-500': 'text-red-500']">
+                  {{ row[column.field]? labels.yes: labels.no }}
+                </span>
+              }
+              @case (tableColumnType.ICON) {
+                <h5
+                  [pTooltip]="row.type"
+                  tooltipPosition="top"
+                  [class]="'text-center m-0 block pi ' + row[column.field]"
+                ></h5>
+              }
+              @case (tableColumnType.STATUS) {
+                <div [class]="column.align">
+                  <span
+                    [ngClass]="[row[column.field]? 'text-green-500': 'text-red-500']">
+                    {{ row[column.field]? 'Activo': 'Inactivo' }}
+                  </span>
+                </div>
+              }
+            }
+          </td>
+        }
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="12" class="text-center">{{ messages.emptyMessage }}</td>
+      </tr>
+    </ng-template>
+  </p-table>

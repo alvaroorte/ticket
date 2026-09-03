@@ -1,0 +1,11 @@
+
+<section class="my-2 mx-4 h-full">
+  @if (chartOptions && hoursWithDays().length > 0) {
+    <highcharts-chart [Highcharts]="Highcharts"
+      [constructorType]="'ganttChart'"
+      [options]="chartOptions"
+      class="p-3 block w-full h-full" />
+  } @else {
+    <h2 class="text-center pt-2">No existen días configurados para este horario.</h2>
+  }
+</section>

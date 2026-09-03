@@ -1,0 +1,36 @@
+.store-badge {
+    background-color: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    padding: 0.65rem 1.5rem 0.65rem 1rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+    }
+}
+
+.store-badge-icon {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+
+.store-badge-icon-apple {
+    width: 26px;
+}
+
+.store-badge-label {
+    font-size: 0.7rem;
+    color: #5f6368;
+    letter-spacing: 0.04em;
+    line-height: 1;
+}
+
+.store-badge-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    line-height: 1.25;
+}

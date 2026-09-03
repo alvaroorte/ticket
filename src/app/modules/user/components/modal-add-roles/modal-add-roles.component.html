@@ -1,0 +1,76 @@
+@if (user) {
+  <p-dialog [focusOnShow]="false" [(visible)]="dialog" header="Agregar Rol" [modal]="true" [style]="{ width: '50vw' }"
+    (onHide)="hideDialog()">
+    <div class="card p-fluid card-style">
+      <div class="field grid">
+        <div class="col-6">
+          <h4 class="text-right">{{labels.user}}:</h4>
+        </div>
+        <div class="col-6">
+          <h4>{{ user.username }}</h4>
+        </div>
+      </div>
+      <ng-container>
+        <div class="field">
+          <label class="field grid col-6 mb-2 md:col-4 md:mb-0">
+            Buscar Rol
+          </label>
+          <div class="flex flex-row">
+            <p-multiSelect class="w-full" 
+              appendTo="body" 
+              [(ngModel)]="selectedRoleIds"
+              optionValue="id"
+              [placeholder]="labels.placeholderSelectAOption" 
+              [options]="roles"
+              [filter]="true"
+              optionLabel="name" 
+              (ngModelChange)="onRolesChange()"
+             />
+          </div>
+        </div>
+      </ng-container>
+      @if (selectedRoles.length > 0) {
+        <div class="field grid">
+          <label class="col-6 mb-2 md:col-4 md:mb-0">
+            <strong> {{ labels.role }} </strong>
+          </label>
+        </div>
+        <div>
+          <p-scrollPanel [style]="{ width: '100%', height: '200px' }">
+            @for (chip of selectedRoles; track chip.id) {
+              <p-chip class="custom-chip" styleClass="m-1" [removable]="true"
+                (onRemove)="removeRole(chip.id)">
+                <strong> {{ chip.name }} </strong>
+              </p-chip>
+            }
+          </p-scrollPanel>
+        </div>
+      }
+    </div>
+    <ng-template pTemplate="footer">
+      <div class="p-2 pb-3">
+        <button 
+          type="button" 
+          pButton pRipple 
+          [label]="labels.cancel" 
+          icon="pi pi-times"
+          severity="secondary"
+          [rounded]="true"
+          size="small"
+          class="mr-2 shadow-3" 
+          (click)="hideDialog()"
+        ></button>
+        <button 
+          pButton pRipple 
+          [label]="labels.save" 
+          icon="pi pi-check" 
+          [rounded]="true"
+          size="small"
+          class="mr-2 shadow-3 hover-primary"  
+          (click)="saveRoles()"
+          [disabled]="!thereWereChanges"
+        ></button>
+      </div>
+    </ng-template>
+  </p-dialog>
+}

@@ -39,7 +39,6 @@ export class HttpService<T> {
     } else {
       errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
     }
-    console.error(errorMessage);
     return throwError(() => error);
   }
 }

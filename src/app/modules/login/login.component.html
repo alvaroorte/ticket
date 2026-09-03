@@ -1,0 +1,68 @@
+<form [formGroup]="formLogin" (ngSubmit)="submitLogin()">
+  <div class="grid px-5 mt-8">
+    <div class="col-12 flex flex justify-content-center align-items-start">
+      <img 
+        src="/assets/images/logo_ticket.png" 
+        alt="logo_ticket" 
+        class="width-image-logo animation-logo-ticket animation-iteration-infinite">
+    </div>
+
+    <div class="col-12 flex justify-content-center mt-0 mb-1">
+        <h1 class="title-welcome text-teal-600"> {{ messages.welcomePage }} </h1>
+    </div>
+    <div class="col-12 flex justify-content-center align-items-center zoomi animation-duration-1000">
+      <div class="p-fluid mt-3 background-gray-blured px-5 pt-5 pb-3 w-30rem">
+
+        <div class="form-group field my-3">
+          <p-floatlabel>
+            <input 
+              type="text" 
+              pInputText id="email"
+              formControlName="email" 
+              autocomplete="email" 
+              class="p-inputtext w-full"
+            />
+            <label for="email" class="text-lg font-bold lynch-800 required-field">{{ labels.email }}</label>
+          </p-floatlabel>
+          @if (formLogin.controls['email'].touched && formLogin.get('email')?.hasError('required')) {
+            <small class="p-error block mt-2" >{{ messages.emailIsRequired }}</small>
+          }
+          @if (formLogin.get('email')?.hasError('email')) {
+            <small class="p-error block mt-2" >{{ messages.emailIsInvalid }}</small>
+          }
+        </div>
+
+        <div class="form-group field mt-6">
+          <p-floatlabel>
+            <p-password inputId="password" 
+              formControlName="password" 
+              class="w-full"
+              styleClass="w-full"
+              [toggleMask]="true" 
+              [feedback]="false"
+              />
+            <label for="password" class="text-lg font-bold lynch-800 required-field">{{ labels.password }}</label>
+          </p-floatlabel>
+          @if (formLogin.controls['password'].touched && formLogin.get('password')?.hasError('required')) {
+            <small class="p-error block mt-2" >{{ messages.passwordIsRequired }}</small>
+          }
+        </div>
+
+        <div class="p-2 pb-3 col-12 flex justify-content-center">
+          <p-button type="submit"
+            icon="pi pi-sign-in"
+            size="small"
+            [label]="labels.getInto"
+            [rounded]="true"
+            styleClass="shadow-3 hover-primary"
+            [disabled]="formLogin.invalid"
+            />
+        </div>
+
+      </div>
+    </div>
+  </div>
+</form>
+
+<app-modal-payment-required/>
+

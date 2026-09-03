@@ -1,53 +1,76 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { PrimeComponentsModule } from '@shared/prime-components/prime-components.module';
+import { Component, OnDestroy, OnInit, inject, input, output, signal } from '@angular/core';
+
+import { PrimeModules } from '@shared/prime-components/prime-components.module';
 import { ReactiveFormsModule, FormsModule  } from '@angular/forms';
-import { DataCommon } from '@core/models/FieldsCommons';
-import { CredencialService } from '@core/services/credencial';
-import { HelpersService } from '@core/services/helpers.service';
+import { CredencialService } from '@core/services/credencial.service';
+import { ICredentialUser } from '@core/interfaces/user.interface';
+import { PLACEHOLDERS } from '@core/constants/placeholder';
+import { debounceTime, Subject, takeUntil } from 'rxjs';
+import { COMMON } from '@core/constants/common';
+import { NgClass } from '@angular/common';
 
 @Component({
-  selector: 'app-select-generic-users',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, PrimeComponentsModule, FormsModule ],
-  templateUrl: './select-generic-users.component.html'
+    selector: 'app-select-generic-users',
+    imports: [ReactiveFormsModule, PrimeModules, FormsModule, NgClass],
+    templateUrl: './select-generic-users.component.html'
 })
-export class SelectGenericUsersComponent implements OnInit {
-  @Input() fullUser: Boolean = false;
-  @Input() userId: number;
-  @Output() selectedUser = new EventEmitter<number>();
-  @Output() selectedFullUser = new EventEmitter<DataCommon>();
+export class SelectGenericUsersComponent implements OnInit, OnDestroy {
 
-  private helpersService = inject(HelpersService);
+  readonly fullUser = input<boolean>(false);
+  readonly isRequired = input<boolean>(true);
+  readonly userId = input<number>();
+  readonly userNameForFilter = input<string>();
+  readonly label = input<string>('Usuario');
+  readonly selectedUser = output<number>();
+  readonly selectedFullUser = output<ICredentialUser>();
 
-  credencialUser = inject(CredencialService);
-  users: DataCommon[] = [];
+  private credencialService = inject(CredencialService);
+  
+  public readonly placeholders = PLACEHOLDERS;
+  public users = signal<ICredentialUser[]>([]);
+  private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
     this.getUsers();
+    if (this.userId()) {
+      this.tryGetUsers(this.userNameForFilter());
+      this.setUser(this.userId());
+    }
   }
 
-  getUsers() {
-    this.credencialUser.allUsers().subscribe({
-      next: (res) => {
-        this.users = res;
-        if (this.userId) {
-          this.setUser(this.userId);
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private getUsers() {
+    this.searchSubject.pipe(
+      debounceTime(COMMON.inputDebounceDelay),
+      takeUntil(this.destroy$)
+    ).subscribe((some) => {
+      this.credencialService.allUsers(some).subscribe({
+        next: (res) => {
+          this.users.set(res);
         }
-      },
-      error: (err) => {
-        console.log(err);
-        this.helpersService.messageNotification("error", 'Error', err.message);
-      }
+      });
     });
   }
+  
+  public tryGetUsers(some: string) {
+    if (some?.length >= 3) {
+      this.searchSubject.next(some);
+    } else {
+      this.users.set([]);
+    }
+  }
 
-  public setUser(user: any) {
-    if (this.fullUser) {
-      const userFull: DataCommon = this.users.find((x) => x.id == user.value);
+  public setUser(userId: number) {
+    if (this.fullUser()) {
+      const userFull: ICredentialUser = this.users().find((user) => user.credentialId == userId);
       this.selectedFullUser.emit(userFull);
     } else {
-      this.selectedUser.emit(this.userId);
+      this.selectedUser.emit(userId);
     }
   }
 }

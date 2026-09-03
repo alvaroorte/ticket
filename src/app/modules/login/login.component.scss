@@ -1,0 +1,23 @@
+.title-welcome {
+    font-size: clamp(3rem, 4.2vw, 8rem);
+}
+
+.width-image-logo {
+    width: clamp(6rem, 8vw, 12rem);
+}
+
+.animation-logo-ticket {
+    animation: fadeoutdown 2.5s ease-in-out;
+}
+
+@keyframes fadeoutdown {
+    0% {
+        transform: translateY(0%) scale(1);
+    }
+    50% {
+        transform: translateY(-5%) scale(1.06);
+    }
+    100% {
+        transform: translateY(0%) scale(1);
+    }
+}

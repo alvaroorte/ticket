@@ -1,46 +1,63 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable, Output, EventEmitter, inject  } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, Output, EventEmitter, inject, signal  } from '@angular/core';
 import { Params } from '@angular/router';
-import { Team, TeamResponse, TeamSend } from 'src/app/core/models/Team';
+import { Team, TeamSelect, TeamSend, TeamWithMembers, technicianShort } from 'src/app/core/models/Team';
 import { environment } from '@core/environments/environment.development';
 import { Observable } from 'rxjs';
+import { IServiceCommon } from '@core/interfaces/service-common.interface';
+import { GenericTableComponent } from '@shared/components/generic-table/generic-table.component';
+import { ModalDeleteComponent } from '@shared/components/modal-delete/modal-delete.component';
+import { IGenericModalForm } from '@core/interfaces/generic-modal-form.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class TeamsService {
+export class TeamService implements IServiceCommon {
 
-  @Output() eventFormComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventTableComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventModalDeleteComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventToolbarComponent: EventEmitter<any> = new EventEmitter();
+  public eventFormComponent = signal<IGenericModalForm>(null);
+  public eventTableComponent = signal<GenericTableComponent<TeamWithMembers>>(null);
+  public eventModalDeleteComponent = signal<ModalDeleteComponent>(null);
 
   private http = inject(HttpClient);
 
-  private serverUrl: string = environment.server_url;
+  private urlTeam: string = environment.server_url + 'team';
   params: Params = {};
 
   public getAll() {
-    return this.http.get<Team[]>(this.serverUrl+'team')
+    return this.http.get<Team[]>(this.urlTeam);
+  }
+  
+  public select() {
+    return this.http.get<TeamSelect[]>(`${this.urlTeam}/select`);
+  }
+  
+  public getAllWithMembers() {
+    return this.http.get<TeamWithMembers[]>(`${this.urlTeam}/allWithMembers`);
   }
 
   public getById(id: number) {
-    return this.http.get<TeamResponse>(this.serverUrl + 'team/' + id)
+    return this.http.get<TeamWithMembers>(`${this.urlTeam}/${id}`)
   }
 
   public create(team: TeamSend) {
-    return this.http.post<Team>(this.serverUrl + 'team', team)
+    return this.http.post<Team>(this.urlTeam, team)
   }
 
   public update(id: number, team: TeamSend) {
-    return this.http.put<Team>(this.serverUrl + 'team/' + id, team)
+    return this.http.put<Team>(`${this.urlTeam}/${id}`, team)
   }
 
   public delete(id: number): Observable<string> {
-    return this.http.delete(this.serverUrl + 'team/' + id, { responseType:'text'})
+    return this.http.delete(`${this.urlTeam}/${id}`, { responseType:'text'})
   }
-
-  public search() {
-    return this.http.get<Team[]>(this.serverUrl+'team/teamSearch')
+  
+  public getMine(enterpriseId: number, supervisor: boolean) {
+    let params: HttpParams = new HttpParams().set('supervisor', supervisor);
+    params = enterpriseId? params.set('enterpriseId', enterpriseId): params;
+    return this.http.get<TeamWithMembers[]>(`${this.urlTeam}/mine`, { params })
+  }
+  
+  public getOma(enterpriseId: number) {
+    return this.http.get<technicianShort[]>(`${this.urlTeam}/oma/${enterpriseId}`)
   }
 }

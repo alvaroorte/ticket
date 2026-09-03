@@ -1,0 +1,84 @@
+@if (tickets().length > 0) {
+  <div class="grid p-2 justify-content-center background-gray-blured">
+    <ng-content />
+    @for (ticket of tickets(); track ticket.id;) {
+      <div
+        class="col-12 md:col-6 lg:col-3 align-items-center ticket-container justify-content-center fadeinleft animation-ease-in-out animation-duration-500 px-4">
+        <article
+          class="ticket-card shadow-3"
+          [style]="'border-left: 8px solid '+ ticket.priorityColor + ';'">
+          <section
+            class="ticket-body-card p-2">
+            <div class="flex justify-content-between flex-wrap">
+              <h6 class="ticket-header-card">
+                <i class="pi pi-building mr-1 text-xs"></i>
+                {{ ticket.enterpriseCode }}
+              </h6>
+              <h6 class="ticket-header-card text-center">
+                <i class="-rotate-45 pi pi-ticket mr-1 text-xs"></i>
+                {{ ticket.code }}
+              </h6>
+              <h6 class="ticket-header-card">
+                <i class="pi pi-calendar mr-1 text-xs"></i>
+                {{ ticket.createdAt | formatDateWhitHour }}
+              </h6>
+            </div>
+            <div class="flex justify-content-center">
+              <h4 (click)="openModalInfo(ticket.id)" [pTooltip]="tooltips.seeTicketInformation" class="ticket-title mx-3 text-center cursor-pointer"> {{ ticket.title }} </h4>
+            </div>
+            <div class="flex justify-content-between flex-wrap">
+              <p class="ticket-header-card mb-0 text-xs text-capitalize" [pTooltip]="tooltips.requester">
+                <i class="pi pi-user mr-1"></i>
+                {{ ticket.requester }}
+              </p>
+              <p class="ticket-header-card mb-0 text-xs">
+                <i [ngClass]="[isViewPending()? '': 'pi-wrench', 'pi mr-1']"></i>
+                @if (isViewPending()) {
+                  <span 
+                    [ngClass]="{'border-1 border-round-xl p-1 text-white': ticket.tag}" 
+                    [style]="{'background': ticket.tagColor, 'border-color': ticket.tagColor}"
+                    [pTooltip]="tooltips.tag" 
+                    tooltipPosition="left">
+                    {{ ticket.tag }}
+                  </span>
+                  @if (statesForShowTag.includes(ticket.flowStatusName) && ticket.typeTicket == TypeTicketEnum.SOLICITUD) {
+                    <span
+                      class="pi pi-ellipsis-v cursor-pointer"
+                      pTooltip="Cambiar etiqueta"
+                      (click)="getTagsOfTicket(ticket.id); menuLabels.toggle($event)"
+                    ></span>
+                  }
+                } @else {
+                  <span [pTooltip]="tooltips.technician">{{ ticket.technician?? labels.withOutTechnician }}</span>
+                }
+              </p>
+            </div>
+          </section>
+          <section class="flex ticket-footer-card p-2" >
+            <div class="flex flex-1 align-items-center text-sm">
+              {{ labels.status }}: 
+              <span 
+                [ngClass]="['font-semibold', 'ml-1', ticket.flowStatusName == STATES_TICKET_ENUM.SOLUTION_REJECTED? 'text-orange-500': '']"> 
+                {{ ticket.flowStatusName }}
+              </span>
+            </div>
+            <div class="flex flex-none align-items-center justify-content-end">
+              <app-buttons-tickets
+                [ticket]="ticket"
+                [isViewPending]="isViewPending()"
+                (onEventButton)="playNextFunctionTicket(ticket.id, $event, ticket.code)"
+              />
+            </div>
+          </section>
+        </article>
+      </div>
+    }
+  </div>
+} @else {
+  @if (showMessageEmpty()) {
+    <div class="grid p-2 justify-content-center background-gray-blured">
+      <h1 class="py-2 lynch-800">{{ messages.withOutItems }}</h1>
+    </div>
+  }
+}
+<p-menu #menuLabels [model]="optionsUser" [popup]="true" />

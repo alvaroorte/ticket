@@ -1,0 +1,105 @@
+<form [formGroup]="formDerivation">
+    <div class="grid">
+        <div class="col-12">
+            <p-dialog 
+                [focusOnShow]="false" 
+                [(visible)]="openModal" 
+                [header]="labels.referTicket" 
+                styleClass="w-11 md:w-4" 
+                [modal]="true" 
+                class="p-fluid"
+                appendTo="body">
+                <ng-template pTemplate="content">
+                
+                    <div class="grid">
+                        <div class="form-group field mt-5 col-12">
+                            <p-floatlabel>
+                                <p-select inputId="enterpriseId"
+                                    [options]="enterprises()"
+                                    optionLabel="name"
+                                    appendTo="body"
+                                    optionValue="id"
+                                    [filter]="true"
+                                    filterBy="name"
+                                    formControlName="enterpriseId"
+                                    styleClass="w-full"
+                                    (onChange)="getCategoriesByEnterprise()"
+                                 />
+                                <label 
+                                    for="enterpriseId" 
+                                    class="text-lg font-bold text-800 required-field">
+                                    {{ labels.enterprise }}
+                                </label>
+                            </p-floatlabel>
+                        </div>
+                        
+                        <div class="form-group field mt-3 col-12">
+                            <p-floatlabel>
+                                <p-select inputId="categoryId"
+                                    [options]="categories()"
+                                    optionLabel="name"
+                                    appendTo="body"
+                                    optionValue="id"
+                                    [filter]="true"
+                                    filterBy="name"
+                                    formControlName="categoryId"
+                                    styleClass="w-full"
+                                    (onChange)="getSubcategories()"
+                                 />
+                                <label 
+                                    for="categoryId" 
+                                    class="text-lg font-bold text-800 required-field">
+                                    {{ labels.category }}
+                                </label>
+                            </p-floatlabel>
+                        </div>
+                        
+                        <div class="form-group field mt-3 col-12">
+                            <p-floatlabel>
+                                <p-select inputId="subCategoryId"
+                                    [options]="subcategories()"
+                                    optionLabel="name"
+                                    appendTo="body"
+                                    optionValue="id"
+                                    [filter]="true"
+                                    filterBy="name"
+                                    formControlName="subCategoryId"
+                                    styleClass="w-full"
+                                 />
+                                <label 
+                                    for="subCategoryId" 
+                                    class="text-lg font-bold text-800 required-field">
+                                    {{ labels.subcategory }}
+                                </label>
+                            </p-floatlabel>
+                        </div>
+                    </div>
+                    
+                </ng-template>
+                <ng-template pTemplate="footer">
+                    <div class="p-2 pb-3">
+                        <button 
+                            type="button" 
+                            (click)="openModal = false" 
+                            pButton pRipple 
+                            [label]="labels.cancel" 
+                            [size]="'small'"
+                            icon="pi pi-times" 
+                            class="p-button-secondary p-button-rounded mr-2 sombra-black hover-secondary"
+                        ></button>
+                        <button 
+                            type="submit" 
+                            pButton pRipple 
+                            [label]="labels.save"
+                            [size]="'small'"
+                            [disabled]="formDerivation.invalid"
+                            icon="pi pi-sign-in" 
+                            class="p-button-rounded mr-2 sombra-black hover-primary"
+                            (click)="derivateTicket()"
+                        ></button>
+                    </div>
+                </ng-template>
+            </p-dialog>
+        </div>
+    </div>
+</form>

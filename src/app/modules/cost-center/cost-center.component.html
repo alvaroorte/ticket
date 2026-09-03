@@ -1,0 +1,40 @@
+<div class="container mx-0 mb-0 pb-4">
+    <div class="grid">
+        <div class="col-12 fadeindown animation-duration-400">
+            <div class="sombra-black border-round-xl p-2 surface-0">
+                <app-toolbar-common
+                    tooltipCreate="Crear centro de costo" 
+                    [serviceGeneric]="costCenterService" 
+                    [object]="costCenterSelected()"
+                    [showDelete]="false">
+                    <p-button icon="pi pi-download"
+                        [pTooltip]="tooltips.downloadTemplate"
+                        size="small"
+                        [rounded]="true"
+                        severity="help"
+                        styleClass="mr-2 sombra-black hover-help fadeinup animation-ease-in-out animation-duration-300"
+                        (click)="exportExcel()"
+                     />
+                    <p-button icon="pi pi-upload"
+                        [pTooltip]="tooltips.uploadTemmplateWithData"
+                        size="small"
+                        [rounded]="true"
+                        styleClass="mr-2 sombra-black hover-primary fadeinup animation-ease-in-out animation-duration-300"
+                        (click)="uploadExcel()"
+                     />
+                </app-toolbar-common>
+                <app-modal-form [enterpriseId]="enterpriseId()" /> 
+                <app-modal-delete [serviceGeneric]="costCenterService" [objectId]="costCenterSelected()?.id" />
+                <app-modal-file [enterpriseId]="enterpriseId()" />
+                <app-generic-table 
+                    [titleTable]="titleTable"
+                    [items]="costCenters()"
+                    [tableProps]="tableProps"
+                    [tableColumnDefinitions]="tableColumnCostCenterDefinitions"
+                    (onSelection)="setCostCenter($event)"
+                    (requestData)="getByEnterprise()"
+                    (selfEmitter)="onTableSelfEmision($event)" />
+            </div>
+        </div>
+    </div>
+</div>

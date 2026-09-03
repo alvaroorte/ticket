@@ -1,16 +1,31 @@
+import { teamCategorySubCategory } from "@core/interfaces/enterprise.interface";
+import { IParameterSelect } from "./Parameter";
+
+export interface ApproverModeratorShortEnterpriseCategory {
+    id: number;
+    email: string;
+}
+
+export interface ApproversAndModeratorsEnterpriseCategory {
+    approvers: ApproverModeratorShortEnterpriseCategory[];
+    moderators: ApproverModeratorShortEnterpriseCategory[];
+}
 export class EnterpriseCategory  {
-    id: number | null = null;
-    category: string | null = null;
-    categoryId: number = 0;
-    subCategory: string | null = null;
-    subCategoryId: number = 0;
-    leader: string | null = null;
-    teamName: string | null = null;
-    status?: boolean | null = false;
-    isPublic?: boolean | null = false;
-    enterpriseCategoryId: number | null = null;
-    team: number | null = null;
-    enterprise: number | null = null;
+    id: number;
+    categoryId:           number;
+    subCategoryId:        number;
+    enterpriseId:         number;
+    enterpriseName:       string;
+    teamId:               number;
+    categoryName:         string;
+    subCategoryName:      string;
+    teamName:             string;
+    enterpriseCategoryId: number;
+    approvers:            ApproverModeratorShortEnterpriseCategory[];
+    moderators:           ApproverModeratorShortEnterpriseCategory[];
+    roles:                string[];
+    tags:                 IParameterSelect[];
+    rolesString:          string;
 }
 
 export interface EnterpriseCategoryTableDouble  {
@@ -21,14 +36,39 @@ export interface EnterpriseCategoryTableDouble  {
     status: string;
     subCategory: string;
     subCategoryId: number;
+    teamId: number;
     teamName: string;
 }
 
 export class EnterpriseCategorySend  {
-    enterprise: number | null = null;
-    team: number | null = null;
-    category: number | null = null;
-    subCategory?: number | null = null;
-    status?: boolean | null = null;
-    isPublic?: boolean | null = null;
+    enterpriseId: number;
+    teamCategorySubCategory: teamCategorySubCategory[];
+}
+
+export interface EnterpriseCategoryUpdate  {
+    roles: string[];
+}
+
+export interface EnterpriseCategoryDetailSend  {
+    enterpriseId: number;
+    categoryId: number;
+    subCategoryId: number;
+    approvers: number[];
+    moderators: number[];
+}
+
+export interface EnterpriseCategorySubcategory  {
+    enterpriseId: number;
+    categoryId: number;
+    subCategoryId: number;
+}
+
+export interface ListSubcategoryBody  {
+    enterprise: number;
+    category: number;
+    subCategory: number;
+}
+
+export interface IUpdateTags  {
+    parametersIds: number[];
 }

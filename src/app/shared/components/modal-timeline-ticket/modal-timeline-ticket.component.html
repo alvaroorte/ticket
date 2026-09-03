@@ -1,20 +1,46 @@
 <div class="card">
     <div class="card flex justify-content-center">
-        <p-dialog
+        <p-dialog 
+            [focusOnShow]="false"
             [(visible)]="modalTimelineVisible"
-            styleClass="w-full lg:w-8"
-            [contentStyle]="{ 'background': 'rgb(255 255 255 / 55%)', 'backdrop-filter': 'blur(5px)' }"
-            contentStyleClass="p-0"
-            [modal]="true"
-            position="top">
+            styleClass="w-11 lg:w-4"
+            [contentStyle]="{ 'background': 'rgb(255 255 255 / 55%)', 'backdrop-filter': 'blur(5px)'}"
+            [modal]="true">
             <ng-template pTemplate="header">
-                <h3 class="flex-1 text-center capitalize lynch-50">
-                    <i class="font-semibold pi pi-clock mr-1 text-xl"></i> {{ title }}
+                <h3 class="flex-1 text-center capitalize">
+                    <i class="font-semibold pi pi-chart-line mr-1 text-xl"></i> {{ ticketTitle }}
                 </h3>
             </ng-template>
             <ng-template pTemplate="content">
-                <div style="position: relative;">
-                    <app-timeline-ticket [idTicket]="idTicket" [timelineList]="timelineList()" (eventReloadTimeline)="openTimelineSidebar()"></app-timeline-ticket>
+                <div class="flex justify-content-center fadeinup animation-duration-400 z-2 sticky top-0">
+                    <button 
+                        type="button" 
+                        pButton pRipple 
+                        [label]="labels.exportToExcel" 
+                        icon="pi pi-file-excel"
+                        [rounded]="true"
+                        size="small"
+                        class="mr-2 shadow-3 hover-primary"
+                        (click)="buildExcel()"
+                    ></button>
+                </div>
+                <div class="pt-2" style="position: relative;">
+                    <app-timeline-ticket [ticketId]="ticketId" [timelineList]="timelineList()" (eventReloadTimeline)="openTimelineSidebar()" />
+                </div>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <div class="p-2 pb-3">
+                    <button 
+                        type="button" 
+                        pButton pRipple 
+                        [label]="labels.close" 
+                        icon="pi pi-times"
+                        severity="secondary"
+                        [rounded]="true"
+                        size="small"
+                        class="mr-2 shadow-3" 
+                        (click)="hideModal()"
+                    ></button>
                 </div>
             </ng-template>
         </p-dialog>

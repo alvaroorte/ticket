@@ -1,0 +1,23 @@
+<div class="grid">
+  <div class="col-12">
+    <p-dialog [focusOnShow]="false" [(visible)]="openModal" styleClass="w-10" [header]="tittleForm" [modal]="true" class="p-fluid" appendTo="body">
+      <ng-template pTemplate="content">
+        <div [ngStyle]="{'height': scheduleDetails.length > 0? '50vh': 'auto'}">
+          <app-gantt-for-hours-of-week [hoursWithDays]="scheduleDetails" />
+        </div>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <div class="p-2 pb-3">
+          <button
+            type="button"
+            pButton pRipple
+            label="Cerrar"
+            icon="pi pi-times"
+            class="p-button-secondary p-button-rounded mr-2 p-button-sm sombra-black"
+            (click)="hideModal()"
+          ></button>
+        </div>
+      </ng-template>
+    </p-dialog>
+  </div>
+</div>

@@ -1,43 +1,57 @@
-import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
-import { DataCommon } from '@core/models/FieldsCommons';
-import { CommonModule } from '@angular/common';
-import { PrimeComponentsModule } from '@shared/prime-components/prime-components.module';
-import { CategoriesService } from '@category/services/categories.service';
-import { PickListMoveAllToSourceEvent, PickListMoveToTargetEvent } from 'primeng/picklist';
+import { Component, input, viewChild, output } from '@angular/core';
+
+import { PrimeModules } from '@shared/prime-components/prime-components.module';
+import { PickList, PickListMoveAllToSourceEvent, PickListMoveToTargetEvent } from 'primeng/picklist';
+import { LABELS } from '@core/constants/labels';
+import { ButtonProps } from 'primeng/button';
 
 @Component({
-  selector: 'app-table-double',
-  standalone: true,
-  imports: [CommonModule, PrimeComponentsModule ],
-  templateUrl: './table-double.component.html'
+    selector: 'app-table-double',
+    imports: [PrimeModules],
+    templateUrl: './table-double.component.html'
 })
-export class TableDoubleComponent {
-  @Output() add = new EventEmitter<any>();
-  @Output() allAdd = new EventEmitter<any>();
-  @Output() remove = new EventEmitter<any>();
-  @Output() allRemove = new EventEmitter<any>();
+export class TableDoubleComponent<T> {
+  readonly add = output<T[]>();
+  readonly allAdd = output<T[]>();
+  readonly remove = output<T[]>();
+  readonly allRemove = output<T[]>();
 
-  @Input() sourceProducts = signal<DataCommon[]>([]);
-  @Input() targetProducts = signal<DataCommon[]>([]);
-  @Input() serviceGeneric: any;
+  readonly sourceProducts = input.required<T[]>();
+  readonly targetProducts = input.required<T[]>();
 
-  ngOnInit() {
-    this.serviceGeneric.eventTableDobleComponent.emit(this);
+  readonly pickList = viewChild<PickList>('pickList');
+
+  public readonly labels = LABELS;
+  public readonly buttonProps: ButtonProps = {
+    rounded: true,
+    styleClass: 'shadow-3',
+    severity: 'primary',
+    size: 'small'
   }
 
-  public addItem(ev: PickListMoveToTargetEvent){
+
+  ngOnChanges(): void {
+    this.pickList()? this.filterTables(): '';
+  }
+
+  public addItem(ev: PickListMoveToTargetEvent) {
     this.add.emit(ev.items);
   }
 
-  public allAddItems(ev: PickListMoveAllToSourceEvent){
+  public allAddItems(ev: PickListMoveAllToSourceEvent) {
     this.allAdd.emit(ev.items);
   }
 
-  public removeItem(ev: PickListMoveToTargetEvent){
+  public removeItem(ev: PickListMoveToTargetEvent) {
     this.remove.emit(ev.items);
   }
 
-  public allRemoveItems(ev: PickListMoveAllToSourceEvent){
+  public allRemoveItems(ev: PickListMoveAllToSourceEvent) {
     this.allRemove.emit(ev.items);
+  }
+
+  private filterTables() {
+    this.pickList().filter(this.sourceProducts(), -1);
+    this.pickList().filter(this.targetProducts(), 1);
   }
 }

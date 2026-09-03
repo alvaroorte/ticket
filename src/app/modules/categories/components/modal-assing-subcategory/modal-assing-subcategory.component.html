@@ -1,18 +1,17 @@
 <div class="grid">
-    <div class="col-12">
-        <p-dialog [(visible)]="showModal" styleClass="w-10" [header]="titleForm" [modal]="true" class="p-fluid">
-            <ng-template pTemplate="content">
-                <app-table-double
-                    *ngIf="sourceProducts().length > 0 || targetProducts().length > 0"
-                    (add)="add($event)"
-                    (allAdd)="allAdd($event)"
-                    (remove)="remove($event)"
-                    (allRemove)="allRemove($event)"
-                    [sourceProducts]="sourceProducts"
-                    [targetProducts]="targetProducts"
-                    [serviceGeneric]="categoriesService"
-                ></app-table-double>
-            </ng-template>
-        </p-dialog>
-    </div>
+  <div class="col-12">
+    <p-dialog [focusOnShow]="false" [(visible)]="showModal" styleClass="w-10" [header]="titleForm" [modal]="true" class="p-fluid">
+      <ng-template pTemplate="content">
+        @if (sourceProducts().length > 0 || targetProducts().length > 0) {
+          <app-table-double (add)="add($event)"
+            (allAdd)="allAdd($event)"
+            (remove)="remove($event)"
+            (allRemove)="allRemove($event)"
+            [sourceProducts]="sourceProducts()"
+            [targetProducts]="targetProducts()"
+           />
+        }
+      </ng-template>
+    </p-dialog>
+  </div>
 </div>

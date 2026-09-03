@@ -1,11 +1,13 @@
+import { ROLES_CODE_SYSTEM } from "@core/enums/roles";
+import { Base } from "./base";
 import { Permission } from "./Permission";
 
-export class Role  {
-    id: number | null = null;
-    code: string | null = null;
-    description: string | null = null;
-    name: string | null = null;
-    permissions: Permission[] | null = null;
+export class Role extends Base {
+    id: number;
+    name: string;
+    code: ROLES_CODE_SYSTEM;
+    description: string;
+    permissions: Permission[];
 }
 
 export class RoleResponse  {

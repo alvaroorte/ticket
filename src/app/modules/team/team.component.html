@@ -2,25 +2,23 @@
     <p-fieldset styleClass="sombra-black">
         <ng-template pTemplate="header">
             <div class="flex align-items-center text-primary fadeinleft animation-duration-400">
-                <h2 class="text-white">Equipo <span class="text-sm"> Gestión de equipos</span> </h2>
+                <h1 class="text-white text-2xl"> {{ labels.teams }} <span class="text-sm"> Gestión de equipos</span> </h1>
             </div>
         </ng-template>
-            <div class="grid">
-                <div class="col-6 fadeindown animation-duration-400">
-                    <div class="sombra-black border-round-xl p-2 surface-0">
-                        <app-toolbar-common
-                            tooltipCreate="Crear Equipo" 
-                            [serviceGeneric]="teamService" [object]="object()"/> 
-                        <app-modal-form ></app-modal-form> 
-                        <app-modal-delete [serviceGeneric]="teamService" [object]="object().id"></app-modal-delete>
-                        <app-table (rowSelected)="setObject($event)" ></app-table>
-                    </div>
-                </div>
-                <div class="col-6 fadeindown animation-duration-400">
-                    <div class="sombra-black border-round-xl p-2 surface-0">
-                        <app-team-members [team]="object"></app-team-members>
-                    </div>
-                </div>
+            <div class="sombra-black border-round-xl p-2 surface-0">
+                <app-toolbar-common
+                    tooltipCreate="Crear Equipo" 
+                    [serviceGeneric]="teamService"
+                    [object]="teamSelected()"/> 
+                <app-modal-form /> 
+                <app-modal-delete [serviceGeneric]="teamService" [objectId]="teamSelected()?.id" />
+                <app-generic-table [titleTable]="titleTable"
+                    [items]="teams()"
+                    [tableColumnDefinitions]="tableColumnTeamDefinitions"
+                    (onSelection)="setTeam($event)"
+                    (requestData)="getTeams()"
+                    (selfEmitter)="onTableSelfEmision($event)"
+                 />
             </div>
     </p-fieldset>
 </div>

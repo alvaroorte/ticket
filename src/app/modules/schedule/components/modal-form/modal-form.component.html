@@ -1,0 +1,59 @@
+<form [formGroup]="formSchedule">
+
+  <div class="grid">
+    <div class="col-12">
+      <p-dialog [focusOnShow]="false" [(visible)]="openModal" styleClass="w-10 md:w-6 lg:w-4" [header]="tittleForm" [modal]="true" class="p-fluid" appendTo="body">
+        <ng-template pTemplate="content">
+
+          <app-message-required-field />
+
+          <div class="form-group field mt-5">
+            <p-floatlabel>
+              <input type="text" pInputText id="name" formControlName="name" class="w-full" />
+              <label htmlFor="name" class="text-lg font-bold text-800 required-field"> {{ labels.name }} </label>
+            </p-floatlabel>
+            @if (formSchedule.controls['name'].touched && formSchedule.get('name')?.hasError('required')) {
+              <small class="p-error block mt-2" > {{ messages.requiredField }} </small>
+            }
+            @if (formSchedule.get('name')?.hasError('pattern')) {
+              <small class="p-error block mt-2">{{ messages.deniedCharactersName }}</small>
+            }
+            @if (formSchedule.get('name')?.hasError('minlength')) {
+              <small class="p-error block mt-2">{{ messages.requiredMinLength }}</small>
+            }
+            @if (formSchedule.get('name')?.hasError('noSpace')) {
+              <small class="p-error block mt-2">{{ messages.noOnlySpace }}</small>
+            }
+          </div>
+
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <div class="p-2 pb-3">
+            <input type="hidden" pInputText id="id" formControlName="id"/>
+            <button 
+              type="button" 
+              pButton pRipple 
+              [label]="labels.cancel" 
+              icon="pi pi-times"
+              severity="secondary"
+              [rounded]="true"
+              size="small"
+              class="mr-2 shadow-3" 
+              (click)="hideModal()"
+            ></button>
+            <button 
+              pButton pRipple 
+              [label]="labels.save" 
+              icon="pi pi-check" 
+              [rounded]="true"
+              size="small"
+              class="mr-2 shadow-3 hover-primary"  
+              (click)="saveSchedule()"
+              [disabled]="formSchedule.invalid"
+            ></button>
+          </div>
+        </ng-template>
+      </p-dialog>
+    </div>
+  </div>
+</form>

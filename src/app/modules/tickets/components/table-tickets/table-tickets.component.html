@@ -1,0 +1,95 @@
+<div class="grid mt-3">
+    <div class="col-12 fadeindown animation-duration-400">
+        <div class="sombra-black border-round-xl p-2 surface-0">
+            <p-table
+                #dt1
+                [scrollable]="true"
+                stripedRows
+                [value]="tickets()"
+                [paginator]="true"
+                [rows]="rows"
+                [showCurrentPageReport]="true"
+                [currentPageReportTemplate]="messages.showingFirstToLastOfItems"
+                [rowsPerPageOptions]="optionsPage()"
+                [(first)]="firstPage"
+                [(selection)]="ticketSelected"
+                selectionMode="single"
+                dataKey="id"
+                [loading]="loading()"
+                [rowHover]="true"
+                [reorderableColumns]="true"
+                [globalFilterFields]="['code', 'title', 'enterpriseCode', 'requester', 'technician', 'typeTicket', 'flowStatusName']"
+                (onRowSelect)="onRowSelect()"
+            >
+                <ng-template pTemplate="caption">
+                    <div class="flex align-items-center">
+                        <h3 >{{ labels.listOfTickets }}</h3>
+                        <p-iconfield styleClass="ml-auto">
+                            <p-inputicon styleClass="pi pi-search" />
+                            <input 
+                                type="text" 
+                                pInputText 
+                                (input)="onGlobalFilter(dt1, $event)" 
+                                [placeholder]="labels.search"
+                                class="mr-2"
+                                [pTooltip]="tooltipSearch" 
+                                tooltipPosition="top" 
+                            />
+                        </p-iconfield>
+                        <button
+                            pButton
+                            pRipple
+                            type="button"
+                            icon="pi pi-sync"
+                            class="p-button-outlined p-button-secondary"
+                            (click)="reload()"
+                            [pTooltip]="tooltips.reload"
+                            tooltipPosition="top">
+                        </button>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pReorderableColumn pSortableColumn="code" >{{ labels.code }} <p-sortIcon field="code" /></th>
+                        <th pReorderableColumn pSortableColumn="title" >{{ labels.title }} <p-sortIcon field="title" /></th>
+                        <th pReorderableColumn pSortableColumn="createdAt" >{{ labels.date }} <p-sortIcon field="createdAt" /></th>
+                        <th pReorderableColumn pSortableColumn="enterpriseCode" >{{ labels.enterprise }} <p-sortIcon field="enterpriseCode" /></th>
+                        <th pReorderableColumn pSortableColumn="requester" >{{ labels.requester }} <p-sortIcon field="requester" /></th>
+                        <th pReorderableColumn pSortableColumn="technician" >{{ labels.technician }} <p-sortIcon field="technician" /></th>
+                        <th pReorderableColumn pSortableColumn="priorityName" >{{ labels.priority }} <p-sortIcon field="priorityName" /></th>
+                        <th pReorderableColumn pSortableColumn="typeTicket" >{{ labels.ticketType }} <p-sortIcon field="typeTicket" /></th>
+                        <th pReorderableColumn pSortableColumn="flowStatusName" >{{ labels.status }} <p-sortIcon field="flowStatusName" /></th>
+                        <th> {{ labels.actions }} </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-ticket>
+                    <tr [pSelectableRow]="ticket">
+                        <td>{{ ticket.code }}</td>
+                        <td>{{ ticket.title }}</td>
+                        <td>{{ ticket.createdAt | formatDateWhitHour }}</td>
+                        <td>{{ ticket.enterpriseCode }}</td>
+                        <td>{{ ticket.requester}}</td>
+                        <td>{{ ticket.technician }}</td>
+                        <td class="capitalize">{{ ticket.priorityName }}</td>
+                        <td class="capitalize">{{ ticket.typeTicket }}</td>
+                        <td class="capitalize">{{ ticket.flowStatusName }}</td>
+                        <td>
+                            <div class="flex">
+                                <app-buttons-tickets 
+                                    [ticket]="ticket"
+                                    [isViewPending]="isViewPending()"
+                                    (onEventButton)="playNextFunctionTicket(ticket.id, $event, ticket.code)"
+                                />
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="12" class="text-center">{{ messages.emptyMessage }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>

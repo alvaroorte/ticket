@@ -1,0 +1,229 @@
+<div class="flex justify-content-center align-items-center mt-3">
+  <div class="fadeinright animation-ease-in-out animation-duration-500 background-gray-blured w-12 lg:w-6 p-4 mb-3">
+    <p-card
+      class="border-round-3xl fadeinright animation-ease-in-out animation-duration-500 p-3 shadow-2 ">
+      <form [formGroup]="formTicket">
+        <div class="grid">
+          <app-message-required-field class="col-12 mb-3" />
+
+          <div class="col-12 form-group field mt-3 ml-3 flex align-items-center flex-wrap">
+            <label class="text-lg font-bold text-800 mr-5 required-field"> {{ labels.priority }} </label>
+            <p-slider formControlName="ticketPriorityParameterId" class="w-7 pr-2"
+              (onChange)="changeInputSlider($event)" [animate]="true" />
+            <span class="ml-4">{{ labelInputSlider() }}</span>
+          </div>
+
+          <div class="col-12 form-group field mt-3">
+            <p-floatlabel>
+              <p-autocomplete 
+                formControlName="title" 
+                [suggestions]="incidentTitlesfiltered" 
+                class="w-full"
+                (completeMethod)="setTitle($event)" 
+                [dropdown]="true"
+                [showEmptyMessage]="false"
+              />
+              <label htmlFor="title" class="text-lg font-bold text-800 required-field"> {{ labels.title }} </label>
+            </p-floatlabel>
+          </div>
+          
+          <div class="col-12 form-group field mt-3">
+            <p-floatlabel>
+              <textarea 
+                id="description" 
+                pTextarea 
+                formControlName="description" 
+                rows="3" 
+                class="w-full"
+              ></textarea>
+              <label for="description" class="text-lg font-bold text-800 text-800 required-field">
+                {{ labels.description }}
+              </label>
+            </p-floatlabel>
+            @if (formTicket.get('description')?.hasError('minlength')) {
+              <small class="p-error block mt-2">{{ messages.requiredMinLength }}</small>
+            }
+          </div>
+          
+          <div class="form-group field col-12 mt-3">
+            <p-floatlabel>
+              <p-select inputId="enterpriseForIncident" [options]="enterprises" [filter]="true"
+                [(ngModel)]="enterpriseSelectedId" [ngModelOptions]="{standalone: true}" filterBy="name"
+                optionValue="id" optionLabel="name" class="w-full" (ngModelChange)="onChangedEnterprise()"
+                appendTo="body" />
+              <label for="enterpriseForIncident" class="text-lg font-bold text-800 required-field"> {{ labels.enterprise
+                }} </label>
+            </p-floatlabel>
+          </div>
+          
+          @if (enterpriseSelectedId()) {
+            <div class="form-group field col-12 md:col-6 mt-3 fadeinleft animation-duration-400">
+              <p-floatlabel>
+                <p-select 
+                  inputId="subCategoryId" 
+                  [options]="subcategories" 
+                  [filter]="true"
+                  formControlName="subCategoryId" 
+                  filterBy="name" 
+                  optionValue="id" 
+                  optionLabel="name" 
+                  class="w-full"
+                  appendTo="body" 
+                />
+                <label for="subCategoryId" class="text-lg font-bold text-800 required-field"> 
+                  {{ labels.incident }}
+                </label>
+              </p-floatlabel>
+            </div>
+  
+            <div class="form-group field col-12 md:col-6 mt-3 fadeinleft animation-duration-400">
+              <p-floatlabel>
+                <p-select 
+                  inputId="technicianCredentialId" 
+                  [options]="technicians" 
+                  [filter]="true"
+                  formControlName="technicianCredentialId" 
+                  filterBy="technicianCredentialEmail"
+                  optionValue="technicianCredentialId" 
+                  optionLabel="technicianCredentialEmail" 
+                  class="w-full"
+                  appendTo="body"
+                />
+                <label for="technicianCredentialId" class="text-lg font-bold text-800 required-field"> 
+                  {{ labels.technician }} 
+                </label>
+              </p-floatlabel>
+            </div>
+          }
+          
+
+          @if (hasCostCenter()) {
+            <div class="col-12 form-group field mt-3">
+              <p-floatlabel>
+                <p-select inputId="costCenterId" [options]="costCenters" [filter]="true" formControlName="costCenterId"
+                  filterBy="name" optionValue="id" optionLabel="name" class="w-full" appendTo="body" />
+                <label for="costCenterId" class="text-lg font-bold text-800 required-field"> {{ labels.costCenter }}
+                </label>
+              </p-floatlabel>
+            </div>
+          }
+
+          <div [ngClass]="['form-group field mt-3', observerGroups.length > 0? 'col-10': 'col-12']">
+            @if (showObserverGroups) {
+              <p-floatlabel>
+                <p-select 
+                  inputId="credentialObserverId" 
+                  [options]="observerGroups" 
+                  [filter]="true" filterBy="name"
+                  optionLabel="name" class="w-full" appendTo="body"
+                  (onChange)="getCredencialIdsOfObserverGroup($event.value)" />
+                <label for="credentialObserverId" class="text-lg font-bold text-800"> {{ labels.observerGroup }} </label>
+              </p-floatlabel>
+            } @else {
+              <app-multi-select-generic-users 
+                [label]="labels.observers"
+                [showListNames]="false" 
+                [maxSelectedLabels]="2"
+                (onSelectedUserIds)="setCredentialsId($event)" 
+              />
+            }
+          </div>
+          @if (observerGroups.length > 0) {
+            <div class="col-2 form-group field flex align-items-center justify-content-center mt-3">
+              <p-toggleswitch pTooltip="Seleccionar grupo de observadores" [(ngModel)]="showObserverGroups"
+                [ngModelOptions]="{standalone: true}" (ngModelChange)="resetCredentialObserverId()" />
+            </div>
+          }
+
+          <div class="form-group field col-6 mt-3">
+            <p-floatlabel>
+              <p-datepicker 
+                formControlName="incidentStartDate" 
+                class="w-full" 
+                [showIcon]="true"
+                dateFormat="dd/mm/yy" 
+                [showTime]="true" 
+                [readonlyInput]="true" 
+                [showButtonBar]="true"
+                [maxDate]="maxDate" 
+                appendTo="body" 
+              />
+              <label htmlFor="incidentStartDate" class="text-lg font-bold text-800 text-800"> 
+                {{ labels.incidentStartDate }} 
+              </label>
+            </p-floatlabel>
+          </div>
+
+          <div class="form-group field col-6 mt-3">
+            <p-floatlabel>
+              <p-datepicker 
+                formControlName="incidentEndDate" 
+                class="w-full" 
+                [showIcon]="true"
+                dateFormat="dd/mm/yy" 
+                [showTime]="true" 
+                [readonlyInput]="true" 
+                [showButtonBar]="true"
+                [maxDate]="maxDate" 
+                appendTo="body" 
+              />
+              <label htmlFor="incidentEndDate" class="text-lg font-bold text-800 text-800"> 
+                {{ labels.incidentEndDate }}
+              </label>
+            </p-floatlabel>
+          </div>
+
+          <div class="col-12 lg:col-6 form-group field mt-3">
+            <p-floatlabel>
+              <input 
+                type="text" 
+                pInputText 
+                id="ubication" 
+                formControlName="ubication" 
+                class="p-inputtext w-full" 
+              />
+              <label htmlFor="ubication" class="text-lg font-bold text-800">
+                {{ labels.myWorkPlace }}
+              </label>
+            </p-floatlabel>
+          </div>
+
+          <div class="col-12 lg:col-6 form-group field mt-3">
+            <p-floatlabel>
+              <p-inputNumber 
+                id="phone" 
+                [useGrouping]="false" 
+                [min]="0" 
+                formControlName="phone" 
+                class="w-full" 
+              />
+              <label htmlFor="phone" class="text-lg font-bold text-800">
+                {{ labels.myCellInternal }}
+              </label>
+            </p-floatlabel>
+          </div>
+          
+
+
+          <app-input-file 
+            class="ml-3" 
+            [mode]="modeInputFile.BASIC" 
+            (onFileUploaded)="loadFile($event)"
+            [typeFileAccept]="allowedFormats"
+          />
+
+          <div class="col-12 text-right mt-3">
+            <button 
+              pButton pRipple 
+              [label]="labels.createIncident" 
+              icon="pi pi-check"
+              class="hover-warn p-button-rounded mr-2 sombra-black p-button-warn p-button-sm" 
+              (click)="saveTicket()"
+              [disabled]="formTicket.invalid"
+            ></button>
+          </div>
+        </div>
+      </form>
+    </p-card>
+  </div>
+</div>

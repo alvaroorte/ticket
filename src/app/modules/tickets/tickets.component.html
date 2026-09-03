@@ -1,20 +1,79 @@
-<section *ngIf="showSwitch" class="flex justify-content-center">
+@if (isViewPending()) {
+  <section class="flex justify-content-center">
     <div class="flex background-gray-blured p-2 align-items-center">
-        <h4 class="mr-2 inline"> Ver tickets en: </h4> 
-        <p-selectButton [options]="showOptions" [(ngModel)]="typeShowSelection" optionLabel="label" optionValue="value"></p-selectButton>
+      <h4 class="mr-2 inline"> {{ labels.seeTicketsIn }}: </h4>
+      <p-selectButton
+        [ngModel]="showInCards()"
+        [options]="optionsOfView"
+        (onOptionClick)="setShowInCards($event)"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="px-3"
+        size="small"
+        [unselectable]="true"
+      />
     </div>
-</section>
-<section *ngIf="!typeShowSelection">
-    <app-tickets-card [typeTicketCard]="typeTicketCard"></app-tickets-card>
-</section>
-<section *ngIf="typeShowSelection">
-    <app-tickest-table></app-tickest-table>
-</section>
-<p-toast>
-    <ng-template let-message pTemplate="message">
-        <div class="flex flex-column" style="flex: 1">
-            <h3 class="mb-2">{{message.summary}}</h3>
-            <p [innerHTML]="message.detail"></p>
-        </div>
-    </ng-template>
-</p-toast>
+  </section>
+}
+@if (showInCards()) {
+  <section>
+    <app-toolbar-cards
+      [typeOfListTicket]="typeOfListTicket()"
+      (onInputSearch)="filterTickets($event)"
+      (onReloadTickets)="setParams($event)"
+    />
+    @if (ticketsIncident().length > 0) {
+      <br>
+      <app-cards
+        [isViewPending]="isViewPending()"
+        [tickets]="ticketsIncident()"
+        (onPlayNextFunctionTicket)="playNextFunctionTicket($event)"
+        (eventReloadTicketsCard)="getAll()"
+        [showMessageEmpty]="false">
+        <h3 class="col-12 text-center text-orange-500 pb-0 uppercase mb-2">{{ labels.incidents }}</h3>
+      </app-cards>
+    }
+    <br>
+    <app-cards
+      [isViewPending]="isViewPending()"
+      [tickets]="tickets()"
+      (onPlayNextFunctionTicket)="playNextFunctionTicket($event)"
+      (eventReloadTicketsCard)="getAll()"
+    />
+  </section>
+} @else {
+  <section>
+    <app-table-tickets
+      [isViewPending]="isViewPending()"
+      [tickets]="ticketsBase()"
+      (onPlayNextFunctionTicket)="playNextFunctionTicket($event)"
+      (onReloadTickets)="setParams($event)"
+    />
+  </section>
+}
+
+<app-modal-info-ticket 
+  [isVIewPending]="isViewPending()"
+  [accordionValue]="accordionValue()"
+  [showDeribationAndAssociatedButton]="isViewPending()"
+  (onTicketAsociatedORDerivated)="getAll()"
+  (onHideModal)="onHideModalInfo()"/>
+<app-modal-timeline-ticket/>
+<app-modal-priority (eventChangedPriority)="getAll()"/>
+<app-modal-form-description (eventSendData)="mapperDataForSendFunction($event)"/>
+<p-confirmDialog styleClass="w-11 md:w-4" />
+
+@if (!isViewPending()) {
+  <div
+    class="flex justify-content-center">
+    <h3
+      class="text-center bg-main-tertiary text-gray-200 border-round-xl fixed z-2 bottom-30-px py-1 px-3 mx-5 fadeinup animation-duration-1000">
+      {{ isViewTicket()
+        ? showSolvedMessage()
+          ? messages.ticketsSolutionOnlyHrs
+          : ''
+        : messages.displayApproverOrModeratorAvailable
+      }}
+    </h3>
+  </div>
+}

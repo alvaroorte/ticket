@@ -1,0 +1,439 @@
+<div class="card flex justify-content-center">
+  <p-dialog 
+    [focusOnShow]="false"
+    [(visible)]="modalVisible"
+    styleClass="w-11"
+    [modal]="true"
+    [draggable]="false"
+    (onHide)="hideModal()"
+    (onShow)="fillDescriptionTicket(descriptionTicket())"
+    >
+    <ng-template #header>
+      <h2 class="flex-1 text-center capitalize">{{ ticket().code }}</h2>
+    </ng-template>
+    <ng-template pTemplate="content">
+      <p-image #imagePreview class="hidden" [preview]="true" appendTo="body" />
+      <section class="flex justify-content-center mt-0 ">
+        <div class="flex gap-6 mb-3">
+          @if (showDeribationAndAssociatedButton() && ticket().typeTicket == TypeTicketEnum.SOLICITUD) {
+            @if (ticket().technician) {
+              <p-button [label]="labels.associateTicket"
+                icon="pi pi-link"
+                severity="info"
+                [rounded]="true"
+                size="small"
+                styleClass="hover-info shadow-4"
+                (click)="handleOpenFormTicketModal()"
+               />
+            }
+
+            <p-button [label]="labels.referTicket"
+              icon="pi pi-angle-double-right"
+              [rounded]="true"
+              size="small"
+              styleClass="hover-primary shadow-4"
+              (click)="handleOpenModalDerivation()"
+             />
+          }
+          <p-button [label]="labels.seeTimeline"
+            icon="pi pi-chart-line"
+            [rounded]="true"
+            severity="warn"
+            size="small"
+            styleClass="hover-warn shadow-4"
+            (click)="handleOpenModalTimeLine()"
+           />
+        </div>
+      </section>
+      <section class="grid justify-content-center mt-3">
+          <section class="col-12 lg:col-6 border-right-1 border-bluegray-700">
+            <h3 class="text-center mb-3 underline"> {{ labels.generalData }} </h3>
+            <div class="grid mb-4">
+              <div class="col-12 py-0 px-3">
+                <div class="rotate-360 p-0 grid">
+                  <span class="lynch-500 col-6 text-right"><i class="pi pi-arrow-up-right rotate-360-active mr-2"></i> {{ labels.priority }}: </span>
+                  <span class="lynch-600 col-6 text-left font-semibold">{{ ticket().priorityName }}</span>
+                </div>
+              </div>
+
+              <div class="col-12 py-0 px-3">
+                <div class="rotate-360 p-0 grid">
+                  <span class="lynch-500 col-6 text-right"><i class="pi pi-building rotate-360-active mr-2"></i>{{ labels.enterprise }}:</span>
+                  <span class="lynch-600 col-6 text-left font-semibold">{{ ticket().enterpriseCode }}</span>
+                </div>
+              </div>
+
+              <div class="col-12 py-0 px-3">
+                <div class="rotate-360 p-0 grid">
+                  <span class="lynch-500 col-6 text-right"><i class="pi pi-calendar rotate-360-active mr-2"></i>{{ labels.creationDate }}:</span>
+                  <span class="lynch-600 col-6 text-left font-semibold cursor-pointer">{{ ticket().createdAt | formatDateWhitHour }}</span>
+                </div>
+              </div>
+
+              <div class="col-12 py-0 px-3">
+                <div class="rotate-360 p-0 grid">
+                  <span class="lynch-500 col-6 text-right"><i class="pi pi-folder rotate-360-active mr-2"></i>{{ labels.category }}:</span>
+                  <span class="lynch-600 col-6 text-left font-semibold uppercase">{{ ticket().category }}</span>
+                </div>
+              </div>
+
+              <div class="col-12 py-0 px-3">
+                <div class="rotate-360 p-0 grid">
+                  <span class="lynch-500 col-6 text-right"><i class="pi pi-folder-open rotate-360-active mr-2"></i>{{ labels.subcategory }}:</span>
+                  <span class="lynch-600 col-6 text-left font-semibold capitalize">{{ ticket().subCategory }}</span>
+                </div>
+              </div>
+
+              @if (ticket().costCenter) {
+                <div class="col-12 py-0 px-3">
+                  <div class="rotate-360 p-0 grid">
+                    <span class="lynch-500 col-6 text-right"><i class="pi pi-chart-bar rotate-360-active mr-2"></i>{{ labels.costCenter }}:</span>
+                    <span class="lynch-600 col-6 text-left font-semibold capitalize">{{ ticket().costCenter }}</span>
+                  </div>
+                </div>
+              }
+
+              <div class="col-12 py-0 px-3">
+                <div class="rotate-360 p-0 grid">
+                  <span class="lynch-500 col-6 text-right"><i class="pi pi-shield rotate-360-active mr-2"></i>{{ labels.status }}:</span>
+                  <span class="lynch-600 col-6 text-left font-semibold">{{ ticket().flowStatusName }}</span>
+                </div>
+              </div>
+              @if (ticket().tag) {
+                <div class="col-12 py-0 px-3">
+                  <div class="rotate-360 p-0 grid">
+                    <span class="lynch-500 col-6 text-right"><i class="pi pi-tag rotate-360-active mr-2"></i>{{ labels.tag }}:</span>
+                    <span 
+                      [style]="{'background-color': ticket().tagColor}" 
+                      class="text-sm border-1 border-round-xl text-white lynch-600 text-left font-semibold align-self-center p-1">
+                      {{ ticket().tag }}
+                    </span>
+                  </div>
+                </div>
+              }
+            </div>
+            @if (ticket().approver || ticket().moderator) {
+              <h3 class="text-center mb-3 underline">Aprobador / Moderador</h3>
+              <div class="grid mb-4">
+                @if (ticket().approver) {
+                  <div class="col-12 py-0 px-3">
+                    <div class="rotate-360 p-0 grid">
+                      <span class="lynch-500 col-6 text-right"><i class="pi pi-user rotate-360-active mr-2"></i>{{ labels.approver }}:</span>
+                      <span class="lynch-600 col-6 text-left font-semibold">{{ ticket().approver }}</span>
+                    </div>
+                  </div>
+                }
+                @if (ticket().moderator) {
+                  <div class="col-12 py-0 px-3">
+                    <div class="rotate-360 p-0 grid">
+                      <span class="lynch-500 col-6 text-right"><i class="pi pi-user rotate-360-active mr-2"></i>{{ labels.moderator }}:</span>
+                      <span class="lynch-600 col-6 text-left font-semibold">{{ ticket().moderator }}</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+            <h3 class="text-center mb-3 underline"> {{ labels.usersRelatedWithTicket }} </h3>
+            <div class="grid mb-4">
+              <div class="col-12 py-0  text-center px-3">
+                <div class="rotate-360 p-0 grid">
+                  <span class="lynch-500 col-6 text-right"><i class="pi pi-user rotate-360-active mr-2"></i>{{ labels.requester }}:</span>
+                  <span class="lynch-600 col-6 text-left font-semibold">{{ ticket().requester }}</span>
+                </div>
+              </div>
+
+              @if (ticket().requesterPhoneNumber) {
+                <div class="col-12 py-0 px-3">
+                  <div class="rotate-360 p-0 grid">
+                    <span class="lynch-500 col-6 text-right"><i class="pi pi-phone rotate-360-active mr-2"></i> {{ labels.contactRequester }}:</span>
+                    <span class="lynch-600 col-6 text-left font-semibold">{{ ticket().requesterPhoneNumber }}</span>
+                  </div>
+                </div>
+              }
+
+              @if (ticket().requesterAddress) {
+                <div class="col-12 py-0  text-center px-3">
+                  <div class="rotate-360 p-0 grid">
+                    <span class="lynch-500 col-6 text-right"><i class="pi pi-map-marker rotate-360-active mr-2"></i>{{ labels.ubicationRequester }}:</span>
+                    <span class="lynch-600 col-6 text-left font-semibold">{{ ticket().requesterAddress }}</span>
+                  </div>
+                </div>
+              }
+
+              <div class="col-12 py-0 px-3">
+                <div class="rotate-360 p-0 grid">
+                  <span class="lynch-500 col-6 text-right"><i class="pi pi-wrench rotate-360-active mr-2"></i>{{ labels.technician }}:</span>
+                  <span class="lynch-600 col-6 text-left font-semibold">{{ (ticket().technician)? ticket().technician: 'Sin Técnico' }}</span>
+                </div>
+              </div>
+              @if (ticket().technicianPhoneNumber) {
+                <div class="col-12 py-0  text-center px-3">
+                  <div class="rotate-360 p-0 grid">
+                    <span class="lynch-500 col-6 text-right"><i class="pi pi-phone rotate-360-active mr-2"></i>{{ labels.contactTechnician }}:</span>
+                    <span class="lynch-600 col-6 text-left font-semibold">{{ ticket().technicianPhoneNumber }}</span>
+                  </div>
+                </div>
+              }
+              @if (ticket().technicianAddress) {
+                <div class="col-12 py-0  text-center px-3">
+                  <div class="rotate-360 p-0 grid">
+                    <span class="lynch-500 col-6 text-right"><i class="pi pi-map-marker rotate-360-active mr-2"></i>{{ labels.ubicationTechnician }}:</span>
+                    <span class="lynch-600 col-6 text-left font-semibold">{{ ticket().technicianAddress }}</span>
+                  </div>
+                </div>
+              }
+              @if (ticket().leader) {
+                <div class="col-12 py-0 px-3">
+                  <div class="rotate-360 p-0 grid">
+                    <span class="lynch-500 col-6 text-right"><i class="pi pi-wrench rotate-360-active mr-2"></i>{{ labels.leader }}:</span>
+                    <span class="lynch-600 col-6 text-left font-semibold">{{ ticket().leader }}</span>
+                  </div>
+                </div>
+              }
+              @if (ticket().leaderPhoneNumber) {
+                <div class="col-12 py-0  text-center px-3">
+                  <div class="rotate-360 p-0 grid">
+                    <span class="lynch-500 col-6 text-right"><i class="pi pi-phone rotate-360-active mr-2"></i>{{ labels.contactLeader }}:</span>
+                    <span class="lynch-600 col-6 text-left font-semibold">{{ ticket().leaderPhoneNumber }}</span>
+                  </div>
+                </div>
+              }
+
+            </div>
+          </section>
+          <section class="col-12 lg:col-6 max-h-full overflow-y-auto">
+            <div class="grid col-12 pl-5">
+              <div class="col-12 text-center">
+                <h4 class="lynch-600">{{ labels.title }}:</h4>
+                  <h3 class="lynch-900 mb-1"> {{ ticket().title }} </h3>
+              </div>
+              @if (showAccordion()) {
+                <p-accordion [value]="accordionValue()" class="w-full break-word" >
+                  <p-accordion-panel [value]="accordionValueEnum.DESCRIPTION">
+                    <p-accordion-header>
+                      <div class="flex items-center gap-2 w-full">
+                        <span class="font-bold white-space-nowrap">
+                          {{ labels.description }}
+                        </span>
+                        <span class="pi pi-align-justify ml-2 font-bold text-lg"></span>
+                      </div>
+                    </p-accordion-header>
+                    <p-accordion-content>
+                      <div #descriptionTicket [innerHTML]="ticket().description | sanitizeHtml" class="p-2"></div>
+                      @if (ticket().fileName) {
+                        <app-view-file 
+                          class="flex justify-content-center align-items-center" 
+                          [fileName]="ticket().fileName"
+                        />
+                      }
+                    </p-accordion-content>
+                  </p-accordion-panel>
+                  
+                  <p-accordion-panel [value]="accordionValueEnum.OBSERVERS">
+                    <p-accordion-header>
+                      <div class="flex items-center gap-2 w-full">
+                        <span class="font-bold white-space-nowrap">
+                          {{ labels.observers }}
+                        </span>
+                        <span class="pi pi-eye ml-2 font-bold text-lg"></span>
+                      </div>
+                    </p-accordion-header>
+                    <p-accordion-content>
+                      <div class="p-2 flex justify-content-center">
+                        <app-multi-select-generic-users 
+                          [maxSelectedLabels]="1" 
+                          (onSelectedUserIds)="setSelectObservers($event)" 
+                          [usersForLoad]="observerList()"
+                          [showListNames]="true"
+                          style="min-width: 10rem;"
+                         />
+                        @if (ticket().flowStatusName != STATES_TICKET_ENUM.CLOSED) {
+                          <button
+                            pButton pRipple
+                            icon="pi pi-save"
+                            size="small"
+                            [rounded]="true"
+                            class="mx-3 shadow-3 hover-primary"
+                            (click)="saveObservers()"
+                            pTooltip="Guardar observador(s)"
+                          ></button>
+                        }
+                      </div>
+                    </p-accordion-content>
+                  </p-accordion-panel>
+                  @if (ticket().requester == userEmailLogged() && ticket().typeTicket == TypeTicketEnum.INCIDENTE) {
+                    <p-accordion-panel [value]="accordionValueEnum.INCIDENT_DATES">
+                      <p-accordion-header>
+                        <div class="flex items-center gap-2 w-full">
+                          <span class="font-bold white-space-nowrap">
+                            {{ labels.incidentDates }}
+                          </span>
+                          <span class="pi pi-calendar ml-2 font-bold text-lg"></span>
+                        </div>
+                      </p-accordion-header>
+                      <p-accordion-content>
+                        <div class="grid col-12">
+                          <div class="col-6 text-center">
+                            <h4> {{ labels.startDate }} </h4>
+                            <p htmlFor="incidentStartDate" class="text-lg font-bold text-800 text-800 mt-2"> {{ incidentStartDate }} </p>
+                          </div>
+                          <div class="col-6 text-center">
+                            <h4> {{ labels.endDate }} </h4>
+                            <p htmlFor="incidentEndDate" class="text-lg font-bold text-800 text-800 mt-2"> {{ incidentEndDate }} </p>
+                          </div>
+                      </div>
+                      </p-accordion-content>
+                    </p-accordion-panel>
+                  }
+                  @if (isVIewPending()) {
+                    <p-accordion-panel [value]="accordionValueEnum.ESTIMATED_DATES">
+                      <p-accordion-header>
+                        <div class="flex items-center gap-2 w-full">
+                          <span class="font-bold white-space-nowrap">
+                            {{ labels.estimatedDates }}
+                          </span>
+                          <span class="pi pi-calendar ml-2 font-bold text-lg"></span>
+                        </div>
+                      </p-accordion-header>
+                      <p-accordion-content>
+                        <div class="mt-2 p-2 flex justify-content-center">
+                          <p-floatlabel>
+                            <p-datepicker id="estimatedStartDate"
+                              [(ngModel)]="estimatedStartDate" 
+                              styleClass="mr-3"
+                              [showIcon]="true"
+                              dateFormat="dd/mm/yy"
+                              [readonlyInput]="true"
+                              [showButtonBar]="true"
+                              [minDate]="today"
+                              appendTo="body" />
+                            <label htmlFor="estimatedStartDate" class="text-lg font-bold text-800 text-800"> {{ labels.initialDate }} </label>
+                          </p-floatlabel>
+                          <p-floatlabel>
+                            <p-datepicker id="estimatedEndDate"
+                              [(ngModel)]="estimatedEndDate"
+                              [showIcon]="true"
+                              dateFormat="dd/mm/yy"
+                              [readonlyInput]="true"
+                              [showButtonBar]="true"
+                              [minDate]="today"
+                              appendTo="body" />
+                            <label htmlFor="estimatedEndDate" class="text-lg font-bold text-800 text-800"> {{ labels.finishDate }} </label>
+                          </p-floatlabel>
+                          <button
+                            pButton pRipple
+                            icon="pi pi-save"
+                            size="small"
+                            [rounded]="true"
+                            class="mx-3 shadow-3 hover-primary"
+                            (click)="saveEstimatedDates()"
+                            pTooltip="Guardar fechas"
+                          ></button>
+                        </div>
+                        @if (ticket().estimatedDates.length > 0) {
+                          <div class="flex justify-content-center mt-2">
+                            <p-table
+                              [value]="ticket().estimatedDates"
+                              [scrollable]="true"
+                              scrollHeight="350px"
+                              size="small">
+                              <ng-template pTemplate="header">
+                                <tr>
+                                  <th>{{ labels.initialDate }}</th>
+                                  <th>{{ labels.finishDate }}</th>
+                                  <th>{{ labels.createdBy }}</th>
+                                  <th>{{ labels.status }}</th>
+                                </tr>
+                              </ng-template>
+                              <ng-template pTemplate="body" let-date>
+                                <tr class="obs-body">
+                                  <td> {{ date.startDate | formatDate }} </td>
+                                  <td> {{ date.endDate | formatDate }} </td>
+                                  <td> {{ date.createdBy }} </td>
+                                  <td [ngClass]="['text-center', date.active? 'text-green-500': 'text-red-500' ]">
+                                    {{ date.active? "Activo": "Inactivo" }}
+                                  </td>
+                                </tr>
+                              </ng-template>
+                            </p-table>
+                          </div>
+                        }
+                      </p-accordion-content>
+                    </p-accordion-panel>
+                  }
+                  @if (ticket().associatedTicketCodes.length > 0) {
+                    <p-accordion-panel [value]="accordionValueEnum.ASSOCIATED_TICKETS">
+                      <p-accordion-header>{{ labels.associatedTickets }}</p-accordion-header>
+                      <p-accordion-content>
+                        @for (code of ticket().associatedTicketCodes; track code) {
+                          <h3 class="text-center">
+                            {{ code }}
+                          </h3>
+                        }
+                      </p-accordion-content>
+                    </p-accordion-panel>
+                  }
+                  @if (posibleSolutions.length > 0) {
+                    <p-accordion-panel [value]="accordionValueEnum.SOLUTIONS">
+                      <p-accordion-header>{{ labels.solutions }}</p-accordion-header>
+                      <p-accordion-content>
+                        <div #divPosibleSolution id="divPosibleSolution" class="p-1">
+                          @for (solution of posibleSolutions; track solution.createdAt) {
+                            <section class="border-bottom-2 border-round-xl-2 mb-5">
+                              <span class="text-right font-bold mb-2">{{ labels.solutionDate }}:</span> {{ solution.createdAt | formatDateWhitHour }}
+                              <article class="mb-2" [innerHTML]="solution.description"></article>
+                              @if (solution.fileName) {
+                                <app-view-file 
+                                  class="flex align-items-center mb-3" 
+                                  [fileName]="solution.fileName"
+                                />
+                              }
+                              <table class="mb-3">
+                                <tbody>
+                                  @if (solution.causeIncident) {
+                                  <tr>
+                                    <td class="text-right font-semibold mr-3"> {{ labels.reasonTicket }}: </td>
+                                    <td> {{ solution.causeIncident }} </td>
+                                  </tr>
+                                  }
+                                  @if (solution.system) {
+                                  <tr>
+                                    <td class="text-right font-semibold mr-3"> {{ labels.system }}: </td>
+                                    <td> {{ solution.system }} </td>
+                                  </tr>
+                                  }
+                                  @if (solution.impact) {
+                                  <tr>
+                                    <td class="text-right font-semibold mr-3"> {{ labels.impact }}: </td>
+                                    <td> {{ solution.impact }} </td>
+                                  </tr>
+                                  }
+                                  @if (solution.activity) {
+                                  <tr>
+                                    <td class="text-right font-semibold mr-3"> {{ labels.activity }}: </td>
+                                    <td> {{ solution.activity }} </td>
+                                  </tr>
+                                  }
+                                </tbody>
+                              </table>
+                            </section>
+                          }
+                        </div>
+                      </p-accordion-content>
+                    </p-accordion-panel>
+                  }
+                </p-accordion>
+              }
+            </div>
+          </section>
+      </section>
+
+    </ng-template>
+  </p-dialog>
+</div>
+
+<app-modal-form-ticket (eventTicketAsociatedORDerivated)="eventTicketAsociatedORDerivated()"/>
+<app-modal-derivation 
+  [ticketId]="ticket().id"
+  (eventOnDerivated)="eventTicketAsociatedORDerivated()"
+/>

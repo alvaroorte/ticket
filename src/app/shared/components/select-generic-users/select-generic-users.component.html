@@ -1,18 +1,27 @@
-<p-dropdown inputId="categoryId" [(ngModel)]="userId"
-    [options]="users"
-    optionLabel="name"
-    optionValue="id"
-    [filter]="true"
-    filterBy="name"
-    (onChange)="setUser($event)"
-    styleClass="p-inputtext-sm mt-1"
-    [showClear]="true"
-    appendTo="body"
-    placeholder="Buscar por nombre o apellidos"
-    emptyFilterMessage="No se encontraron coincidencias."
-    emptyMessage="No se encontraron coincidencias."
-    filterPlaceholder="Introduzca un caracter"
-    [virtualScroll]="true"
-    [virtualScrollItemSize]="30">
-</p-dropdown>
+<p-floatlabel>
+    <p-select 
+        inputId="users-generic"
+        [ngModel]="userId()"
+        [options]="users()"
+        optionLabel="email"
+        optionValue="credentialId"
+        [filter]="true"
+        filterBy="email"
+        (onChange)="setUser($event.value)"
+        class="w-full"
+        [showClear]="true"
+        appendTo="body"
+        emptyFilterMessage="No se encontraron coincidencias."
+        emptyMessage="No se encontraron coincidencias."
+        [virtualScroll]="true"
+        [virtualScrollItemSize]="30"
+        [filterPlaceholder]="placeholders.onDemandFilterInput"
+        [showClear]="!isRequired()"
+        (onFilter)="tryGetUsers($event.filter)"/>
+    <label 
+        for="users-generic" 
+        [ngClass]="['text-lg font-bold text-800', isRequired? 'required-field': '']">
+        {{ label() }}
+    </label>
+</p-floatlabel>
 

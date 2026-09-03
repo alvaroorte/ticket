@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject  } from '@angular/core';
 import { environment } from '@core/environments/environment.development';
-import { DataCommon } from '@core/models/FieldsCommons';
+import { FlowStatus } from '@core/interfaces/flow.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -9,9 +9,9 @@ import { DataCommon } from '@core/models/FieldsCommons';
 export class FlowStatusService {
   private http = inject(HttpClient);
 
-  private serverUrl: string = environment.server_url;
+  private serverUrlFlowStatus: string = environment.server_url + "flowStatus";
 
-  public listSelect(  ) {
-    return this.http.get<DataCommon[]>(this.serverUrl+'flowStatus/listSelect');
+  public getSelect() {
+    return this.http.get<FlowStatus[]>(`${this.serverUrlFlowStatus}/select`);
   }
 }

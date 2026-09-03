@@ -1,4 +1,6 @@
-@import "../../../../style-colors.scss";
+.image-logo-header {
+    max-height: 4.5rem;
+}
 
 li {
     list-style-type: none;
@@ -12,13 +14,14 @@ li {
 a {
     text-decoration: none;
     box-sizing: border-box;
+    min-height: 1.6rem;
 }
 
-.yellow-hover-round {
+.hover-round-header {
     transition: transform 0.3s ease-in-out;
 }
 
-.yellow-hover-round:hover {
+.hover-round-header:hover {
     box-sizing: border-box;
     border-radius: 10px;
     border-width: 2px !important;
@@ -26,7 +29,7 @@ a {
     border-left: none;
     border-top: none;
     border-right: none;
-    border-color: $border-yellow;
+    border-color: var(--p-inputtext-hover-border-color);
     transform: scale(1.1) translateY(-5px);
 }
 
@@ -38,9 +41,8 @@ a {
     border-left: none;
     border-top: none;
     border-right: none;
-    border-color: $border-yellow;
     font-size: 1.2rem;
-    font-weight: 700;
+    font-weight: 550;
 }
 
 

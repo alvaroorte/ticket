@@ -1,13 +1,29 @@
-export class Parameter  {
-    id: number | null = null;
-    folder: string | null = null;
-    ranking: number | null = null;
-    value: string | null = null;
-    icon: string | null = null;
-    color: string | null = null;
-    magnitude: string | null = null;
-    kind: string | null = null;
-    title: string | null = null;
-    description: string | null = null;
-    status?: boolean | null = null;
+import { FoldersParametersEnum } from "@core/enums/folder-parameters.enum";
+import { Base } from "./base";
+
+export class Parameter extends Base  {
+    id: number;
+    folder: string;
+    ranking: number;
+    value: string;
+    icon: string;
+    color: string;
+    magnitude: string;
+    kind: string;
+    title: string;
+    description: string;
+    status?: boolean;
+}
+
+export interface IParameterSelect  {
+    id: number;
+    folder: FoldersParametersEnum;
+    ranking: number;
+    value: string;
+    color: string;
+}
+
+export interface IFolder  {
+    name: string;
+    editable: boolean;
 }

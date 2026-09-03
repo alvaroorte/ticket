@@ -1,57 +1,61 @@
-import { Component, EventEmitter, inject, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Input } from '@angular/core';
+import { Component, inject, OnInit, output, input, WritableSignal, OnDestroy, signal } from '@angular/core';
+
+
 import { HelpersService } from '@core/services/helpers.service';
-import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { PrimeComponentsModule } from '../../prime-components/prime-components.module';
-import { messages } from '@core/constants/constants';
+import { PrimeModules } from '../../prime-components/prime-components.module';
+import { MESSAGES } from '@core/constants/messages';
+import { LABELS } from '@core/constants/labels';
+import { IGenericTable } from '@core/interfaces/generic-table.interface';
+import { IServiceCommon } from '@core/interfaces/service-common.interface';
+import { Severity } from '@core/enums/severity';
 
 @Component({
-  selector: 'app-modal-delete',
-  standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, PrimeComponentsModule ],
-  templateUrl: './modal-delete.component.html'
+    selector: 'app-modal-delete',
+    imports: [RouterModule, PrimeModules],
+    templateUrl: './modal-delete.component.html'
 })
-export class ModaldeleteComponent {
-  @Input() serviceGeneric: any;
-  @Input() object: number | any;
-  @Output() onDeleteSuccess = new EventEmitter();
-  private tableComponent: any;
-  public openModal: boolean = false;
+
+export class ModalDeleteComponent implements OnInit, OnDestroy {
+  readonly serviceGeneric = input.required<IServiceCommon>();
+  readonly objectId = input.required<number>();
+  readonly onDeleteSuccess = output();
 
   private helpersService = inject(HelpersService);
+  
+  public readonly labels = LABELS;
+  public readonly messages = MESSAGES;
+  private tableComponent: WritableSignal<IGenericTable>;
+  public openModal = signal<boolean>(false);
 
   ngOnInit() {
-    if ( this.serviceGeneric ) {
-      this.serviceGeneric.eventModalDeleteComponent.emit(this);
-
-      this.serviceGeneric.eventTableComponent.subscribe((tableComponent: any) => {
-        this.tableComponent = tableComponent;
-      });
+    const serviceGeneric = this.serviceGeneric();
+    if ( serviceGeneric ) {
+      serviceGeneric.eventModalDeleteComponent.set(this);
+      this.tableComponent = serviceGeneric.eventTableComponent;
     }
+  }
+
+  ngOnDestroy(): void {
+    this.serviceGeneric().eventModalDeleteComponent.set(null);
   }
 
   public openConfirm() {
       this.openModalDelete(true);
   }
 
-  confirmDelete() {
+  public confirmDelete() {
     this.openModalDelete(false);
-    this.serviceGeneric.delete( parseInt(this.object) ).subscribe({
-      next: ( res:string ) => {
-        this.tableComponent.reload();
+    this.serviceGeneric().delete(this.objectId()).subscribe({
+      next: () => {
+        this.tableComponent().reload();
         this.onDeleteSuccess.emit();
-        this.helpersService.messageNotification("success", "Correcto", messages.deleteRow);
-      },
-      error: (err: any) => {
-        console.log(err);
-        this.helpersService.messageNotification("warn", "Error", err.message);
+        this.helpersService.messageNotification(Severity.success, "Correcto", MESSAGES.recordDeleted);
       }
     })
   }
 
-  openModalDelete(state: any) {
-    this.openModal = state;
+  public openModalDelete(state: boolean) {
+    this.openModal.set(state);
   }
 }

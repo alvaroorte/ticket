@@ -1,156 +1,123 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { HomeModule } from './home.module';
+import { Component, OnInit, computed, inject, signal, input, output } from '@angular/core';
 import { HelpersService } from '@core/services/helpers.service';
-import { Category } from '@core/models/Category';
 import { StepperComponent } from '@shared/components/stepper/stepper.component';
-import { DerivationTicket, TicketById, TicketSend } from '@core/models/Ticket';
-import { TicketsService } from '@ticket-historical/services/tickets-.service';
-import { FormTicketCommonComponent } from '@shared/components/form-ticket-common/form-ticket.component';
-import { FileService } from '@core/services/fileService';
-import { Enterprise } from '@core/models/Enterprise';
+import { Ticket, TicketById, TicketSend } from '@core/models/Ticket';
+import { TicketService } from '@ticket-historical/services/tickets.service';
+import { FileService } from '@core/services/file-service.service';
+import { CategoryShort, CategoryWithEnterprise } from '@core/models/Category';
+import { DataTicket } from '@core/interfaces/ticket.interface';
+import { Router } from '@angular/router';
+import { TYPE_VIEW_LIST_TICKET } from '@core/constants/ticket-view-type';
+import { Severity } from '@core/enums/severity';
+import { LABELS } from '@core/constants/labels';
+import { CardsCategoriesComponent } from './components/cards-categories/cards-categories.component';
+import { MESSAGES } from '@core/constants/messages';
+import { switchMap } from 'rxjs';
+import { FormTicketRequesterComponent } from '@shared/components/form-ticket-requester/form-ticket-requester.component';
 
 @Component({
-  selector: 'app-home',
-  standalone: true,
-  imports: [CommonModule, HomeModule, StepperComponent, FormTicketCommonComponent],
-  templateUrl: './home.component.html',
-  providers: [ HelpersService ]
+    selector: 'app-home',
+    imports: [StepperComponent, FormTicketRequesterComponent, CardsCategoriesComponent],
+    templateUrl: './home.component.html',
+    providers: [HelpersService]
 })
 export class HomeComponent implements OnInit {
 
-    @Input() idRecursive: number | null = null;
-    @Input() dataRecursive!: TicketById;
-    @Input() isDerivation: boolean = false;
-    @Output() eventTicketCreated = new EventEmitter();
+    readonly parentTicketId = input<number>();
+    readonly dataRecursive = input<TicketById>();
+    readonly onTicketAssociatedORDerivated = output();
 
-    public indexCurrent = signal<number>(1);
-    public numberColumns = signal<number>(4);
-    public steps = signal<string[]>(['Categoría', 'Subcategoría', 'Datos Ticket']);
-    public category = signal<Category>(new Category);
-    public enterprise = signal<Enterprise>(new Enterprise);
-    private subcategory = signal<Category>(new Category);
-    public showUploadFile = signal(true);
-
-    private ticketsService = inject(TicketsService);
+    private ticketService = inject(TicketService);
     private fileService = inject(FileService);
     private helpersService = inject(HelpersService);
+    private router = inject(Router);
+
+    public indexCurrent = signal<number>(1);
+    public category = signal<CategoryShort>(null);
+    public enterpriseSelectedId = signal<number>(null);
+    public enterpriseSelectedName = signal<string>('');
+    public hasCostCenter = signal<boolean>(false);
+    public steps = computed(() => {
+        const result: string[] = [
+            this.category()?.id? `Categoría: ${this.category().name}`: 'Categoría',
+            'Datos del ticket',
+        ];
+        return result;
+    })
 
     ngOnInit(): void {
         this.resetForm();
     }
 
     private resetForm() {
-        this.changeIndex(1);
-        this.category.set(new Category);
-        this.steps.update((current) => {
-            let result: string[] = current;
-            result[0] = "Categoría";
-            return result;
-        });
+        this.category.set(null);
+        this.changedIndex(1);
     }
 
-    public changeIndex(index: number) {
+    public changedIndex(index: number) {
         switch (index) {
             case 1:
-                this.steps.update((current) => {
-                    let result: string[] = current;
-                    result[1] = "Subcategoría";
-                    return result;
-                });
-                this.subcategory.set(new Category);
+                this.category.set(null);
+                this.indexCurrent.set(index);
                 break;
             case 2:
-                if (!this.category().name) {
-                    this.helpersService.messageNotification("warn", 'Por favor', 'Seleccione una categoría primero', 3000);
-                    index = this.indexCurrent();
+                if (!this.category()) {
+                    this.helpersService.messageNotification(Severity.warn, LABELS.please, MESSAGES.firstSelectedACategory);
                 }
-                break;
-            case 3:
-                if (!this.category().name) {
-                    this.helpersService.messageNotification("warn", 'Por favor', 'Seleccione una categoría primero', 3000);
-                    index = this.indexCurrent();
-                } else if (!this.subcategory().name) {
-                    this.helpersService.messageNotification("warn", 'Por favor', 'Seleccione una subcategoría primero', 3000);
-                    index = this.indexCurrent();
-                }
-            break;
-
-            default:
                 break;
         }
-        this.indexCurrent.set(index);
+        
     };
 
-    public setSelectedCategory(data: {category: Category, enterprise: Enterprise}) {
+    public setSelectedCategoryAndEnterprise(data: CategoryWithEnterprise) {
         this.category.set(data.category);
-        this.enterprise.set(data.enterprise);
-        this.steps.update((current) => {
-            let result: string[] = current;
-            result[0] = "Categoria: " + data.category.name;
-            return result;
-        });
+        this.enterpriseSelectedId.set(data.enterpriseId);
+        this.enterpriseSelectedName.set(data.enterpriseName);
+        this.hasCostCenter.set(data.hasCostCenter);
         this.indexCurrent.set(2);
     }
 
-    public setSelectedSubcategory(subcategory: Category) {
-        this.subcategory.set(subcategory);
-        if ( this.isDerivation ) {
-            this.updateTicket()
-        } else {
-            this.steps.update((current) => {
-                let result: string[] = current;
-                result[1] = "Subcategoría: " + subcategory.name;
-                return result;
-            })
-            this.indexCurrent.set(3);
-        }
+    public saveTicket(dataTicket: DataTicket) {
+      dataTicket.file
+          ? this.saveWithAttachment(dataTicket)
+          : this.createTicket(dataTicket);
     }
 
-    public createTicket(dataTicket: any) {
-        let data: TicketSend = new TicketSend();
-        data.idRecursive = this.idRecursive,
-        data.categoryId = this.category().id,
-        data.subCategoryId = this.subcategory().id,
-        data.title = dataTicket.values.title,
-        data.description = dataTicket.values.description,
-        data.priorityId = dataTicket.values.priorityId,
-        data.ubication = dataTicket.values.ubication,
-        data.phone = dataTicket.values.phone,
-        data.image = "",
-        data.domain = dataTicket.values.domain
-        this.ticketsService.create(data).subscribe({
-            next: (res) => {
-                this.eventTicketCreated.emit();
-                this.resetForm();
-                ( data.idRecursive )? '': this.helpersService.messageNotification("success", "Correcto", `El ticket ${res.title} ha sido creado.`, 3000);
-                ( dataTicket.file )? this.fileService.subirArchivo(dataTicket.file, '', res.id as number): '';
-            },
-            error: (err) => {
-                console.log(err);
-                ( data.idRecursive )? '': this.helpersService.messageNotification("error", 'Error', err.message, 3000);
-            }
+    private saveWithAttachment(dataTicket: DataTicket) {
+        const body: FormData = this.fileService.getDataForUploadFile(dataTicket.file, dataTicket.values.title);
+        this.fileService.upload(body).pipe(
+          switchMap((resp) => {
+            const data: TicketSend = {
+                ...dataTicket.values,
+                parentTicketId: this.parentTicketId(),
+                attachmentId: resp.id
+            };  
+            return this.ticketService.createRequest(data)
+          })
+        ).subscribe({
+            next: (res) => this.onCreateTicket(res)
+        });
+    }
+
+    private createTicket(dataTicket: DataTicket) {
+        const data: TicketSend = {
+            ...dataTicket.values,
+            parentTicketId: this.parentTicketId(),
+        };        
+        this.ticketService.createRequest(data).subscribe({
+            next: (res) => this.onCreateTicket(res)
         })
     }
 
-    private updateTicket() {
-        const data: DerivationTicket = {
-            categoryId: this.category().id!,
-            subCategoryId: this.subcategory().id!,
-            domain: this.category().folder!,
-            description: this.dataRecursive.description,
-            priorityId: this.dataRecursive.priorityId
+    private onCreateTicket(ticket: Ticket) {
+        let message: string = MESSAGES.recordCreated;
+        if ( this.parentTicketId() ) {
+            this.onTicketAssociatedORDerivated.emit()
+            message = MESSAGES.ticketAssociationWasCreatedSuccessfully(ticket.code);
+        } else {
+            this.router.navigateByUrl(`/tickets/${TYPE_VIEW_LIST_TICKET.myTicket}`);
         }
-        this.ticketsService.derivationTicket(this.idRecursive!, data).subscribe({
-            next: () => {
-                this.eventTicketCreated.emit();
-                this.resetForm();
-                this.helpersService.messageNotification("success", "Correcto", `El ticket se derivó correctamente.`, 3000);
-            },
-            error: (err) => {
-                console.log(err);
-                this.helpersService.messageNotification("error", 'Error', err, 3000);
-            }
-        });
+        this.resetForm();
+        this.helpersService.messageNotification(Severity.success, LABELS.ok, message);
     }
 }

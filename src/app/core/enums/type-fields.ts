@@ -1,0 +1,9 @@
+export enum TypeFieldEnum {
+    DROPDOWN,
+    RATING,
+    TEXTAREA_EDITOR,
+    TEXTAREA_SIMPLE,
+    FILE,
+    DESCRIPTION_TICKET,
+    SELECTED_BUTTON
+}

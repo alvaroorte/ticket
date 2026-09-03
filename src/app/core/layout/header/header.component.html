@@ -1,31 +1,96 @@
-<header class="pt-2 pb-1 px-4 flex overflow-hidden sticky top-0 header-main-custom" [style]="{'width': '101%', 'z-index': 100, 'background-color': backgroundColorHeader}">
-    <div class="flex-none flex align-items-center justify-content-center px-2">
-        <img src="/assets/images/endeSyc.png" alt="" routerLink="/welcome" class="image-logo-header px-3 border-2 border-round-3xl cursor-pointer">
-    </div>
-    <nav class="flex-grow-1 flex justify-content-center">
-        <ul class="flex flex-wrap gap-3 justify-content-center font-semibold align-items-center">
-            <ng-container *ngFor="let option of optionsHeader()">
-                <li *ngIf="option.access.includes(rolUser())">
-                    <a class="py-1 yellow-hover-round px-2 py-1 lynch-800 flex text-center" [routerLink]="option.routerLink" routerLinkActive='header-active'>{{option.label}}</a>
-                </li>
-            </ng-container>
-        </ul>
-    </nav>
-    <div class="flex-wrap flex align-items-center justify-content-center px-2"> 
-        <p-inputSwitch [(ngModel)]="themeSelection" [pTooltip]="labelMode()" tooltipPosition="bottom" (onChange)="changeTheme($event.checked)" class="mr-2" ></p-inputSwitch>
-        <a *ngIf="username() != 'Ingresar'; else elseBlock" (click)="menu.toggle($event)" class="yellow-hover-round lynch-600 font-medium px-2 py-1 text-center">
-            <span class="cursor-pointer"  >{{ username() }}</span> 
-            <i class="pi pi-user ml-2 "></i> 
-        </a>
-        <ng-template #elseBlock>
-            <a (click)="setOpenModalLogin()" class="yellow-hover-round lynch-600 font-medium px-2 py-1">
-                <span class="cursor-pointer" >Ingresar</span>
-                <i class="pi pi-user ml-2 "></i>  
+<header
+  class="px-4 flex overflow-hidden sticky top-0 header-main-custom shadow-3"
+  [ngClass]="[backgroundColorHeader]"
+  [style]="{'width': '101%', 'z-index': 100}"
+  >
+  <div class="flex-none flex align-items-center justify-content-center px-2">
+    <img [src]="'/assets/images/'+imageLogo" alt="" routerLink="/" class="image-logo-header cursor-pointer">
+  </div>
+  <nav class="flex-grow-1 flex justify-content-center">
+    @if (loginService.userId()) {
+      <ul class="flex flex-wrap gap-3 justify-content-center font-medium align-items-center fadeinup animation-duration-500">
+        @for (option of optionsHeader(); track option.routerLink) {
+          @if (loginService.haveSomeRole(option.access) && option.show) {
+            <li>
+              <a
+                class="hover-round-header px-2 lynch-900 flex align-items-center pt-1"
+                [routerLink]="option.routerLink"
+                routerLinkActive='header-active border-primary'>
+                @if (option.icon) {
+                  <i [ngClass]="[option.icon, 'mr-2 font-semibol']"></i>
+                }
+                {{option.label}}
+              </a>
+            </li>
+          }
+        }
+        @if (configurationLinks().length > 0) {
+          <li>
+            <a
+              role="button"
+              tabindex="0"
+              (click)="parameters.toggle($event)"
+              (keydown.enter)="parameters.toggle($event)"
+              (keydown.space)="parameters.toggle($event)"
+              class="hover-round-header px-2 lynch-900 flex align-items-center pt-1 cursor-pointer">
+              {{ labels.configurations }}
+              <i class="pi pi-angle-down ml-1"></i>
             </a>
-        </ng-template>
-    </div>
-    
-</header>
-<p-menu #menu [model]="optionsUser" [popup]="true"></p-menu>
-<app-modal-info-user></app-modal-info-user>
+          </li>
+        }
+      </ul>
+    }
+  </nav>
+  <div class="flex-wrap flex align-items-center justify-content-center px-2">
+    @if (loginService.userId()) {
+      <p-overlay-badge
+        [value]="messageWsService.notificationsWithoutRead().length"
+        class="inline-flex mr-3"
+        [badgeDisabled]="messageWsService.notificationsWithoutRead().length == 0"
+      >
+        <i
+          class="pi pi-bell text-2xl cursor-pointer"
+          role="button"
+          tabindex="0"
+          aria-label="Notificaciones"
+          (click)="notificationsPopover.toggle($event)"
+          (keydown.enter)="notificationsPopover.toggle($event)"
+          (keydown.space)="notificationsPopover.toggle($event)"
+          pTooltip="Notificaciones"
+          tooltipPosition="bottom"
+        ></i>
+      </p-overlay-badge>
+    }
+    <p-popover #notificationsPopover>
+      <app-notification-panel (tryHidePopover)="hideNotificationsPopover(notificationsPopover)"/>
+    </p-popover>
+    <p-toggleswitch inputId="themeSelection"
+      [(ngModel)]="themeSelection"
+      [pTooltip]="labelMode"
+      tooltipPosition="bottom"
+      (onChange)="changeTheme(true)"
+      class="mr-2"
+     />
+    @if (loginService.userId()) {
+      <a
+        role="button"
+        tabindex="0"
+        (click)="menu.toggle($event)"
+        (keydown.enter)="menu.toggle($event)"
+        (keydown.space)="menu.toggle($event)"
+        class="hover-round-header lynch-800 font-medium px-2 py-1 text-center"
+        >
+        <span class="cursor-pointer">
+          {{ loginService.user() }}
+        </span>
+        <i class="pi pi-user ml-2 text-lg"></i>
+      </a>
+    }
+  </div>
 
+</header>
+<p-menu #menu [model]="optionsUser" [popup]="true" />
+<p-menu #parameters [model]="configurationLinks()" [popup]="true" />
+<app-modal-info-user />
+
+<app-modal-messages-ticket />

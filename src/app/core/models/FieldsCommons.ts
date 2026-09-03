@@ -10,11 +10,11 @@ export interface FieldsCommons  {
 
 export class DataCommon {
     id: number | null = null;
-    subId: number | null = null;
+    subId?: number | null = null;
     name: string | null = null;
-    description: string | null = null;
-    code: string | null = null;
-    status: boolean | null = false;
+    description?: string | null = null;
+    code?: string | null = null;
+    status?: boolean | null = false;
 }
 
 export interface SimpleResponse  {
@@ -26,7 +26,7 @@ export interface SimpleResponse  {
 
 export interface CredentialComplement  {
     ubication: string,
-    phone: string |null,
+    phone: string,
 }
 
 export interface RolUser  {

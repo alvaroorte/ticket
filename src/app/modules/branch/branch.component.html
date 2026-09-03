@@ -1,0 +1,21 @@
+<div class="container mx-0 mb-0 pb-4">
+    <div class="grid">
+        <div class="col-12 fadeindown animation-duration-400">
+            <div class="sombra-black border-round-xl p-2 surface-0">
+                <app-toolbar-common
+                    tooltipCreate="Crear sucursal" 
+                    [serviceGeneric]="branchService"                    
+                    [object]="branchSelected()"/> 
+                <app-modal-form [enterpriseId]="enterpriseId()" /> 
+                <app-modal-delete [serviceGeneric]="branchService" [objectId]="branchSelected()?.id" />
+                <app-generic-table [titleTable]="titleTable"
+                    [items]="branchs()"
+                    [tableProps]="tableProps"
+                    [tableColumnDefinitions]="tableColumnBranchDefinitions"
+                    (onSelection)="setBranch($event)"
+                    (requestData)="getByEnterprise()"
+                    (selfEmitter)="onTableSelfEmision($event)" />
+            </div>
+        </div>
+    </div>
+</div>

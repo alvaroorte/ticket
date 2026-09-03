@@ -1,47 +1,89 @@
 <form [formGroup]="formTeam">
 
-    <div class="grid">
-        <div class="col-12">
-            <p-dialog [(visible)]="openModal" styleClass="w-10 md:w-6 lg:w-4" header={{tittleForm}} [modal]="true" class="p-fluid">
-                <ng-template pTemplate="content">
-                    
-                    <p class="text-center mb-6"><p-badge [value]="'Los campos marcados con * son obligatorios'"></p-badge></p>
-                    
-                    <div class="form-group field mt-5">
-                        <span class="p-float-label">
-                            <input type="text" pInputText id="name" formControlName="name" class="p-inputtext-sm capitalize mt-1" />
-                            <label htmlFor="name" class="text-lg font-bold text-800"><span class="text-red-500">*</span> Nombre</label>
-                        </span>
-                        <small class="p-error block mt-2" *ngIf="formTeam.controls['name'].touched && formTeam.get('name')?.hasError('required')" >El campo Nombre es obligatorio</small>
-                        <small class="p-error block mt-2" *ngIf="formTeam.get('name')?.hasError('pattern')">{{ messages.deniedCharactersName }}</small>
-                        <small class="p-error block mt-2" *ngIf="formTeam.get('name')?.hasError('minlength')">{{ messages.requiredMinLength }}</small>
-                        <small class="p-error block mt-2" *ngIf="formTeam.get('name')?.hasError('noSpace')">{{ messages.noOnlySpace }}</small>
-                    </div>
-                   
-                    <div class="form-group field mt-5">
-                        <label class="text-lg font-bold lynch-600"><span class="text-red-500">*</span> Lider</label>
-                        <app-select-generic-users (selectedUser)="setUser($event)" [userId]="liderData().id!"></app-select-generic-users>
-                    </div>
+  <div class="grid">
+    <div class="col-12">
+      <p-dialog [focusOnShow]="false" [(visible)]="openModal" styleClass="w-10 md:w-6 lg:w-4" [header]="titleForm" [modal]="true" class="p-fluid" appendTo="body">
+        <ng-template pTemplate="content">
 
-                    <div class="form-group field mt-5">
-                        <div class="card flex justify-content-center align-items-center">
-                            <span class="text-lg font-bold text-800 mr-2"> Técnicos Automaticos: </span>
-                            <p-toggleButton formControlName="technicalAutomatic" onLabel="SI" offLabel="NO" [onIcon]="'pi pi-check'" offIcon="pi pi-times" [style]="{ width: '6rem' }"></p-toggleButton>
-                        </div>
-                    </div>
-                    
-                </ng-template>
-                <ng-template pTemplate="footer">
-                    <div class="p-2 pb-3">
-                        <input type="hidden" pInputText id="id" formControlName="id"/>
-                        <button type="button" pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-secondary p-button-rounded mr-2 p-button-sm sombra-black" (click)="hideModal()"></button>
-                        <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-rounded mr-2 sombra-black p-button-sm" (click)="saveTeam()"
-                            [loading]="isLoading"
-                            [disabled]="formTeam.invalid">
-                        </button>
-                    </div>
-                </ng-template>
-            </p-dialog>
-        </div>
+          <app-message-required-field />
+
+          <div class="form-group field mt-5">
+            <p-floatlabel>
+              <input type="text" pInputText id="name" formControlName="name" class="w-full" />
+              <label htmlFor="name" class="text-lg font-bold text-800 required-field"> {{ labels.name }} </label>
+            </p-floatlabel>
+            @if (formTeam.controls['name'].touched && formTeam.get('name')?.hasError('required')) {
+              <small class="p-error block mt-2" > {{ messages.requiredField }} </small>
+            }
+            @if (formTeam.get('name')?.hasError('pattern')) {
+              <small class="p-error block mt-2">{{ messages.deniedCharactersName }}</small>
+            }
+            @if (formTeam.get('name')?.hasError('minlength')) {
+              <small class="p-error block mt-2">{{ messages.requiredMinLength }}</small>
+            }
+            @if (formTeam.get('name')?.hasError('noSpace')) {
+              <small class="p-error block mt-2">{{ messages.noOnlySpace }}</small>
+            }
+          </div>
+
+          <div class="form-group field mt-5">
+            <app-select-generic-users 
+              [userId]="teamEdited()?.leaderCredentialId"
+              [userNameForFilter]="teamEdited()?.leaderCredentialEmail"
+              [label]="labels.leader"
+              (selectedUser)="setLeader($event)" 
+             />
+          </div>
+
+          <div class="form-group field mt-5">
+            <app-multi-select-generic-users 
+              [usersForLoad]="teamMembers()"
+              (onSelectedUserIds)="setTechnicianCredentialsId($event)"
+              [label]="labels.teamMembers"
+              [showListNames]="true"
+              [maxSelectedLabels]="2"
+             />
+          </div>
+
+          <div class="form-group field mt-4 flex">
+            <label htmlFor="technicalAutomatic" class="text-lg font-bold text-800 mr-3"> {{ labels.autoTechnicians }} </label>
+            <p-toggleswitch formControlName="technicalAutomatic" />
+          </div>
+  
+          <div class="form-group field mt-4 flex">
+            <label htmlFor="active" class="text-lg font-bold text-800 mr-3">{{ labels.status }}</label>
+            <p-toggleswitch formControlName="active" />
+          </div>
+
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <div class="p-2 pb-3">
+            <input type="hidden" pInputText id="id" formControlName="id"/>
+            <button
+              type="button"
+              pButton pRipple
+              [label]="labels.cancel"
+              icon="pi pi-times"
+              severity="secondary"
+              [rounded]="true"
+              size="small"
+              class="mr-2 shadow-3"
+              (click)="hideModal()"
+            ></button>
+            <button
+              pButton pRipple
+              type="button"
+              [label]="labels.save"
+              icon="pi pi-check"
+              [rounded]="true"
+              size="small"
+              class="mr-2 shadow-3 hover-primary"
+              (click)="saveTeam()"
+              [disabled]="formTeam.invalid"
+            ></button>
+          </div>
+        </ng-template>
+      </p-dialog>
     </div>
+  </div>
 </form>

@@ -1,4 +1,118 @@
-<div class="grid col-12 background-gray-blured p-2 shadow-2 mb-3">
-    <app-panel-filters class="w-full" (getDashboardEvent)="getDashboard($event)"></app-panel-filters>
+<div class="flex justify-content-center align-items-center mt-8">
+    <p-fieldset styleClass="sombra-black" class="w-12 lg:w-6">
+        <ng-template pTemplate="header">
+            <div class="flex align-items-center text-primary fadeinleft animation-duration-400">
+                <h2 class="text-white"> {{ labels.reports }} <span class="text-sm"> Descargar reportes</span></h2>
+            </div>
+        </ng-template>
+        <div class="grid">
+            <div class="col-12 fadeindown animation-duration-400">
+                <div class="sombra-black border-round-xl surface-0 px-4 py-5">
+                    <form [formGroup]="formReport">
+                        <app-message-required-field class="col-12 mb-4" />
+                        <div class="grid justify-content-center mt-3">
+                            <div class="col-6 form-group field mt-3">
+                                <p-floatlabel>
+                                    <p-select inputId="typeReport" 
+                                        [options]="TypeReportsDropdownOptions"
+                                        [filter]="true"
+                                         [(ngModel)]="selectedTypeReport"
+                                        [ngModelOptions]="{standalone: true}" 
+                                        filterBy="label" optionValue="value"
+                                        optionLabel="label" 
+                                        class="w-full" 
+                                        appendTo="body"
+                                        (onChange)="onChangedTypeReport()"
+                                     />
+                                    <label for="typeReport" class="text-lg font-bold text-800 required-field"> {{
+                                        labels.typeReport }} </label>
+                                </p-floatlabel>
+                            </div>
+                        </div>
+                        @if (selectedTypeReport) {
+                        <div class="grid">
+                            @if (selectedTypeReport === codeReportsEnum.TECHNICIAN) {
+                            <div class="col-12 form-group field mt-3 fadeinleft animation-duration-500">
+                                <p-floatlabel>
+                                    <p-select 
+                                        inputId="technicianCredentialId" 
+                                        [options]="technicians()" 
+                                        [filter]="true"
+                                        formControlName="technicianCredentialId" 
+                                        filterBy="email" 
+                                        optionValue="credentialId"
+                                        optionLabel="email" 
+                                        class="w-full" 
+                                        appendTo="body"
+                                        [filterPlaceholder]="placeholders.onDemandFilterInput"
+                                        (onFilter)="tryGetUsers($event.filter)"
+                                    />
+                                    <label 
+                                        for="technicianCredentialId"
+                                        class="text-lg font-bold text-800 required-field"> {{ labels.technician }}
+                                    </label>
+                                </p-floatlabel>
+                            </div>
+                            }
+                            <div class="col-6 form-group field mt-3 fadeinleft animation-duration-500">
+                                <p-floatlabel>
+                                    <p-select inputId="enterpriseId" [options]="enterprises()" [filter]="true"
+                                        formControlName="enterpriseId" filterBy="name" optionValue="id"
+                                        optionLabel="name" styleClass="w-full" (onChange)="getCategoriesByEnterprise()"
+                                        appendTo="body" />
+                                    <label for="enterpriseId"
+                                        [ngClass]="['text-lg font-bold text-800', selectedTypeReport !== codeReportsEnum.ALERTS_EVENTS? 'required-field': '']">
+                                        {{ labels.enterprise }} </label>
+                                </p-floatlabel>
+                            </div>
+                            <div class="col-6 form-group field mt-3 fadeinleft animation-duration-500">
+                                <p-floatlabel>
+                                    <p-datepicker id="dates" [(ngModel)]="dates" [ngModelOptions]="{standalone: true}"
+                                        class="w-full" inputStyleClass="w-full" [showIcon]="true" dateFormat="dd/mm/yy"
+                                        selectionMode="range" [readonlyInput]="true" [maxDate]="maxDate"
+                                        (ngModelChange)="setDates()" appendTo="body" />
+                                    <label htmlFor="dates"
+                                        [ngClass]="['text-lg font-bold text-800', selectedTypeReport !== codeReportsEnum.ALERTS_EVENTS? 'required-field': '']">
+                                        {{ labels.dateRange }}
+                                    </label>
+                                </p-floatlabel>
+                            </div>
+                            <div class="col-12 form-group field mt-3 fadeinleft animation-duration-500">
+                                <p-floatlabel>
+                                    <p-multiSelect inputId="categoryIds" [options]="categories()" [filter]="true"
+                                        formControlName="categoryIds" filterBy="name" optionValue="id"
+                                        optionLabel="name" styleClass="w-full" [maxSelectedLabels]="4"
+                                        (onChange)="getSubCategoriesByCategories()" appendTo="body" />
+                                    <label for="categoryIds" class="text-lg font-bold text-800"> {{ labels.categories }}
+                                    </label>
+                                </p-floatlabel>
+                            </div>
+                            <div class="col-12 form-group field mt-3 fadeinleft animation-duration-500">
+                                <p-floatlabel>
+                                    <p-multiSelect inputId="subCategoryIds" [options]="subcategories()" [filter]="true"
+                                        formControlName="subCategoryIds" filterBy="name" optionValue="id"
+                                        optionLabel="name" styleClass="w-full" [maxSelectedLabels]="4"
+                                        appendTo="body" />
+                                    <label for="subCategoryId" class="text-lg font-bold text-800"> {{
+                                        labels.subcategories }} </label>
+                                </p-floatlabel>
+                            </div>
+                        </div>
+                        }
+                        <div class="flex justify-content-evenly flex-wrap mt-3">
+                            <p-button type="button"
+                                icon="pi pi-file-excel"
+                                size="small"
+                                [label]="labels.generateReport"
+                                [rounded]="true"
+                                styleClass="shadow-3 hover-primary"
+                                (click)="getReport()"
+                                [disabled]="!selectedTypeReport || !formReport.valid"
+                             />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </p-fieldset>
 </div>
-<app-graphics></app-graphics>

@@ -1,6 +1,5 @@
-export class Follow  {
-    ticket: number | null = null;
-    detail: string | null = null;
-    attachment: number | null = null;
-    status: number | null = null;
+export interface Follow {
+    ticketId: number;
+    attachmentId?: number;
+    comment: string;
 }

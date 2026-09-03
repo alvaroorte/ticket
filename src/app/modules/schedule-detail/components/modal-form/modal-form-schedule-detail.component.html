@@ -1,0 +1,116 @@
+<form [formGroup]="formScheduleDetail">
+
+    <div class="grid">
+        <div class="col-12">
+            <p-dialog [focusOnShow]="false" [(visible)]="openModal" styleClass="w-10 md:w-6 lg:w-5" [header]="titleForm" [modal]="true" class="p-fluid" appendTo="body">
+                <ng-template pTemplate="content">
+                    
+                    <app-message-required-field />
+                    <div class="p-fluid p-formgrid grid">
+
+                    <div class="form-group field mt-5 col-12">
+                        <p-floatlabel>
+                            <p-select inputId="dayOfWeek"
+                                formControlName="dayOfWeek"
+                                [options]="daysOfWeek"
+                                [filter]="true"
+                                class="w-full"
+                                appendTo="body" />
+                            <label for="dayOfWeek" class="text-lg font-bold text-800 required-field"> Día de la semana</label>
+                        </p-floatlabel>
+                    </div>
+
+                    <div class="form-group field mt-3 col-6">
+                        <p-floatlabel>
+                            <p-datepicker id="startHour"
+                                inputStyleClass="w-full"
+                                class="w-full mt-1"
+                                [showIcon]="true"
+                                [timeOnly]="true"
+                                icon="pi pi-clock"
+                                appendTo="body"
+                                [readonlyInput]="false"
+                                formControlName="startHour" />
+                            <label htmlFor="startHour" class="text-lg font-bold text-800 text-800 required-field"> Hora entrada</label>
+                        </p-floatlabel>
+                    </div>
+                    
+                    <div class="form-group field mt-3 col-6">
+                        <p-floatlabel>
+                            <p-datepicker id="endHour"
+                                inputStyleClass="w-full"
+                                class="w-full mt-1"
+                                [showIcon]="true"
+                                [timeOnly]="true"
+                                icon="pi pi-clock"
+                                appendTo="body"
+                                [readonlyInput]="false"
+                                formControlName="endHour" />
+                            <label htmlFor="endHour" class="text-lg font-bold text-800 text-800 required-field"> Hora salida</label>
+                        </p-floatlabel>
+                    </div>
+                    
+                    <div class="form-group field mt-3 col-6">
+                        <p-floatlabel>
+                            <p-datepicker id="breakStartHour"
+                                inputStyleClass="w-full"
+                                class="w-full mt-1"
+                                [showIcon]="true"
+                                [timeOnly]="true"
+                                icon="pi pi-clock"
+                                appendTo="body"
+                                [readonlyInput]="false"
+                                formControlName="breakStartHour" />
+                            <label htmlFor="breakStartHour" class="text-lg font-bold text-800 text-800 required-field"> Hora inicio almuerzo</label>
+                        </p-floatlabel>
+                    </div>
+                    
+                    <div class="form-group field mt-3 col-6">
+                        <p-floatlabel>
+                            <p-date-picker id="breakEndHour"
+                                inputStyleClass="w-full"
+                                class="w-full mt-1"
+                                [showIcon]="true"
+                                [timeOnly]="true"
+                                hourFormat="24"
+                                icon="pi pi-clock"
+                                appendTo="body"
+                                [readonlyInput]="false"
+                                formControlName="breakEndHour" />
+                            <label htmlFor="breakEndHour" class="text-lg font-bold text-800 text-800 required-field"> Hora fin almuerzo</label>
+                        </p-floatlabel>
+                    </div>
+                
+                </div>
+                    
+                </ng-template>
+                <ng-template pTemplate="footer">
+                    <div class="p-2 pb-3">
+                        <button 
+                            type="button" 
+                            pButton pRipple 
+                            [label]="labels.cancel" 
+                            icon="pi pi-times"
+                            severity="secondary"
+                            [rounded]="true"
+                            size="small"
+                            class="mr-2 shadow-3" 
+                            (click)="hideModal()"
+                        ></button>
+                        <button
+                            pButton pRipple
+                            type="button"
+                            [label]="labels.save"
+                            icon="pi pi-check"
+                            [rounded]="true"
+                            size="small"
+                            class="mr-2 shadow-3 hover-primary"
+                            (click)="save()"
+                            [disabled]="formScheduleDetail.invalid"
+                        ></button>
+                    </div>
+                </ng-template>
+            </p-dialog>
+        </div>
+    </div>
+</form>

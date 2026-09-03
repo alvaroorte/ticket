@@ -1,33 +1,49 @@
 import { Component, inject, signal } from '@angular/core';
-import { HelpersService } from 'src/app/core/services/helpers.service';
 import { SupervisorService } from './services/supervisor.service';
-import { EnterpriseCategory } from '@core/models/EnterpriseCategory';
-import { SupervisorModule } from './supervisor.module';
 import { ToolbarComponent } from '@shared/components/toolbar/toolbar.component';
-import { ModaldeleteComponent } from '@shared/components/modal-delete/modal-delete.component';
+import { ModalDeleteComponent } from '@shared/components/modal-delete/modal-delete.component';
 import { Supervisor } from '@core/models/Supervisor';
 import { SupervisorCategoriesComponent } from '@supervisorCategory/supervisor-categories.component';
+import { LABELS } from '@core/constants/labels';
+import { GenericTableComponent } from '@shared/components/generic-table/generic-table.component';
+import { TableColumn } from '@core/interfaces/table.interface';
+import { TableColumnDefinitions } from '@core/utils/table-column-definitions';
+import { FormComponent } from './components/form/form.component';
+import { FieldsetModule } from 'primeng/fieldset';
 
 @Component({
-  selector: 'app-supervisor',
-  standalone: true,
-  imports: [SupervisorModule, ModaldeleteComponent, ToolbarComponent, SupervisorCategoriesComponent],
-  templateUrl: './supervisor.component.html',
-  providers: [ HelpersService ]
+    selector: 'app-supervisor',
+    imports: [ModalDeleteComponent, ToolbarComponent, SupervisorCategoriesComponent, GenericTableComponent, FormComponent, FieldsetModule],
+    templateUrl: './supervisor.component.html'
 })
 export class SupervisorComponent {
 
-  supervisorService = inject(SupervisorService);
+  public supervisorService = inject(SupervisorService);
 
-  object = signal(new Supervisor);
-  enterpriseCategory = signal(new EnterpriseCategory);
+  public readonly labels = LABELS;
+  public titleTable = "Lista de supervisores";
+  public tableColumnSupervisorDefinitions: TableColumn<Supervisor>[] = TableColumnDefinitions.getSupervisorsColumnsDefinition();
+  public supervisors = signal<Supervisor[]>([]);
+  public supervisorSelected = signal<Supervisor | null>(null);
 
   ngOnInit(): void {
-    this.object.set(new Supervisor);
+    this.getSupervisors();
   }
 
-  setObject( object: Supervisor  ) {
-    this.object.set(object);
+  public setSupervisor( supervisor: Supervisor  ) {
+    this.supervisorSelected.set(supervisor);
+  }
+
+  public getSupervisors(): void {
+    this.supervisorService.getAll().subscribe({
+      next: (res) => {
+        this.supervisors.set(res);
+      }
+    })
+  }
+
+  public onTableSelfEmision(table: GenericTableComponent<Supervisor>) {
+    this.supervisorService.eventTableComponent.set(table);
   }
 }
 

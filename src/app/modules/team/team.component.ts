@@ -1,31 +1,55 @@
 import { Component, inject, signal } from '@angular/core';
-import { TeamsService } from './services/teams.service';
-import { Team } from '@core/models/Team';
-import { TeamModule } from './team.module';
+import { TeamService } from './services/teams.service';
+import { TeamWithMembers } from '@core/models/Team';
 import { ToolbarComponent } from '@shared/components/toolbar/toolbar.component';
-import { ModaldeleteComponent } from '@shared/components/modal-delete/modal-delete.component';
+import { ModalDeleteComponent } from '@shared/components/modal-delete/modal-delete.component';
 import { HelpersService } from '@core/services/helpers.service';
-import { TeamMembersComponent } from '../team-members/team-members.component';
+import { LABELS } from '@core/constants/labels';
+import { TableColumn } from '@core/interfaces/table.interface';
+import { TableColumnDefinitions } from '@core/utils/table-column-definitions';
+import { GenericTableComponent } from '@shared/components/generic-table/generic-table.component';
+import { ModalFormComponent } from './components/modal-form/modal-form.component';
+import { FieldsetModule } from 'primeng/fieldset';
 
 @Component({
-  selector: 'app-team',
-  standalone: true,
-  imports: [TeamModule, ToolbarComponent, ModaldeleteComponent, TeamMembersComponent],
-  templateUrl: './team.component.html',
-  providers: [ HelpersService ]
+    selector: 'app-team',
+    imports: [ToolbarComponent, ModalDeleteComponent, GenericTableComponent, ModalFormComponent, FieldsetModule],
+    templateUrl: './team.component.html',
+    providers: [HelpersService]
 })
 export class TeamComponent {
 
-  teamService = inject(TeamsService);
+  public readonly labels = LABELS;
 
-  teams = signal<Team[]>([]);
-  object = signal(new Team);
+  public teamService = inject(TeamService);
+
+  public titleTable = "Lista de equipos";
+  public teamSelected = signal<TeamWithMembers | null>(null);
+  public teams = signal<TeamWithMembers[]>([]);
+  public tableColumnTeamDefinitions: TableColumn<TeamWithMembers>[] = TableColumnDefinitions.getTeamColumnsDefinition();
 
   ngOnInit(): void {
-    this.object.set(new Team);
+    this.getTeams();
   }
 
-  setObject( object: Team  ) {
-    this.object.set(object);
+  public setTeam( team: TeamWithMembers  ) {
+    this.teamSelected.set(team);
+  }
+
+  public getTeams(): void {
+    this.teamService.getAllWithMembers().subscribe({
+      next: (res) => {
+        this.teams.set(res.map( team => {
+          return {
+            ...team,
+            teamMembersString: team.teamMembers.map(member => member.technicianCredentialEmail).join(', ')
+          }
+        }));
+      }
+    })
+  }
+
+  public onTableSelfEmision(table: GenericTableComponent<TeamWithMembers>) {
+    this.teamService.eventTableComponent.set(table);
   }
 }

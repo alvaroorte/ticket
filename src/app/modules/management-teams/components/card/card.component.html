@@ -1,38 +1,30 @@
-<article class="ticket-card shadow-3 fadeinup animation-duration-400" [style]="'border-left: 6px solid '+ ticket.colorPriority + ';'">
-    <section class="ticket-body-card p-3">
+<article class="ticket-card shadow-3 fadeinup animation-duration-400" [style]="'border-left: 6px solid '+ ticket().priorityColor + ';'">
+    <section 
+        [ngClass]="['p-3', ticket().typeTicket == typeTicketEnum.SOLICITUD? 'ticket-body-card': 'gradiant-orange-ticket']"
+        [pTooltip]="ticket().typeTicket == typeTicketEnum.INCIDENTE? 'Ticket de tipo Incidente': ''">
         <div class="flex justify-content-between flex-wrap">
-            <span class="ticket-header-card mb-2"><i class="pi pi-building mr-1"></i>{{ ticket.enterprise }}</span>
-            <span class="ticket-header-card mb-2 mx-1 text-center"> <i class="-rotate-45 pi pi-ticket mr-1"></i> {{ ticket.code }}</span>
-            <span class="ticket-header-card mb-2"><i class="pi pi-calendar mr-1"></i>{{ ticket.created | formatDateWhitHour }}</span>
+            <span class="ticket-header-card text-xs mb-2"><i class="pi pi-building mr-1"></i>{{ ticket().enterpriseCode }}</span>
+            <span class="ticket-header-card text-xs mb-2 mx-1 text-center"> <i class="-rotate-45 pi pi-ticket mr-1"></i> {{ ticket().code }}</span>
+            <span class="ticket-header-card text-xs mb-2"><i class="pi pi-calendar mr-1"></i>{{ ticket().createdAt| formatDateWhitHour }}</span>
         </div>
-        <h3 class="ticket-title px-3 mb-2 text-center"> {{ ticket.title }} </h3>
+        <h4 class="ticket-title px-3 mb-3 text-center"> {{ ticket().title }} </h4>
+        <div class="flex justify-content-center mb-2">
+            @if (statusForShowPriority.includes(ticket().flowStatusName)) {
+                <i class="zoom-2 pi pi-arrows-v mr-2 cursor-pointer text-blue-700" (click)="openModalPriority()" [pTooltip]="tooltips.changePriority"></i>
+            }
+            <i class="zoom-2 pi pi-eye mr-2 cursor-pointer text-blue-700" (click)="openModalInfo()" [pTooltip]="tooltips.seeTicketInformation"></i>
+            <i class="zoom-2 pi pi-chart-line mr-2 cursor-pointer text-blue-700" (click)="openModalTimeline()" [pTooltip]="tooltips.seeTimeline"></i>
+            <i class="zoom-2 pi pi-comment mr-1 cursor-pointer text-blue-700" (click)="openModalMessages()" [pTooltip]="tooltips.seeMessages"></i>
+        </div>
         <div class="flex justify-content-between flex-wrap">
             <div class="justify-content-start">
-                <span class="ticket-header-card mb-0"><i class="pi pi-user mr-1"></i>{{ ticket.applicant }}</span>
+                <span class="ticket-header-card mb-0 text-xs" [pTooltip]="tooltips.requester"><i class="pi pi-user mr-1"></i>{{ ticket().requester }}</span>
             </div>
             <div class="justify-content-end">
-                <ng-container [ngSwitch]="ticket.status">
-                    <ng-container *ngSwitchCase="'Técnico Pendiente'">
-                        <i class="pi pi-clock mr-3 text-blue-700" [pTooltip]="ticket.status!"></i>
-                    </ng-container >
-                    <ng-container *ngSwitchCase="'Pausa'" >
-                        <i class="pi pi-pause mr-3 text-blue-700" [pTooltip]="ticket.status!"></i>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'Inicio'" >
-                        <i class="pi pi-play mr-3 text-blue-700" [pTooltip]="ticket.status!"></i>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'Validación usuario'" >
-                        <i class="pi pi-thumbs-up mr-3 text-blue-700" [pTooltip]="ticket.status!"></i>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'Acepta cancelación'" >
-                        <i class="pi pi-pause mr-3 text-blue-700" [pTooltip]="ticket.status!"></i>
-                    </ng-container>
-                    <ng-container *ngSwitchDefault >
-                        <i class="pi pi-stopwatch mr-3 text-blue-700" [pTooltip]="ticket.status!"></i>
-                    </ng-container>
-                </ng-container>
-                <i class="pi pi-eye mr-3 cursor-pointer text-blue-700" (click)="openModalInfo(ticket.ticketId!)" pTooltip="Ver Información del Ticket"></i>
-                <i class="pi pi-chart-line cursor-pointer text-blue-700" (click)="openModalTimeline(ticket.ticketId!)" pTooltip="Ver linea de tiempo"></i>
+                <span class="ticket-header-card text-xs" [pTooltip]="tooltips.statusTicket">
+                    <span class="pi pi-shield"></span>
+                    {{ ticket().flowStatusName }}
+                </span>
             </div>
         </div>
     </section>

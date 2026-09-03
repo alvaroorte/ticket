@@ -1,4 +1,5 @@
-export enum CategoryFolder  {
-    category = 'categoria',
-    subCategory = 'sub category',
+export enum CategoryFolderEnum  {
+    Category = 'categoria',
+    SubCategory = 'sub category',
+    Incidente = 'incidente',
 }

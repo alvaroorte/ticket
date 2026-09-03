@@ -1,21 +1,45 @@
 <div class="container mx-3 mb-0 pb-4">
-    <p-fieldset styleClass="sombra-black">
-        <ng-template pTemplate="header">
-            <div class="flex align-items-center text- fadeinleft animation-duration-400">
-                <h2 class="text-white">Categorías <span class="text-sm"> Gestión de categorías</span> </h2>
-            </div>
-        </ng-template>
-        <div class="grid">
-            <p-tabMenu [model]="items" [(activeItem)]="activeItem" />
-            <div class="col-12 fadeindown animation-duration-400">
-                <div class="sombra-black border-round-xl p-2 surface-0">
-                    <app-toolbar [selectedCategory]="selectedCategory" [showButtonAssingSubcategories]="folder == categoryFolder.category? true: false"></app-toolbar>
-                    <app-modal-assing-subcategory [selectedCategory]="selectedCategory"></app-modal-assing-subcategory>
-                    <app-form [folder]="folder"></app-form> 
-                    <app-modal-delete [serviceGeneric]="categoriesService" [object]="idDelete()" ></app-modal-delete>
-                    <app-table [title]="titleTable" (changeCategory)="setSelectedCategory($event)" [categories]="categories" ></app-table>
-                </div>
-            </div>
+  <p-fieldset styleClass="sombra-black">
+    <ng-template pTemplate="header">
+      <div class="flex align-items-center text- fadeinleft animation-duration-400">
+        <h1 class="text-white text-2xl"> {{ labels.category }} <span class="text-sm"> Gestión de categorías</span> </h1>
+      </div>
+    </ng-template>
+    <div class="grid mt-2">
+      <p-selectButton
+        [(ngModel)]="folder"
+        [options]="folderOptions()"
+        (onOptionClick)="onChangedFolder($event)"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="ml-2 border-round-xl"
+        [unselectable]="true"
+      />
+      <div class="col-12 mt-2 fadeindown animation-duration-400">
+        <div class="sombra-black border-round-xl p-2 surface-0">
+          <app-toolbar-common 
+            [serviceGeneric]="categoryService"
+            [object]="categorySelected()">
+            @if (folder() == categoryFolderEnum.Category) {
+              <p-button icon="pi pi-arrows-v"
+                pTooltip="Asignar subcategoría"
+                styleClass="p-button-sm p-button-rounded mr-2 p-button-help sombra-black hover-help"
+                (click)="openModalAssingSubcategory()"
+               />
+            }
+          </app-toolbar-common>
+          <app-modal-assing-subcategory [categorySelected]="categorySelected()" />
+          <app-form [folder]="folder()" />
+          <app-modal-delete [serviceGeneric]="categoryService" [objectId]="categorySelected()?.id"  />
+          <app-generic-table [titleTable]="titleTable"
+            [items]="categories()"
+            [tableColumnDefinitions]="tableColumnCategoryDefinitions"
+            (onSelection)="setCategory($event)"
+            (requestData)="getCategories()"
+            (selfEmitter)="onTableSelfEmision($event)"
+           />
         </div>
-    </p-fieldset>
+      </div>
+    </div>
+  </p-fieldset>
 </div>

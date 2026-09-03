@@ -1,8 +1,10 @@
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { throwError } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { APIErrorBase, CustomValidationError, DtoValidationError, EntityValidatorMultipleError, FormattedHttpError } from '../interfaces/http-error-handling.interface';
+import { LoginService } from './login.service';
+import { MESSAGES } from '@core/constants/messages';
 
 /**
  * Service to handle http errors.
@@ -12,12 +14,13 @@ import { APIErrorBase, CustomValidationError, DtoValidationError, EntityValidato
 })
 export class HttpErrorHandlerService {
 
-  constructor(private messageService: MessageService) { }
+  private messageService = inject(MessageService);
+  private loginService = inject(LoginService);
   /**
    * Catches an HttpErrorResponse, formats it, displays it, and throws an error.
    * @param {HttpErrorResponse} httpErrorResponse Http error response.
    * @param displayToast True by default, calls primeng `MessageService` for displaying the error or errors.
-   * @returns
+   * @returns 
    */
   public handleAndThrow(httpErrorResponse: HttpErrorResponse) {
     const formattedError = this.httpErrorFormatter(httpErrorResponse);
@@ -26,15 +29,49 @@ export class HttpErrorHandlerService {
   }
 
   public httpErrorFormatter(httpErrorResponse: HttpErrorResponse): FormattedHttpError {
-    const apiErrorBase: APIErrorBase = httpErrorResponse.error;
+    const apiErrorBase: APIErrorBase = typeof httpErrorResponse.error == 'string'? JSON.parse(httpErrorResponse.error): httpErrorResponse.error;
     const errors: string[] = [];
-    if (httpErrorResponse.status === HttpStatusCode.InternalServerError || apiErrorBase.error) {
-      return {
-        code: httpErrorResponse.status,
-        status: httpErrorResponse.statusText,
-        errors: ['Error Interno del Servidor'],
-        path: apiErrorBase.path ?? '/'
-      };
+    switch (httpErrorResponse.status) {
+      case HttpStatusCode.InternalServerError:
+        return {
+          code: httpErrorResponse.status,
+          status: httpErrorResponse.statusText,
+          errors: apiErrorBase.error && apiErrorBase.error.length < 120? [apiErrorBase.error]: ['Error Interno del Servidor'],
+          path: apiErrorBase.path ?? '/'
+        };
+      case HttpStatusCode.Forbidden:
+        this.loginService.logout();
+        return {
+          code: httpErrorResponse.status,
+          status: httpErrorResponse.statusText,
+          errors: [MESSAGES.yourSessionExpiredLoginAgain],
+          path: apiErrorBase.path ?? '/'
+        };
+      case HttpStatusCode.Unauthorized:
+        this.loginService.logout();
+        return {
+          code: httpErrorResponse.status,
+          status: httpErrorResponse.statusText,
+          errors: [MESSAGES.yourSessionExpiredLoginAgain],
+          path: apiErrorBase.path ?? '/'
+        };
+      case HttpStatusCode.PaymentRequired:
+        this.loginService.logout();
+        return {
+          code: httpErrorResponse.status,
+          status: httpErrorResponse.statusText,
+          errors: [apiErrorBase.message],
+          path: apiErrorBase.path ?? '/'
+        };
+      case HttpStatusCode.NotFound:
+        return {
+          code: httpErrorResponse.status,
+          status: httpErrorResponse.statusText,
+          errors: apiErrorBase.error? [apiErrorBase.error]: ['Ruta no encontrada.'],
+          path: apiErrorBase.path ?? '/'
+        };
+      default:
+        break;
     }
 
     if (apiErrorBase.message) {
@@ -52,7 +89,6 @@ export class HttpErrorHandlerService {
         errors.push(...(apiErrorBase.errorList as EntityValidatorMultipleError[]).map((error: EntityValidatorMultipleError) => error.message));
       }
     }
-
     return {
       code: apiErrorBase.code,
       status: apiErrorBase.status,

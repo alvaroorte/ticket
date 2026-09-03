@@ -1,83 +1,70 @@
 import { Injectable, inject } from '@angular/core';
-import {
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpInterceptor,
-  HttpErrorResponse
-} from '@angular/common/http';
-import { Observable, catchError, of, throwError } from 'rxjs';
-import { HelpersService } from '@core/services/helpers.service';
+import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
+import { Observable, catchError, finalize, shareReplay, switchMap, take, tap } from 'rxjs';
+import { LOCAL_STORAGE } from '@core/constants/local-storage';
+import { LocalStorageService } from '@core/services/local-storage.service';
+import { HttpErrorHandlerService } from '@core/services/http-error-handler.service';
 import { LoginService } from '@core/services/login.service';
-import { messages } from '@core/constants/constants';
-import { JwtPayload, jwtDecode } from 'jwt-decode';
+import { LoginResponse } from '@core/models/Login';
+
+/**
+ * Rutas de autenticación que nunca deben disparar una renovación: `login` porque un 401 ahí son
+ * credenciales incorrectas, y `auth/*` para no reentrar en el propio flujo de refresh.
+ */
+const AUTH_URLS: string[] = ['login', 'auth/refresh', 'auth/logout'];
 
 @Injectable()
 export class HeaderInterceptor implements HttpInterceptor {
 
-  private helperService = inject(HelpersService);
+  private localStorageService = inject(LocalStorageService);
+  private httpErrorHandlerService = inject(HttpErrorHandlerService);
   private loginService = inject(LoginService);
+  
+  private refreshRequest$: Observable<LoginResponse> = null;
+
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<any>> {
-    let cloneRequest = request;
-    if( localStorage.getItem('token') ) {
-      cloneRequest = request.clone({
-        setHeaders: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-      })
-    }
-    this.checkDate();
-    return next.handle(cloneRequest).pipe(
+    return next.handle(this.addToken(request)).pipe(
       catchError((error: HttpErrorResponse): Observable<any> => {
-        let errorMessage: string[] = [];
-        let err:any = (typeof error.error == "string")? JSON.parse(error.error): error.error;
-         
-        if (error.status === 403 || error.status === 401) {
-          this.helperService.messageNotification( 'warn', 'Error', 'Error de permisos, usted no tiene permitido realizar esta acción');
-          return of(null)
+        if (error.status == HttpStatusCode.Unauthorized && this.canRefresh(request)) {
+          return this.tryRefreshToken(request, next);
         }
-        if (error.status === 500) {
-          errorMessage.push(err.message);
-        }
-        if (error.status === 409) {
-          errorMessage.push(err.message);
-        }
-        if (error.status === 404) {
-            errorMessage.push(err.message);
-        }
-        if (error.status === 400) {
-          if (err && err.message) {
-            errorMessage.push(err.message);
-          } else if (err && err.errors) {
-            err.errors.forEach((errorMessages: any) => {
-              errorMessage.push(errorMessages.message);
-            });
-          } else if (err && err.errorList) {
-            err.errorList.forEach((errorMessages: any) => {
-              errorMessage.push(errorMessages.message);
-            });
-          }
-        }
-        return throwError(() => new Error(errorMessage.join(', ')));
+        return this.httpErrorHandlerService.handleAndThrow(error);
       })
     );
   }
 
-  public checkDate() {
-    this.checkExpDate().then((isExpired) => {
-      if (isExpired) {
-        this.helperService.messageNotification('warn', 'Advertencia', messages.expiredSession );
-        this.loginService.eventLogout.emit();
+  private tryRefreshToken(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<any>> {
+    // Solo la primera petición en fallar crea la renovación; el resto se engancha a la misma. El
+    // backend rota el refresh token, así que dos renovaciones concurrentes harían que la segunda
+    // usara uno ya revocado y terminara cerrando la sesión.
+    if (!this.refreshRequest$) {
+      this.refreshRequest$ = this.loginService.refreshToken().pipe(
+        tap((response: LoginResponse) => this.loginService.setSession(response)),
+        catchError((refreshError: HttpErrorResponse): Observable<any> => {
+          this.loginService.logout();
+          return this.httpErrorHandlerService.handleAndThrow(refreshError);
+        }),
+        finalize(() => { this.refreshRequest$ = null; }),
+        shareReplay({ bufferSize: 1, refCount: true })
+      );
+    }
+
+    return this.refreshRequest$.pipe(take(1),
+      switchMap(() => next.handle(this.addToken(request)))
+    );
+  }
+
+  private addToken(request: HttpRequest<unknown>): HttpRequest<unknown> {
+    const token = this.localStorageService.get(LOCAL_STORAGE.TOKEN);
+    return request.clone({
+      setHeaders: {
+        Authorization: `Bearer ${token}`
       }
     });
   }
 
-  public async checkExpDate(): Promise<boolean> {
-    const response = localStorage.getItem('token');
-    if ( response ) {
-      const infoDecoded: JwtPayload = jwtDecode(response);
-      return infoDecoded && infoDecoded.exp ? infoDecoded.exp < parseInt(Date.now().toString().substring(0, 10)) : false;
-    }
-    return false;
+  private canRefresh(request: HttpRequest<unknown>): boolean {
+    const refreshToken = this.localStorageService.get(LOCAL_STORAGE.REFRESH_TOKEN);
+    return !!refreshToken && !AUTH_URLS.some((url: string) => request.url.endsWith(url));
   }
 }

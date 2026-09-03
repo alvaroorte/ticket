@@ -1,0 +1,26 @@
+<p-button 
+  [raised]="true"
+  icon="pi pi-download"
+  [pTooltip]="tooltips.download"
+  size="small"
+  [rounded]="true"
+  [label]="fileName()"
+  [outlined]="isUserGenerated()"
+  [severity]="severityButton"
+  styleClass="mr-2"
+  (click)="downloadFile()"
+/>
+@if (showButtonPreview()) {
+  <p-image #imagePreview class="hidden" [preview]="true" appendTo="body" />
+  <p-button 
+    [raised]="true"
+    [icon]="iconFIle"
+    [pTooltip]="tooltips.seeFile"
+    size="small"
+    [rounded]="true"
+    [outlined]="isUserGenerated()"
+    [severity]="severityButton"
+    styleClass="mr-2"
+    (click)="showFile()"
+  />
+}

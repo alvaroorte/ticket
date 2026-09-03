@@ -1,37 +1,40 @@
 import { Component, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HelpersService } from 'src/app/core/services/helpers.service';
-import { TableComponent } from '../table/table.component';
-import { iconsPrime } from 'src/app/shared/icons/icons-pime';
-import { Icon } from 'src/app/core/models/Icon';
 import { Permission } from 'src/app/core/models/Permission';
-import { limits, regex, messages } from '@core/constants/constants';
 import { PermissionService } from '../../services/permission.service';
 import { SelectItem } from 'primeng/api';
 import { HttpMethod } from '@core/enums/http-method.enum';
+import { MESSAGES } from '@core/constants/messages';
+import { regex } from '@core/constants/regexs';
+import { LIMITS } from '@core/constants/limits';
+import { LABELS } from '@core/constants/labels';
+import { RoleService } from 'src/app/modules/role/services/role.service';
+import { Severity } from '@core/enums/severity';
+import { TypeSubmitEnum } from '@core/enums/type-submit';
+import { MessageRequiredFieldComponent } from '../../../../shared/components/message-required-field/message-required-field.component';
+import { PrimeModules } from '@shared/prime-components/prime-components.module';
 
 
 @Component({
-  selector: 'app-form',
-  templateUrl: './form.component.html'
+    selector: 'app-form',
+    templateUrl: './form.component.html',
+    imports: [ReactiveFormsModule, MessageRequiredFieldComponent, PrimeModules]
 })
 export class FormComponent {
 
   private formBuilder = inject(FormBuilder);
   private helpersService = inject(HelpersService);
   private permissionService = inject(PermissionService);
+  private roleService = inject(RoleService);
 
-  messages = messages;
-  iconsPrime: Icon[] = iconsPrime;
-  selectedIcon: Icon | null = null;
-  permissions!: Permission[];
-  permission!: Permission;
-  folder!: string;
-  openModal: boolean = false;
-  tittleForm: string = "";
-  tableComponent!: TableComponent;
-  isLoading = false;
-  optionsMethod: SelectItem[] = [
+  public readonly messages = MESSAGES;
+  public readonly labels = LABELS;
+  private permission: Permission;
+  public openModal = false;
+  public titleForm = "";
+  private tableComponent = this.permissionService.eventTableComponent;
+  public optionsMethod: SelectItem[] = [
     { label: HttpMethod.POST, value: HttpMethod.POST },
     { label: HttpMethod.GET, value: HttpMethod.GET },
     { label: HttpMethod.PUT, value: HttpMethod.PUT },
@@ -41,95 +44,72 @@ export class FormComponent {
   public formPermission: FormGroup = this.formBuilder.group({
     id: [],
     name: [, [Validators.required, Validators.pattern(regex.fieldName)]],
-    code: [, [Validators.required, Validators.minLength(limits.minLength), Validators.pattern(regex.fieldCode)]],
+    code: [, [Validators.required, Validators.minLength(LIMITS.minLengthFive), Validators.pattern(regex.fieldCode)]],
     description: [, [Validators.required]],
     url: [, [Validators.required]],
+    urlWithoutIds: [, [Validators.required]],
     httpMethod: [, [Validators.required]]
   });
 
   ngOnInit() {
-    this.permissionService.eventFormComponent.emit(this);
-    this.permissionService.eventTableComponent.subscribe((tableComponent) => {
-      this.tableComponent = tableComponent;
-    });
+    this.permissionService.eventFormComponent.set(this);
   };
 
-  hideModal() {
+  public hideModal() {
     this.openModal = false;
-    this.isLoading = false;
   };
 
-  openCreate(){
+  public openCreate(){
     this.reset();
-    this.tittleForm = "Nuevo permiso";
+    this.titleForm = "Nuevo permiso";
     this.openModal = true;
 
   };
 
-  openEdit(id: number){
+  public openEdit(id: number){
     this.reset();
-    this.tittleForm = 'Editar permiso';
+    this.titleForm = 'Editar permiso';
     this.permissionService.getById(id).subscribe({
       next: (res) => {
         this.permission = res;
-        this.openModal=true;
-      },
-      error: (err) => {
-        console.log(err);
-        this.helpersService.messageNotification("error", 'Error', err.message, 3000);
+        this.formPermission.patchValue(res);
+        this.openModal = true;
       }
     })
   };
 
-  savePermission() {
-    this.isLoading = true;
+  public savePermission() {
     if (this.formPermission.valid) {
-      if(this.permission.id){
-        this.submitUpdate(this.permission.id);
-      } else{
-        this.submitCreate();
-      }
+      this.permission.id
+        ? this.submit(TypeSubmitEnum.UPDATE)
+        : this.submit(TypeSubmitEnum.CREATE);
     }
   };
 
-  reset(): void {
+  private reset(): void {
     this.formPermission.reset();
     this.permission = new Permission;
   };
 
-  submitCreate() {
+  private submit(type: TypeSubmitEnum) {
     const data: Permission = {
       ...this.formPermission.value,
     };
-    this.permissionService.create(data).subscribe({
-      next: (res) => {
-        this.helpersService.messageNotification("success", "Correcto", `El permiso ${res.name} ha sido creado.`, 3000);
+    const service = type == TypeSubmitEnum.CREATE
+      ? this.permissionService.create(data)
+      : this.permissionService.update(this.permission.id, data)
+    service.subscribe({
+      next: () => {
+        const message: string = type == TypeSubmitEnum.CREATE
+          ? this.messages.recordCreated
+          : this.messages.recordUpdated;
+        this.tableComponent().onRowUnselect();
+        this.roleService.eventReloadPermissionByRol.emit();
+        this.helpersService.messageNotification(Severity.success, "Correcto", message, 3000);
         this.hideModal();
-        this.tableComponent.reload();
-      },
-      error: (err) => {
-        this.isLoading = false;
-        console.log(err);
-        this.helpersService.messageNotification("error", 'Error', err.message, 3000);
+      }, complete: () => {
+        this.tableComponent().reload();
       }
     })
   };
-
-  submitUpdate(idPermission : number) {
-    const data: Permission = {
-      ...this.formPermission.value,
-    };
-    this.permissionService.update(idPermission, data).subscribe({
-      next: (res) => {
-        this.helpersService.messageNotification("success", "Correcto", `El permiso ${res.name} ha sido actualizado.`, 3000);
-        this.hideModal();
-        this.tableComponent.reload();
-      },
-      error: (err) => {
-        console.log(err);
-        this.helpersService.messageNotification("error", 'Error', err.message, 3000);
-        this.isLoading = false;
-      }
-    });
-  }
 }

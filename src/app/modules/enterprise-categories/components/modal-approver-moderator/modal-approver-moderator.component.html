@@ -1,0 +1,57 @@
+<div class="grid">
+    <div class="col-12">
+        <p-dialog [focusOnShow]="false" [(visible)]="openModal" styleClass="w-8" [header]="tittleForm" [modal]="true" appendTo="body">
+            <ng-template pTemplate="content">
+                <div class="grid">
+                    <div class="col-6 text-center mb-4">
+                        <p class="text-lg font-bold text-800 mt-3 mb-2"> {{ labels.approvers }}: </p>
+                        <app-multi-select-generic-users 
+                            [maxSelectedLabels]="1" 
+                            [withFloatLabel]="false"
+                            [usersForLoad]="approvers"
+                            [showListNames]="true"
+                            (onSelectedUserIds)="setAprobador($event)" 
+                         />
+                    </div>
+                    
+                    <div class="col-6 text-center mb-4">
+                        <p class="text-lg font-bold text-800 mt-3 mb-2"> {{ labels.moderators }}: </p>
+                        <app-multi-select-generic-users 
+                            [maxSelectedLabels]="1" 
+                            [withFloatLabel]="false"
+                            [usersForLoad]="moderators"
+                            [showListNames]="true"
+                            (onSelectedUserIds)="setModerador($event)" 
+                         />
+                    </div>
+                </div>                  
+                
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <div class="p-2 pb-3">
+                    <button 
+                        pButton 
+                        pRipple 
+                        [label]="labels.cancel" 
+                        icon="pi pi-times"
+                        severity="secondary"
+                        [rounded]="true"
+                        size="small"
+                        class="mr-2 shadow-3" 
+                        (click)="hideModal()"
+                    ></button>
+                    <button 
+                        pButton 
+                        pRipple 
+                        [label]="labels.save" 
+                        icon="pi pi-check"
+                        [rounded]="true"
+                        size="small"
+                        class="mr-2 shadow-3" 
+                        (click)="saveChanges()"
+                    ></button>
+                </div>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>

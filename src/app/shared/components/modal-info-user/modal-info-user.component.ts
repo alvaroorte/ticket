@@ -1,71 +1,62 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { PrimeComponentsModule } from '@shared/prime-components/prime-components.module';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+
+import { PrimeModules } from '@shared/prime-components/prime-components.module';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CredencialService } from '@core/services/credencial';
+import { CredencialService } from '@core/services/credencial.service';
 import { HelpersService } from '@core/services/helpers.service';
-import { Subject, takeUntil } from 'rxjs';
 import { Severity } from '@core/enums/severity';
+import { LABELS } from '@core/constants/labels';
+import { MESSAGES } from '@core/constants/messages';
+import { CredentialComplement } from '@core/models/FieldsCommons';
+import { MessageRequiredFieldComponent } from '../message-required-field/message-required-field.component';
+import { LIMITS } from '@core/constants/limits';
+import { LoginService } from '@core/services/login.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-   selector: 'app-modal-info-user',
-   standalone: true,
-   imports: [CommonModule, PrimeComponentsModule, ReactiveFormsModule],
-   templateUrl: './modal-info-user.component.html'
+    selector: 'app-modal-info-user',
+    imports: [PrimeModules, ReactiveFormsModule, MessageRequiredFieldComponent],
+    templateUrl: './modal-info-user.component.html'
 })
-export class ModalInfoUserComponent implements OnInit, OnDestroy {
-   public openModal: boolean = false;
-
-   private destroySubject = new Subject<void>();
+export class ModalInfoUserComponent implements OnInit {
+   
    private formBuilder = inject(FormBuilder);
    private credencialService = inject(CredencialService);
    private helpersService = inject(HelpersService);
-
+   public  loginService = inject(LoginService);
+   public  destroyRef = inject(DestroyRef);
+   
+   public readonly labels = LABELS;
+   public readonly messages = MESSAGES;
+   public openModal: boolean = false;
    public formCredential: FormGroup = this.formBuilder.group({
-      phone: [, Validators.required],
-      ubication: [, [Validators.required]],
+      phone: [],
+      ubication: [, [Validators.required, Validators.minLength(LIMITS.minLengthFive)]],
    });
 
    ngOnInit() {
-      this.credencialService.eventOpenModalInfoUser
-         .pipe(takeUntil(this.destroySubject))
-         .subscribe(() => this.openModalInfoUser());
-   }
-
-   ngOnDestroy() {
-      this.destroySubject.next();
-      this.destroySubject.complete();
+      this.credencialService.eventOpenModalInfoUser.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.openModalInfoUser());
    }
 
    private openModalInfoUser() {
-      this.credencialService
-         .credentialComplement()
-         .pipe(takeUntil(this.destroySubject))
-         .subscribe({
-            next: (credentialComplementResponse) => {
-               this.formCredential.patchValue({ ...credentialComplementResponse });
-            },
-            error: (err) => {
-               console.log(err);
-               this.helpersService.messageNotification(Severity.error, 'Error', err.message, 3000);
-            }
-         });
-      this.openModal = true;
+      this.credencialService.credentialComplement().subscribe({
+         next: (credentialComplementResponse) => {
+            this.formCredential.patchValue({ ...credentialComplementResponse });
+            this.openModal = true;
+         }
+      });
    }
 
    public saveData() {
-      this.credencialService
-         .credentialUpdate(this.formCredential.value)
-         .pipe(takeUntil(this.destroySubject))
-         .subscribe({
-            next: () => {
-               this.openModal = false;
-               this.helpersService.messageNotification(Severity.success, 'Correcto', 'Datos guardados exitosamente.', 3000);
-            },
-            error: (err) => {
-               console.log(err);
-               this.helpersService.messageNotification(Severity.error, 'Error', err.message, 3000);
-            }
-         });
+      const body: CredentialComplement = {
+         phone: this.formCredential.value.phone.toString(),
+         ubication: this.formCredential.value.ubication
+      };
+      this.credencialService.credentialUpdate(body).subscribe({
+         next: () => {
+            this.openModal = false;
+            this.helpersService.messageNotification(Severity.success, 'Correcto', 'Datos guardados exitosamente.', 3000);
+         }
+      });
    }
 }

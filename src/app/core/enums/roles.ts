@@ -1,0 +1,9 @@
+export enum ROLES_CODE_SYSTEM {
+    ADMIN = "ADM",
+    MONITOR = "MNT",
+    SUPERVISOR = "SPV",
+    REQUESTER = "USR",
+    LEADER = "LDR",
+    TECHNICIAN = "TECH",
+    APPROVER_MODERATOR = "APMO"
+}

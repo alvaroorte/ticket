@@ -1,18 +1,103 @@
 <div class="container mx-3 mb-0 pb-4">
     <p-fieldset styleClass="sombra-black">
         <ng-template pTemplate="header">
-            <div class="flex align-items-center text-primary">
-                <h2 class="text-white">Tickets <span class="text-sm"> Gestión de tickets</span> </h2>
+            <div class="flex align-items-center">
+                <h2 class="text-white"> {{ labels.tickets }} <span class="text-sm"> Histórico de tickets</span> </h2>
             </div>
         </ng-template>
-        <div class="grid">
-            <div class="col-12 zoomin animation-duration-300 p-0">
-                <div class="sombra-black border-round-xl p-2 surface-0">
-                    <app-panel-filters></app-panel-filters>
-                    <app-toolbar></app-toolbar>
-                    <app-table></app-table>
+            <div class="sombra-black border-round-xl zoomin animation-duration-300 p-2 surface-0" [style]="{'max-width': '93vw'}">
+                <app-panel-filters (eventFilterTickets)="onChangedFiltersPanel($event)"/>
+                <app-table-on-demand
+                    [columns]="columns"
+                    [dataList]="tickets()"
+                    [totalElements]="totalElements()"
+                    [showMultiselect]="true"
+                    [showInputSearch]="false"
+                    (eventloadItems)="loadTickets($event)"
+                    (eventRowSelected)="setTicketSelected($event)"
+                >
+                    <ng-container leftToolbarTemplate>
+                        <p-button icon="pi pi-eye"
+                            [pTooltip]="tooltips.seeTicketInformation"
+                            size="small"
+                            [rounded]="true"
+                            styleClass="mr-2 p-button-info sombra-black hover-info"
+                            (click)="openModal(openModalEnum.INFOTICKET)"
+                            />
+                            <p-button icon="pi pi-chart-line"
+                            [pTooltip]="tooltips.seeTimeline"
+                            size="small"
+                            [rounded]="true"
+                            styleClass="mr-2 p-button-warn sombra-black hover-warn"
+                            (click)="openModal(openModalEnum.TIMELINE)"
+                            />
+                            <p-button icon="pi pi-comment"
+                            [pTooltip]="tooltips.seeMessages"
+                            size="small"
+                            [rounded]="true"
+                            styleClass="mr-2 p-button-success sombra-black hover-success"
+                            (click)="openModal(openModalEnum.MESSAGE)"
+                            />
+                            @if (hasSupervisorRole) {
+                            <p-button icon="pi pi-arrows-v"
+                                [pTooltip]="tooltips.changePriority"
+                                size="small"
+                                [rounded]="true"
+                                severity="help"
+                                styleClass="mr-2 sombra-black hover-help"
+                                [disabled]="!allowChangePriority()"
+                                (click)="openModal(openModalEnum.PRIORITY)"
+                            />
+                            
+                            <p-button icon="pi pi-user"
+                                [pTooltip]="tooltips.changeApproverOrModerator"
+                                size="small"
+                                [rounded]="true"
+                                severity="warn"
+                                styleClass="mr-2 sombra-black hover-warn"
+                                [disabled]="!allowChangeApproverOrModerator()"
+                                (click)="openModal(openModalEnum.APPROVERMODERATOR)"
+                            />
+                            }
+                            <p-splitbutton 
+                                [label]="labels.reports" 
+                                [model]="menuItemsOfReports()" 
+                                rounded 
+                                severity="help" 
+                            />
+                            @if (hasSupervisorRole) {
+                                <p-toggleswitch 
+                                    class="ml-3" 
+                                    [(ngModel)]="searchWithRoleSupervisor" 
+                                    (ngModelChange)="getTickets()" 
+                                    pTooltip="Buscar como Supervisor"
+                                />
+                            }
+                    </ng-container>
+                </app-table-on-demand>
+                <div class="grid mb-1">
+                    <p class="text-xl col-6">
+                        <i class="pi pi-stop text-green-600 bg-green-600"></i>
+                        {{ messages.rowWithTimeSuccess }}
+                    </p>
+                    <p class="text-xl col-6">
+                        <i class="pi pi-stop text-yellow-600 bg-yellow-600"></i>
+                        {{ messages.rowWithTimeWarning }}
+                    </p>
+                    <p class="text-xl col-6">
+                        <i class="pi pi-stop text-red-600 bg-red-600"></i>
+                        {{ messages.rowWithTimeDanger }}
+                    </p>
+                    <p class="text-xl col-6">
+                        <i class="pi pi-stop text-blue-600 bg-blue-600"></i>
+                        {{ messages.rowWithTimeExceeded }}
+                    </p>
                 </div>
             </div>
-        </div>
     </p-fieldset>
 </div>
+
+<app-modal-info-ticket/>
+<app-modal-timeline-ticket/>
+<app-modal-priority (eventChangedPriority)="getTickets()"/>
+<app-modal-approver-moderator (eventChangedApproverModerator)="getTickets()" />

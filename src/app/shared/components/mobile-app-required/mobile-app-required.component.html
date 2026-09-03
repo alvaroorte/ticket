@@ -1,0 +1,41 @@
+
+<p-dialog
+  [(visible)]="openModal"
+  [modal]="true"
+  [closable]="false"
+  [closeOnEscape]="false"
+  [dismissableMask]="false"
+  header="Descarga la app TickET Mobile"
+  styleClass="w-10 md:w-6 lg:w-4"
+  appendTo="body">
+  <div class="flex flex-column align-items-center text-center gap-4 p-2 pb-4">
+    <i class="pi pi-mobile" style="font-size: 2.5rem"></i>
+    <span>
+      Para usar TickET desde tu celular, descarga la aplicación <strong>TickET Mobile</strong>.
+    </span>
+    <div class="flex flex-column align-items-center gap-3">
+      <a
+        [href]="playStoreUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="store-badge flex align-items-center gap-3 no-underline">
+        <img src="/assets/images/logo_play_store.webp" alt="Google Play" class="store-badge-icon">
+        <span class="flex flex-column align-items-start">
+          <span class="store-badge-label">Disponible en</span>
+          <span class="store-badge-title">Google Play</span>
+        </span>
+      </a>
+      <!-- <a
+        [href]="appStoreUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="store-badge flex align-items-center gap-3 no-underline">
+        <img src="/assets/images/logo_apple.webp" alt="App Store" class="store-badge-icon store-badge-icon-apple">
+        <span class="flex flex-column align-items-start">
+          <span class="store-badge-label">Download on the</span>
+          <span class="store-badge-title">App Store</span>
+        </span>
+      </a> -->
+    </div>
+  </div>
+</p-dialog>

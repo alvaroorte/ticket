@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+
+import { Component, inject } from '@angular/core';
 import { LoaderService } from '@core/services/loader.service';
 
 @Component({
@@ -7,10 +7,9 @@ import { LoaderService } from '@core/services/loader.service';
   templateUrl: './loader.component.html',
   styleUrls: ['./loader.component.scss'],
   standalone: true,
-  imports: [CommonModule],
 })
 export class LoaderComponent {
-  isLoading = this.loaderService.isLoading;
+  
+  public loaderService = inject(LoaderService);
 
-  constructor(private loaderService: LoaderService) {}
 }

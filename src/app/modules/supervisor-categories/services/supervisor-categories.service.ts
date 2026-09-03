@@ -1,45 +1,43 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable, Output, EventEmitter, inject  } from '@angular/core';
-import { DataCommon } from '@core/models/FieldsCommons';
-import { SupervisorCategory, SupervisorCategorySend } from '@core/models/SupervisorCategory';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, inject, signal } from '@angular/core';
 import { environment } from '@core/environments/environment.development';
+import { IGenericModalForm } from '@core/interfaces/generic-modal-form.interface';
+import { IServiceCommon } from '@core/interfaces/service-common.interface';
+import { ISupervisorCategory, ISupervisorCategoryAssignedUnassigned, ISupervisorCategorySave } from '@core/interfaces/supervisor-category.interface';
+import { GenericTableComponent } from '@shared/components/generic-table/generic-table.component';
+import { ModalDeleteComponent } from '@shared/components/modal-delete/modal-delete.component';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SupervisorCategoriesService {
+export class SupervisorCategoryService implements IServiceCommon {
 
-  @Output() eventFormComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventTableComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventModalDeleteComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventToolbarComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventTableDobleComponent: EventEmitter<any> = new EventEmitter();
+  public eventFormComponent = signal<IGenericModalForm>(null);
+  public eventTableComponent = signal<GenericTableComponent<ISupervisorCategory>>(null);
+  public eventModalDeleteComponent = signal<ModalDeleteComponent>(null);
 
   private http = inject(HttpClient);
 
   private serverUrl: string = environment.server_url;
-  
-  public create(supervisorDetail: SupervisorCategorySend) {
-    return this.http.post<SupervisorCategory>(this.serverUrl + 'supervisorDetail', supervisorDetail)
-  }
 
-  public createList(supervisorDetail: SupervisorCategorySend[]) {
-    return this.http.post<SupervisorCategory>(this.serverUrl + 'supervisorDetail/createList', supervisorDetail)
-  }
-  
   public delete(id: number) {
     return this.http.delete<string>(this.serverUrl + 'supervisorDetail/' + id)
   }
-
-  public deleteList(body: any) {
-    return this.http.post<void>(this.serverUrl + 'supervisorDetail/deleteList', body)
+  
+  public getBySupervisor(supervisorId: number) {
+    return this.http.get<ISupervisorCategory[]>(this.serverUrl + 'supervisorDetail/by-supervisor/' + supervisorId)
   }
   
-  public getBySupervisor(idSupervisor: number) {
-    return this.http.get<DataCommon[]>(this.serverUrl + 'supervisorDetail/getBySupervisor/' + idSupervisor)
+  public save(body: ISupervisorCategorySave) {
+    return this.http.post(this.serverUrl + 'supervisorDetail/save', body)
   }
   
-  public listAsignation(idEnterprise: number, idSupervisor: number) {
-    return this.http.get<DataCommon[]>(`${this.serverUrl}supervisorDetail/listAsignation/${idEnterprise}/${idSupervisor}`)
+  public getAssignedUnassigned(supervisorId: number, enterpriseId: number) {
+    const params: HttpParams = new HttpParams()
+      .set('supervisorId', supervisorId)
+      .set('enterpriseId', enterpriseId)
+    return this.http.get<ISupervisorCategoryAssignedUnassigned>(this.serverUrl + 'supervisorDetail/assigned-unassigned', { params })
   }
+  
+ 
 }

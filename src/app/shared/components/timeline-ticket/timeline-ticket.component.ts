@@ -1,45 +1,37 @@
-import { CommonModule } from '@angular/common';
-import { Component, ElementRef, EventEmitter, inject, Input, OnChanges, Output, signal, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnChanges, SimpleChanges, input, viewChild, output } from '@angular/core';
 import { environment } from '@core/environments/environment.development';
 import { Timeline } from '@core/models/Timeline';
-import { PrimeComponentsModule } from '@shared/prime-components/prime-components.module';
-import { TicketFlowComponent } from '@shared/components/ticket-flow/ticket-flow.component';
+import { PrimeModules } from '@shared/prime-components/prime-components.module';
 import { PipesModule } from '@core/pipes/pipes.module';
-import { FormatImagesService } from '@core/services/format-images';
 
 @Component({
-  selector: 'app-timeline-ticket',
-  standalone: true,
-  imports: [ CommonModule, PrimeComponentsModule, TicketFlowComponent, PipesModule ],
-  templateUrl: './timeline-ticket.component.html',
-  providers: [FormatImagesService]
+    selector: 'app-timeline-ticket',
+    imports: [PrimeModules, PipesModule],
+    templateUrl: './timeline-ticket.component.html'
 })
 export class TimelineTicketComponent implements OnChanges {
 
-    @Input() idTicket = signal<number>(0);
-    @Input() timelineList: Timeline[] = [];
-    @Output() eventReloadTimeline = new EventEmitter();
-    @ViewChild('cardsmessages') cardsmessages!: ElementRef;
+    readonly ticketId = input.required<number>();
+    readonly timelineList = input<Timeline[]>([]);
+    readonly eventReloadTimeline = output();
+    readonly modalEnd = viewChild<ElementRef>('modalEnd');
+    readonly divComment = viewChild<ElementRef>('divComment');
 
-    public serverUrl: string = environment.server_url;
-
-    private formatImagesService = inject(FormatImagesService);
+    public readonly serverUrl: string = environment.server_url;
 
     ngOnChanges(changes: SimpleChanges): void {
-        changes['timelineList']?
-            setTimeout(() => {
-                this.formatImages(this.cardsmessages)
-            }, 300)
-            : ''
+        if (changes['timelineList']) {
+            this.scrollToBottom();
+        } 
     }
 
     public reloadTimeline () {
         this.eventReloadTimeline.emit();
     }
 
-    public formatImages(cardsmessages: ElementRef) {
-        const sectionCardsMessage = cardsmessages.nativeElement;
-        const images: HTMLElement[] = sectionCardsMessage.querySelectorAll('img');
-        this.formatImagesService.widthImgaesInsideCOntainer(images);
+    private scrollToBottom() {
+        setTimeout(() => {
+          this.modalEnd().nativeElement.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
     }
 }

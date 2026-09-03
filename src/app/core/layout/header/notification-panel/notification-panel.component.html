@@ -1,0 +1,41 @@
+<div class="w-28rem">
+  <div class="flex align-items-center justify-content-between px-3 py-2 border-bottom-2 surface-border">
+    <span class="font-bold"> {{ labels.notifications }} </span>
+    @if (messageWsService.notificationsWithoutRead().length > 0) {
+      <button pButton class="p-button-text p-button-sm p-0 text-sm" (click)="markAllAsRead()">
+        Marcar todas como leídas
+      </button>
+    }
+  </div>
+
+  <p-scrollPanel class="w-full" [style]="{ 'height': '30rem'}">
+    @for (notification of messageWsService.notificationsWithoutRead(); track notification.id) {
+      <div
+        class="p-3 py-2 border-bottom-1 surface-border cursor-pointer hover:surface-300 transition-colors transition-duration-500"
+        [ngClass]="{ 'surface-100': !notification.read }"
+        (click)="onClickNotification(notification)"
+      >
+        <div class="flex align-items-center justify-content-between gap-2 mb-1">
+          <span [ngClass]="{ 'font-semibold': !notification.read }">{{ notification.title }}</span>
+          @if (!notification.read) {
+            <span
+              class="flex-shrink-0 border-circle bg-primary"
+              style="width: 0.8rem; height: 0.8rem; margin-top: 0.25rem;"
+              aria-hidden="true"
+            ></span>
+          }
+        </div>
+        @if (notification.type != notificationType.SOLVED_TICKET) {
+          <p class="m-0 mb-1 line-height-3" [innerHTML]="notification.message" ></p>
+        } @else {
+          <p class="m-0 mb-1 line-height-3">{{ notification.message }}</p>
+        }
+        <p class="text-color-secondary text-sm text-right">{{ notification.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+      </div>
+    } @empty {
+      <div class="flex align-items-center justify-content-center p-5">
+        <span class="text-color-secondary">Sin notificaciones</span>
+      </div>
+    }
+  </p-scrollPanel>
+</div>

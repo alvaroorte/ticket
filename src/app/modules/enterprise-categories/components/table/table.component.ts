@@ -1,80 +1,69 @@
-import {
-   Component,
-   EventEmitter,
-   Input,
-   Output,
-   Signal,
-   inject,
-   signal,
-} from '@angular/core';
-import { Enterprise } from '@core/models/Enterprise';
-import { EnterpriseCategory, EnterpriseCategorySend } from '@core/models/EnterpriseCategory';
-import { HelpersService } from '@core/services/helpers.service';
-import { EnterpriseCategoriesService } from '@enterpriseCategory/services/enterpriseCategories.service';
-import { TableComponent as TableEnterpriseCategoryDetailComponent } from '@enterpriseCategoryDetail/components/table/table.component';
-import { EnterpriseCategoryDetailService } from '@enterpriseCategoryDetail/services/enterpriseCategoryDetail.service';
-import { Table } from 'primeng/table';
+import { Component, inject, signal, input, output, effect } from '@angular/core';
+import { LABELS } from '@core/constants/labels';
+import { MESSAGES } from '@core/constants/messages';
+import { TOOLTIPS } from '@core/constants/tooltips';
+import { IGenericTable } from '@core/interfaces/generic-table.interface';
+import { EnterpriseCategory } from '@core/models/EnterpriseCategory';
+import { EnterpriseCategoryService } from '@enterpriseCategory/services/enterpriseCategories.service';
+import { PrimeModules } from '@shared/prime-components/prime-components.module';
+import { Table, TableRowSelectEvent } from 'primeng/table';
 
 @Component({
-   selector: 'app-table',
-   templateUrl: './table.component.html'
+    selector: 'app-table',
+    templateUrl: './table.component.html',
+    imports: [PrimeModules]
 })
-export class TableComponent {
-   @Input() enterprise!: Signal<Enterprise>;
-   @Output() rowSelected = new EventEmitter<EnterpriseCategory>();
+export class TableComponent implements IGenericTable {
+   readonly enterpriseId = input.required<number>();
+   readonly rowSelected = output<EnterpriseCategory>();
 
-   private enterpriseCategoriesService = inject(EnterpriseCategoriesService);
-   private enterpriseCategoryDetailService = inject(
-      EnterpriseCategoryDetailService
-   );
-   private helpersService = inject(HelpersService);
-
-   enterpriseCategories = signal<EnterpriseCategory[]>([]);
-   selectedEnterpriseCategories = signal<EnterpriseCategory>(
-      new EnterpriseCategory()
-   );
-   firstPage = 0;
-   rows = 5;
-   optionsPage = signal([5, 10, 20]);
-   loading = signal(false);
-   tableEnterpriseCategoryDetailComponent!: TableEnterpriseCategoryDetailComponent;
+   public readonly messages = MESSAGES;
+   public readonly labels = LABELS;
+   public readonly tooltips = TOOLTIPS;
+   public enterpriseCategories = signal<EnterpriseCategory[]>([]);
+   public selectedEnterpriseCategory = signal<EnterpriseCategory>(null);
+   public firstPage = 0;
+   public rows = 5;
+   public optionsPage = signal([5, 10, 20]);
+   public loading = signal(false);
+   public tooltipSearch: string = 'Este campo busca por: Categoría, Subcategoría, Equipo, Aprobador y Moderador';
+   
+   private enterpriseCategoryService = inject(EnterpriseCategoryService);
 
    ngOnInit() {
-      this.enterpriseCategoriesService.eventTableComponent.emit(this);
-      this.enterpriseCategoryDetailService.eventTableComponent.subscribe(
-         (tableEnterpriseCategoryDetailComponent) => {
-            this.tableEnterpriseCategoryDetailComponent =
-               tableEnterpriseCategoryDetailComponent;
-         }
-      );
+      this.enterpriseCategoryService.eventTableComponent.set(this);
    }
 
-   listByEnterprise(): void {
-      if (this.enterprise() && this.enterprise().id) {
+   constructor() {
+      effect(() => {
+         if (this.enterpriseId()) {
+            this.onRowUnselect();
+            this.listByEnterprise();
+         }
+      })
+   }
+
+
+   private listByEnterprise(): void {
+      if (this.enterpriseId()) {
          this.loading.set(true);
-         this.enterpriseCategoriesService
-            .listByEnterprise(this.enterprise().id as number)
-            .subscribe({
-               next: (res) => {
-                  this.enterpriseCategories.set(res);
-                  this.loading.set(false);
-               },
-               error: (err) => {
-                  console.log(err);
-                  this.helpersService.messageNotification(
-                     'error',
-                     'Error',
-                     err.message,
-                     3000
-                  );
-               },
-            });
+         this.enterpriseCategoryService.getByEnterprise(this.enterpriseId()).subscribe({
+            next: (res: EnterpriseCategory[]) => {
+               this.enterpriseCategories.set(res.map(enterpriseCategory => {
+                  return {
+                     ...enterpriseCategory,
+                     rolesString: enterpriseCategory.roles?.join(', ')
+                  }
+               }));
+               this.loading.set(false);
+            }
+         });
       } else {
-         this.setEnterpriseCategories([]);
+         this.setEnterpriseCategoryDetail([]);
       }
    }
 
-   setEnterpriseCategories(data: EnterpriseCategory[]) {
+   private setEnterpriseCategoryDetail(data: EnterpriseCategory[]) {
       this.enterpriseCategories.set(data);
    }
 
@@ -88,41 +77,16 @@ export class TableComponent {
 
    reload(): void {
       this.listByEnterprise();
+      this.onRowUnselect();
       this.firstPage = 0;
    }
 
-   onRowSelect(event: any) {
-      this.selectedEnterpriseCategories.set(event.data);
-      this.rowSelected.emit(this.selectedEnterpriseCategories());
-      this.tableEnterpriseCategoryDetailComponent.listSubcategory();
+   onRowSelect(event: TableRowSelectEvent) {
+      this.rowSelected.emit(event.data);
    }
 
    onRowUnselect() {
-      this.selectedEnterpriseCategories.set(new EnterpriseCategory());
-      this.rowSelected.emit(this.selectedEnterpriseCategories());
-      this.tableEnterpriseCategoryDetailComponent.listSubcategory();
-   }
-
-   async switchStatus(categoria: EnterpriseCategory) {
-      this.loading.set(true);
-      const id = Number(categoria.enterpriseCategoryId)
-      const enterpriseCategory: EnterpriseCategorySend = {
-         category: categoria.id,
-         enterprise: categoria.enterprise,
-         team: categoria.team,
-         status: categoria.status,
-         isPublic: categoria.isPublic
-      };
-      this.enterpriseCategoriesService.update(id, enterpriseCategory).subscribe({
-         next: () => {
-            this.loading.set(false);
-            this.listByEnterprise();
-         },
-         error: (err) => {
-            console.log(err);
-            this.loading.set(false);
-            this.helpersService.messageNotification('error', 'Error', err.message, 3000);
-         }
-      });
+      this.selectedEnterpriseCategory.set(null)
+      this.rowSelected.emit(null);
    }
 }

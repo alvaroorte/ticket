@@ -1,0 +1,45 @@
+@if (isViewPending() && statesForShowChangePriority.includes(ticket().flowStatusName)) {
+  <button
+    pButton pRipple
+    class="button-ticket p-button-sm p-button-rounded p-button-help hover-help mr-1 sombra-black mt-1"
+    [pTooltip]="tooltips.changePriority"
+    tooltipPosition="top"
+    (click)="openModalPriority(ticket().id, ticket().priorityId)"
+    icon="pi pi-arrows-v text-xs">
+  </button>
+}
+@for (button of buttons(); track button.function) {
+  <button
+    pButton pRipple
+    [ngClass]="['button-ticket', 'p-button-sm', 'p-button-rounded', 'p-button-'+ button.color, 'hover-'+ button.color, 'mr-1', 'sombra-black']"
+    [pTooltip]="button.tooltip"
+    tooltipPosition="top"
+    (click)="playNextFunctionTicket(button.function)"
+    [icon]="'text-xs pi ' + button.icon">
+  </button>
+}
+<button
+  pButton pRipple
+  class="button-ticket p-button-sm p-button-rounded p-button-warn hover-warn mr-1 sombra-black mt-1"
+  [pTooltip]="tooltips.seeTimeline"
+  tooltipPosition="top"
+  (click)="openModalTimeLine(ticket().id, ticket().code)"
+  icon="pi pi-chart-line text-xs">
+</button>
+
+<p-overlay-badge 
+  [value]="amountMessageUnreadByTicket"
+  [badgeDisabled]="!amountMessageUnreadByTicket" 
+  badgeSize="small" 
+  severity="success" 
+  class="inline-flex mr-2" mt-1
+>
+  <button
+    pButton pRipple
+    class="button-ticket p-button-sm p-button-rounded p-button-secondary hover-success sombra-black mt-1"
+    [pTooltip]="tooltips.seeMessages"
+    tooltipPosition="top"
+    (click)="openModalMessages(ticket().id, ticket().code)"
+    icon="pi pi-comment text-xs text-green-500">
+  </button>
+</p-overlay-badge>

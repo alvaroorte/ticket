@@ -1,0 +1,167 @@
+<div class="overflow-hidden">
+  @if (haveRoleForCreateTicketForSomebodyElse()) {
+    <div class="flex justify-content-center my-3">
+      <p-selectButton
+        [(ngModel)]="typeCreateticket"
+        [options]="optionsOfView"
+        (onOptionClick)="changeTypeCreateTicket($event)"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="mr-3 border-round-xl"
+        [unselectable]="true"
+      />
+    </div>
+  }
+  <div class="flex justify-content-center align-items-center">
+    <div class="fadeinright animation-ease-in-out animation-duration-500 background-gray-blured w-12 lg:w-6 p-4 mb-3">
+      <p-card
+        class="border-round-3xl fadeinright animation-ease-in-out animation-duration-500 p-3 shadow-2 ">
+        <form [formGroup]="formTicket">
+          <div class="grid">
+            <app-message-required-field class="col-12 mb-3" />
+            <div class="form-group field mt-6 col-6">
+              <p-floatlabel>
+                <div class="p-2 non-editable-field flex align-items-center p-inputwrapper-filled">
+                  {{ enterpriseName() }}
+                </div>
+                <label class="text-lg font-bold text-800 required-field"> {{ labels.enterprise }} </label>
+              </p-floatlabel>
+            </div>
+            <div class="form-group field mt-6 col-6">
+              <p-floatlabel>
+                <div class="p-2 non-editable-field flex align-items-center p-inputwrapper-filled">
+                  {{ category().name }}
+                </div>
+                <label class="text-lg font-bold text-800 required-field"> {{ labels.category }} </label>
+              </p-floatlabel>
+            </div>
+            @if (typeCreateticket() === TypeCreateTicketEnum.FOR_SOMEBODY) {
+              <div class="col-12 form-group field mt-3">
+                <app-select-generic-users 
+                  [label]="labels.requester"
+                  (selectedUser)="setRequester($event)" />
+              </div>
+            }
+            <div class="col-12 form-group field mt-3">
+              <p-floatlabel>
+                <p-select inputId="subCategoryId" [options]="subcategories()" [filter]="true"
+                  formControlName="subCategoryId" filterBy="name" optionValue="id" optionLabel="name" class="w-full"
+                  (onChange)="getApproversAndModeradors()" appendTo="body" />
+                <label for="subCategoryId" class="text-lg font-bold text-800 required-field"> {{ labels.subcategory }}
+                </label>
+              </p-floatlabel>
+            </div>
+  
+            <div class="col-12 form-group field mt-3">
+              <p-floatlabel>
+                <input type="text" pInputText id="title" formControlName="title" class="p-inputtext w-full" />
+                <label for="title" class="text-lg font-bold text-800"> {{ labels.title }} </label>
+              </p-floatlabel>
+            </div>
+            
+            <div class="col-12 form-group field">
+              <label class="text-lg font-bold text-800 required-field"> {{ labels.description }} </label>
+              <p-editor id="description" (onTextChange)="getEditorChanges($event.textValue.length)"
+                formControlName="description" />
+            </div>
+  
+            @if (hasCostCenter()) {
+              <div class="col-12 form-group field mt-3">
+                <p-floatlabel>
+                  <p-select 
+                    inputId="costCenterId" 
+                    [options]="costCenters()" 
+                    [filter]="true" 
+                    formControlName="costCenterId"
+                    filterBy="name" 
+                    optionValue="id" 
+                    optionLabel="name" 
+                    class="w-full" 
+                    appendTo="body"
+                  />
+                  <label for="costCenterId" class="text-lg font-bold text-800 required-field"> {{ labels.costCenter }}
+                  </label>
+                </p-floatlabel>
+              </div>
+            }
+  
+            <div [ngClass]="['form-group field mt-3', observerGroups().length > 0? 'col-10': 'col-12']">
+              @if (showObserverGroups()) {
+              <p-floatlabel>
+                <p-select 
+                  inputId="credentialObserverId" 
+                  [options]="observerGroups()" 
+                  [filter]="true" filterBy="name"
+                  optionLabel="name" class="w-full" appendTo="body"
+                  (onChange)="getCredencialIdsOfObserverGroup($event.value)" />
+                <label for="credentialObserverId" class="text-lg font-bold text-800"> {{ labels.observerGroup }} </label>
+              </p-floatlabel>
+              } @else {
+              <app-multi-select-generic-users 
+                [label]="labels.observers"
+                [showListNames]="false" 
+                [maxSelectedLabels]="2"
+                (onSelectedUserIds)="setCredentialsId($event)" 
+              />
+              }
+            </div>
+
+            @if (observerGroups().length > 0) {
+              <div class="col-2 form-group field flex align-items-center justify-content-center mt-3">
+                <p-toggleswitch pTooltip="Seleccionar grupo de observadores" [(ngModel)]="showObserverGroups"
+                  [ngModelOptions]="{standalone: true}" (ngModelChange)="resetCredentialObserverId()" />
+              </div>
+            }
+  
+            @if (approvers().length > 0) {
+              <div class="col-12 form-group field mt-3">
+                <p-floatlabel>
+                  <p-select inputId="credentialApproverId" [options]="approvers()" [filter]="true"
+                    formControlName="credentialApproverId" filterBy="email" optionValue="id" optionLabel="email"
+                    class="w-full" appendTo="body" />
+                  <label for="credentialApproverId" class="text-lg font-bold text-800 required-field"> {{ labels.approver }}
+                  </label>
+                </p-floatlabel>
+              </div>
+            }
+
+            @if (typeCreateticket() === TypeCreateTicketEnum.FOR_ME) {
+              <div class="col-12 lg:col-6 form-group field mt-3">
+                <p-floatlabel>
+                  <input type="text" pInputText id="ubication" formControlName="ubication" class="p-inputtext w-full" />
+                  <label for="ubication" class="text-lg font-bold text-800">{{ labels.myWorkPlace }}</label>
+                </p-floatlabel>
+              </div>
+    
+              <div class="col-12 lg:col-6 form-group field mt-3">
+                <p-floatlabel>
+                  <p-inputNumber id="phone" [useGrouping]="false" [min]="0" formControlName="phone" styleClass="w-full" />
+                  <label for="phone" class="text-lg font-bold text-800">{{ labels.myCellInternal }}</label>
+                </p-floatlabel>
+              </div>
+            }
+  
+            <app-input-file 
+              class="ml-3" 
+              [mode]="modeInputFile.BASIC" 
+              (onFileUploaded)="loadFile($event)"
+              [typeFileAccept]="allowedFormats"
+             />
+  
+            <div class="col-12 text-right mt-3">
+              <p-button
+                [label]="labels.createTicket" 
+                icon="pi pi-check"
+                [rounded]="true"
+                size="small"
+                styleClass="hover-primary mr-2 sombra-black" 
+                (click)="createTicket()"
+                [disabled]="formTicket.invalid"
+              ></p-button>
+            </div>
+          </div>
+        </form>
+      </p-card>
+    </div>
+  </div>
+</div>

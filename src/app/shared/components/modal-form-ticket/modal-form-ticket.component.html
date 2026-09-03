@@ -1,0 +1,15 @@
+<p-dialog 
+  [focusOnShow]="false" 
+  [(visible)]="modalformTicketVisible" 
+  [header]="titleModal()" 
+  styleClass="w-8" 
+  [modal]="true" 
+  [maximizable]="true"
+  appendTo="body">
+  @if (modalformTicketVisible) {
+    <app-home [parentTicketId]="data.parentTicketId"
+      [dataRecursive]="data.dataTicket"
+      (onTicketAssociatedORDerivated)="ticketAsociatedORDerivated()"
+     />
+  }
+</p-dialog>

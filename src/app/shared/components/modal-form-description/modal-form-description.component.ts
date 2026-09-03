@@ -1,105 +1,192 @@
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, Signal, inject, signal } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TicketFunctionArrays, TicketFunctionSend, TicketSolutionProjection } from '@core/models/Ticket';
-import { HelpersService } from '@core/services/helpers.service';
-import { PrimeComponentsModule } from '@shared/prime-components/prime-components.module';
-import { TicketsService } from '@ticket-historical/services/tickets-.service';
+
+import { DatePipe, NgClass } from '@angular/common';
+import { Component, ElementRef, OnDestroy, OnInit, inject, signal, viewChild, output } from '@angular/core';
+import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { buttonsOfTickets } from '@core/constants/buttons-ticket';
+import { FoldersParametersEnum } from '@core/enums/folder-parameters.enum';
+import { nameFunction } from '@core/interfaces/buttons-ticket.interface';
+import { IFieldForFuntion } from '@core/interfaces/modal-description';
+import { INextFunctionAndFile } from '@core/interfaces/ticket.interface';
+import { FormUtils } from '@core/utils/forms';
+import { ParameterService } from '@parameter/services/parameters.service';
+import { PrimeModules } from '@shared/prime-components/prime-components.module';
+import { TicketService } from '@ticket-historical/services/tickets.service';
+import { Subscription } from 'rxjs';
+import { InputFileComponent } from '../input-file/input-file.component';
+import { fileTypeAllowed } from '@core/constants/file';
+import { ModeInputFile } from '@core/enums/file.enum';
+import { LABELS } from '@core/constants/labels';
+import { TypeFieldEnum } from '@core/enums/type-fields';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { IncidentDates, TicketById } from '@core/models/Ticket';
+import { FormatImagesService } from '@core/services/format-image.service';
+import { FORMAT_DATE_TIME_SEND } from '@core/constants/format-date-time';
+import { TypeTicketEnum } from '@core/enums/ticket';
+import { getFieldsByTypeTicketAndNameFunction } from '@core/utils/parameters-by-function';
+import { IParameterSelect } from '@core/models/Parameter';
+import { Image } from 'primeng/image';
 
 @Component({
-  selector: 'app-modal-form-description',
-  standalone: true,
-  imports: [ CommonModule, PrimeComponentsModule, FormsModule, ReactiveFormsModule ],
-  templateUrl: './modal-form-description.component.html'
+    selector: 'app-modal-form-description',
+    imports: [PrimeModules, FormsModule, ReactiveFormsModule, NgClass, InputFileComponent],
+    templateUrl: './modal-form-description.component.html',
+    providers: [FormatImagesService]
 })
-export class ModalFormDescriptionComponent implements OnInit {
+export class ModalFormDescriptionComponent implements OnInit, OnDestroy {
 
-    @Input() nameFunction: Signal<string> = signal('');
-    @Input() title: Signal<string> = signal('Descripción');
-    @Input({required: true}) idTicket: Signal<number> = signal(0);
-    @Input() solutionTemp!: TicketSolutionProjection;
-    @Input() selector: Signal<TicketFunctionArrays> = signal(new TicketFunctionArrays);
-    @Output() updateStatusOfButtons = new EventEmitter();
+    readonly descriptionTicket = viewChild<ElementRef>('descriptionTicket');
+    readonly imagePreview = viewChild.required<Image>('imagePreview');
+    readonly eventSendData = output<INextFunctionAndFile>();
 
-    private formBuilder = inject(FormBuilder);
-    private helpersService = inject(HelpersService);
-    private ticketService = inject(TicketsService);
+    private ticketService = inject(TicketService);
+    private parameterService = inject(ParameterService);
+    private sanitizer = inject(DomSanitizer);
+    private formatImagesService = inject(FormatImagesService);
+    private datePipe = inject(DatePipe);
 
+    public readonly labels = LABELS;
+    public readonly FoldersParametersEnum = FoldersParametersEnum;
+    public readonly allowedFormats: string = `${fileTypeAllowed.allowedImageFormat},${fileTypeAllowed.allowedOfficeFormat},${fileTypeAllowed.allowedCompressedFormat},${fileTypeAllowed.allowedOtherFormats}`;
+    public readonly modeInputFile = ModeInputFile;
+    public readonly TypeTicketEnum = TypeTicketEnum;
+    public readonly TypeFieldEnum = TypeFieldEnum;
+    public fieldsModalDescription: IFieldForFuntion[] = [];
+    public today = new Date();
+    public incidentStartDate: Date;
+    public incidentEndDate: Date;
+    public selectedTag: number;
     public openModal: boolean = false;
-    isLoading: boolean = false;
-    isRequired: boolean = false;
-    editorEmpty: boolean = false;
-
-    public formDescription: FormGroup = this.formBuilder.group({
-        function: [''],
-        priority: [],
-        qualityService: [3],
-        impact: [],
-        causeIncident: [],
-        activity: [],
-        system: [],
-        description: []
-    });
+    public titleModal: string = "";
+    public ticket = signal<TicketById>(new TicketById());
+    public descriptionTicketHtml: SafeHtml;
+    public tags = signal<IParameterSelect[]>([]);
+    public showDatesIncident = signal<boolean>(false);
+    public formDescription: FormGroup = new FormGroup({});
+    private nameFunction: nameFunction;
+    private ticketId: number;
+    private fileUploaded: File;
+    private subscriptions: Subscription = new Subscription();
 
     ngOnInit(): void {
-        this.ticketService.eventOpenModalDescription.subscribe( () => {
-            this.handleOnShowModal();
+        this.subscriptions.add(
+            this.ticketService.eventOpenModalDescription.subscribe((data) => {
+                this.nameFunction = data.nameFunction;
+                this.ticketId = data.ticketId;
+                this.titleModal = buttonsOfTickets[this.nameFunction].tooltip
+                this.getInfoTicket();
+            })
+        )
+        this.ticketService.eventCloseModalDescription.subscribe(() => this.closeModal());
+    }
+
+    ngOnDestroy(): void {
+        this.subscriptions.unsubscribe();
+    }
+
+    private setForm(fieldsModalDescription: IFieldForFuntion[]) {
+        this.formDescription = FormUtils.getFromGroupByFieldsOfNameFunction(fieldsModalDescription);
+        this.reset();
+    }
+
+    private getParameters() {
+        this.fieldsModalDescription = getFieldsByTypeTicketAndNameFunction(this.ticket().typeTicket, this.nameFunction);
+        this.setForm(this.fieldsModalDescription);
+        const folders: FoldersParametersEnum[] = this.fieldsModalDescription.filter( field => field.folder).map(dropdown => dropdown.folder);
+        this.parameterService.select(folders).subscribe({
+            next: (parameters) => {
+                this.fieldsModalDescription.forEach( dropdown => {
+                    if (dropdown.folder) {
+                        dropdown.list = parameters.filter(parameter => parameter.folder == dropdown.folder ).sort((a, b) => a.ranking - b.ranking);
+                    }
+                });
+                this.today = new Date();
+                this.openModal = true;
+            }
+        });
+    }
+
+    private getInfoTicket () {
+        this.ticketService.getById(this.ticketId).subscribe({
+            next: (res) => {
+                this.ticket.set(res);
+                this.descriptionTicketHtml = this.sanitizer.bypassSecurityTrustHtml(res.description);
+                if (res.typeTicket == TypeTicketEnum.INCIDENTE) {
+                    this.incidentStartDate = res.incidentStartDate? new Date(res.incidentStartDate): null;
+                    this.incidentEndDate = res.incidentEndDate? new Date(res.incidentEndDate): null;
+                    this.showDatesIncident.set(this.nameFunction === 'acceptSolution');
+                    this.nameFunction == 'acceptSolution'? this.getTagsOfTicket(): '';
+                } else {
+                    this.showDatesIncident.set(false);
+                }
+            }, complete: () => {
+                this.getParameters();
+            },
         })
     }
 
-    private handleOnShowModal(){
-      this.isRequired = false;
-      if ((this.selector().prioridad && this.selector().prioridad!.length > 0) || !(this.selector().calidaddeservicio && this.selector().calidaddeservicio!.length > 0)) {
-         this.isRequired = true;
-      }
-        this.formDescription = this.formBuilder.group({
-            function: [''],
-            priority: [, [(this.selector().prioridad && this.selector().prioridad!.length > 0)? Validators.required: Validators.nullValidator]],
-            qualityService: (this.selector().calidaddeservicio && this.selector().calidaddeservicio!.length > 0)? [4 ,[ Validators.required ]]: [],
-            impact: [, [(this.selector().prioridad && this.selector().prioridad!.length > 0)? Validators.required: Validators.nullValidator]],
-            causeIncident: [, [(this.selector().prioridad && this.selector().prioridad!.length > 0)? Validators.required: Validators.nullValidator]],
-            activity: [],
-            system: [],
-            description: [, [((this.selector().prioridad && this.selector().prioridad!.length > 0) || !(this.selector().calidaddeservicio && this.selector().calidaddeservicio!.length > 0))? Validators.required: Validators.nullValidator]]
+    private getTagsOfTicket() {
+        this.ticketService.getAvailableTagsByTicketId(this.ticketId).subscribe({
+            next: (res) => {
+                this.tags.set(res);
+            }
         });
-        this.openModal = true;
-        this.isLoading = false;
-    };
-
-    reset(): void {
-        this.isLoading = false;
-        this.openModal = false;
-        this.formDescription.reset();
-    };
-
-    submitModalDescription() {
-        if (((this.selector().prioridad && this.selector().prioridad!.length > 0) || !(this.selector().calidaddeservicio && this.selector().calidaddeservicio!.length > 0)) && this.editorEmpty) {
-            this.helpersService.messageNotification("warn", "Atención", "El campo descripción es requerido");
-        } else {
-            this.isLoading = true;
-            const data: TicketFunctionSend = {
-                ...this.formDescription.value,
-            };
-            data.function =  this.nameFunction();
-            this.selector().calidaddeservicio ? data.qualityService = this.selector().calidaddeservicio![this.formDescription.value.qualityService-1].name: '';
-            this.isLoading = false;
-
-            this.ticketService.ticketFunction(this.idTicket(), data).subscribe({
-                next: (res) => {
-                    this.helpersService.messageNotification("success", "Correcto", `${res.message}`, 3000);
-                    this.updateStatusOfButtons.emit()
-                    this.reset();
-                },
-                error: (err) => {
-                    this.isLoading = false;
-                    console.log(err);
-                    this.helpersService.messageNotification("error", err.eroor, err.message, 3000);
-                }
-            })
-        }
-    };
-
-    public changeTextValueDescription( text: string){
-        this.editorEmpty = ( text.trim().length == 0)? true: false;
     }
+
+    public loadFile(dataFile: File) {
+        this.fileUploaded = dataFile;
+    }
+
+    public fillDescriptionTicket(divDescriptionTicket: ElementRef) {
+        if (divDescriptionTicket) {
+            const descriptionTicket = divDescriptionTicket.nativeElement;
+            const images: HTMLImageElement[] = descriptionTicket.querySelectorAll('img');
+            this.formatImagesService.widthImgaesInsideContainer(images, '75%', this.imagePreview()); 
+        }
+    }
+
+    private reset(): void {
+        this.formDescription.reset();
+        if (this.nameFunction == 'acceptSolution')
+            this.formDescription.patchValue({ serviceQuality: 7 });
+        if (this.nameFunction == 'finishTicket')
+            this.formDescription.patchValue({ sendEmail: true });
+    };
+    
+    public closeModal(): void {
+        this.openModal = false;
+    };
+
+    public saveData() {
+        this.nameFunction == 'acceptSolution' && this.ticket().typeTicket == TypeTicketEnum.INCIDENTE?
+            this.saveIncidentDates()
+            : this.submitModalDescription();
+    }
+
+    private saveIncidentDates() {
+        const body: IncidentDates = {
+            startDate: this.datePipe.transform(this.incidentStartDate, FORMAT_DATE_TIME_SEND),
+            endDate: this.datePipe.transform(this.incidentEndDate, FORMAT_DATE_TIME_SEND),
+            tagId: this.selectedTag
+        };
+        this.ticketService.updateIncidentDates(this.ticketId, body).subscribe({
+            next: () => {
+                this.submitModalDescription();
+            }
+        })
+    }
+
+    private submitModalDescription() {
+        if (this.formDescription.value.description) {
+            this.formDescription.value.description = this.formDescription.value.description.split('&nbsp;').join(' ');
+        }
+        const data: INextFunctionAndFile = {
+            body: {...this.formDescription.value},
+            attachment: this.fileUploaded
+        }
+        if (this.nameFunction == 'acceptSolution') {
+            const serviceQuality = this.fieldsModalDescription.find( field => field.formControlName == 'serviceQuality').list[this.formDescription.value.serviceQuality-1].value;
+            data.body.serviceQuality = serviceQuality as string;
+        }
+        this.eventSendData.emit(data);
+    };
 }

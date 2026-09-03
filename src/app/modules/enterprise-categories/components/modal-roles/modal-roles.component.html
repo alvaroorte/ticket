@@ -1,0 +1,54 @@
+<div class="grid">
+    <div class="col-12">
+        <p-dialog [focusOnShow]="false" 
+            [(visible)]="openModal" 
+            styleClass="w-10 md:w-6 lg:w-4"
+            class="p-fluid"
+            [header]="tittleForm" 
+            [modal]="true"
+            appendTo="body"
+        >
+            <ng-template pTemplate="content">
+                
+                <div class="form-group field mt-5">
+                    <p-floatlabel>
+                        <p-multiSelect [options]="roles"
+                            [(ngModel)]="selectedRoles"
+                            optionLabel="name"
+                            optionValue="code"
+                            appendTo="body"
+                            class="w-full"
+                         />
+                        <label htmlFor="roles" class="text-lg font-bold text-800 required-field">{{ labels.roles }}</label>
+                    </p-floatlabel>
+                </div>
+                
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <div class="p-2 pb-3">
+                    <button 
+                        pButton 
+                        pRipple 
+                        [label]="labels.cancel" 
+                        icon="pi pi-times"
+                        severity="secondary"
+                        [rounded]="true"
+                        size="small"
+                        class="mr-2 shadow-3" 
+                        (click)="hideModal()"
+                    ></button>
+                    <button 
+                        pButton 
+                        pRipple 
+                        [label]="labels.save" 
+                        icon="pi pi-check"
+                        [rounded]="true"
+                        size="small"
+                        class="mr-2 shadow-3" 
+                        (click)="saveChanges()"
+                    ></button>
+                </div>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>

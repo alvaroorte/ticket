@@ -1,28 +1,21 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PrimeComponentsModule } from '@shared/prime-components/prime-components.module';
+import { PrimeModules } from '@shared/prime-components/prime-components.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { TableComponent } from './components/table/table.component';
-import { ToolbarComponent } from './components/toolbar/toolbar.component';
-import { ModaldeleteComponent } from '@shared/components/modal-delete/modal-delete.component';
+import { ModalDeleteComponent } from '@shared/components/modal-delete/modal-delete.component';
+import { InputFileComponent } from '@shared/components/input-file/input-file.component';
 
 @NgModule({
-  declarations: [
-    TableComponent,
-    ToolbarComponent,
-
-  ],
   imports: [
     CommonModule,
-    PrimeComponentsModule,
+    PrimeModules,
     ReactiveFormsModule,
-    ModaldeleteComponent,
-    FormsModule
+    ModalDeleteComponent,
+    FormsModule,
+    InputFileComponent
   ],
   exports: [
-    PrimeComponentsModule,
-    TableComponent,
-    ToolbarComponent,
+    PrimeModules,
     FormsModule
   ]
 })

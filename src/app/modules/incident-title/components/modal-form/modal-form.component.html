@@ -1,0 +1,60 @@
+<form [formGroup]="formIncidentTitle">
+
+  <div class="grid">
+    <div class="col-12">
+      <p-dialog [focusOnShow]="false" [(visible)]="openModal" styleClass="w-10 md:w-6 lg:w-4" [header]="titleForm" [modal]="true" class="p-fluid" appendTo="body">
+        <ng-template pTemplate="content">
+
+          <app-message-required-field />
+
+          <div class="form-group field mt-5">
+            <p-floatlabel>
+              <input type="text" pInputText id="title" formControlName="title" class="w-full" />
+              <label htmlFor="title" class="text-lg font-bold text-800 required-field">{{ labels.title }}</label>
+            </p-floatlabel>
+            @if (formIncidentTitle.controls['title'].touched && formIncidentTitle.get('title')?.hasError('required')) {
+              <small class="p-error block mt-2" >{{ messages.requiredField }}</small>
+            }
+            @if (formIncidentTitle.get('title')?.hasError('pattern')) {
+              <small class="p-error block mt-2">{{ messages.deniedCharactersName }}</small>
+            }
+            @if (formIncidentTitle.get('title')?.hasError('minlength')) {
+              <small class="p-error block mt-2">{{ messages.requiredMinLengthCode }}</small>
+            }
+            @if (formIncidentTitle.get('title')?.hasError('noSpace')) {
+              <small class="p-error block mt-2">{{ messages.noOnlySpace }}</small>
+            }
+          </div>
+
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <div class="p-2 pb-3">
+            <input type="hidden" pInputText id="id" formControlName="id"/>
+            <button
+              type="button"
+              pButton pRipple
+              [label]="labels.cancel"
+              icon="pi pi-times"
+              severity="secondary"
+              [rounded]="true"
+              size="small"
+              class="mr-2 shadow-3"
+              (click)="hideModal()"
+            ></button>
+            <button
+              type="button"
+              pButton pRipple
+              [label]="labels.save"
+              icon="pi pi-check"
+              [rounded]="true"
+              size="small"
+              class="mr-2 shadow-3 hover-primary"
+              (click)="saveIncidentTitle()"
+              [disabled]="formIncidentTitle.invalid">
+            </button>
+          </div>
+        </ng-template>
+      </p-dialog>
+    </div>
+  </div>
+</form>

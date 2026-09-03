@@ -1,0 +1,38 @@
+
+<p-dialog [focusOnShow]="false" [(visible)]="showModal" styleClass="w-10 md:w-6 lg:w-4" [header]="tittleForm" [modal]="true" class="p-fluid" appendTo="body">
+  <ng-template pTemplate="content">
+
+    <app-input-file 
+      class="flex justify-content-center"
+      (onFileUploaded)="setFile($event)"
+      typeFileAccept=".xls,.xlsx"
+     />
+
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <div class="p-2 pb-3">
+      <button
+        type="button"
+        pButton pRipple
+        [label]="labels.cancel"
+        icon="pi pi-times"
+        severity="secondary"
+        [rounded]="true"
+        size="small"
+        class="mr-2 shadow-3"
+        (click)="hideModal()"
+      ></button>
+      <button
+        type="submit"
+        pButton pRipple
+        [label]="labels.save"
+        icon="pi pi-check"
+        [rounded]="true"
+        size="small"
+        class="mr-2 shadow-3 hover-primary"
+        (click)="submit()"
+        [disabled]="!file"
+      ></button>
+    </div>
+  </ng-template>
+</p-dialog>

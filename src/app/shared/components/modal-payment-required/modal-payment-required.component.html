@@ -1,0 +1,37 @@
+<p-dialog 
+    [(visible)]="openModal" 
+    [header]="labels.expiredLicense" 
+    styleClass="w-8" 
+    [modal]="true" 
+    class="p-fluid"
+    appendTo="body">
+    <ng-template pTemplate="content">
+    
+        <div class="flex justify-content-around surface-100 border-round-xl p-5">
+            <div class="flex align-items-center">
+                <div class="text-center">
+                    <img width="180" src="/assets/images/endeSyc.webp" alt="Imagen_ENDESYC">
+                    <h1>402</h1>
+                    <h3>{{ message }}</h3>
+                    <p class="text-2xl mt-5"> Para renovar la licencia comunícate con la empresa de 
+                        <a href="https://www.endesyc.bo/" target="_blank">ENDESYC</a>  
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <div class="p-2 pb-3">
+            <button 
+                type="button" 
+                (click)="openModal = false" 
+                pButton pRipple 
+                [label]="labels.close" 
+                [size]="'small'"
+                icon="pi pi-times" 
+                class="p-button-secondary p-button-rounded mr-2 sombra-black hover-secondary"
+            ></button>
+        </div>
+    </ng-template>
+</p-dialog>

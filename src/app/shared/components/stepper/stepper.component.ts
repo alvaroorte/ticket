@@ -1,19 +1,18 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, input, output } from '@angular/core';
+import { NgClass } from '@angular/common';
 
 @Component({
-  selector: 'app-stepper',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './stepper.component.html'
+    selector: 'app-stepper',
+    imports: [NgClass],
+    templateUrl: './stepper.component.html'
 })
 export class StepperComponent {
 
-  @Input({required: true}) steps!: string[];
-  @Input() indexCurrent: number = 1;
-  @Output() changeStep = new EventEmitter<any>();
+  readonly steps = input.required<string[]>();
+  readonly indexCurrent = input<number>(1);
+  readonly onChangeStep = output<number>();
 
-  setStep( index: number ) {
-    this.changeStep.emit(index);
+  public setStep( index: number ) {
+    this.onChangeStep.emit(index);
   }
 }

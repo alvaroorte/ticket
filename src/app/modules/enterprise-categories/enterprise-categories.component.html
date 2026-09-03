@@ -1,9 +1,44 @@
-<app-toolbar-common
-    [serviceGeneric]="enterpriseCategoryService"
-    tooltipCreate="Asignar categoría"
-    [showCreate]="enterprise() && enterprise().id? true: false"
-    [showDelete]="false"
-    [showEdit]="false"
-    [object]="enterpriseCategory()"/>
-<app-modal-form></app-modal-form>
-<app-table [enterprise]="enterprise" (rowSelected)="setEnterpriseCategory($event)"></app-table>
+<div class="container mx-0 mb-0 pb-4">
+    <div class="grid">
+        <div class="col-12 fadeindown animation-duration-400">
+            <div class="sombra-black border-round-xl p-2 surface-0">
+                <app-toolbar-common
+                    [serviceGeneric]="enterpriseCategoryService"
+                    tooltipCreate="Asignar categoría"
+                    [showDelete]="false"
+                    [showEdit]="false"                    
+                    [object]="selectedEnterpriseCategory()"
+                >
+                    <p-button icon="pi pi-users"
+                        [pTooltip]="labels.approversModerators"
+                        size="small"
+                        [rounded]="true"
+                        severity="warn" 
+                        styleClass="mr-2 sombra-black hover-warn"
+                        (click)="openModalApproverModerator()"
+                     />
+                    <p-button icon="pi pi-cog"
+                        size="small"
+                        [rounded]="true"
+                        severity="help" 
+                        [pTooltip]="labels.addRoles" 
+                        styleClass="mr-2 sombra-black hover-help"
+                        (click)="openModalRoles()"
+                     />
+                    <p-button icon="pi pi-tag"
+                        size="small"
+                        [rounded]="true"
+                        [pTooltip]="labels.addTags" 
+                        styleClass="mr-2 sombra-black hover-primary"
+                        (click)="openModalTags()"
+                     />
+                </app-toolbar-common>
+                <app-modal-form [selectedEnterpriseId]="enterpriseId()" />
+                <app-table [enterpriseId]="enterpriseId()" (rowSelected)="setEnterpriseCategoryDetail($event)" />
+                <app-modal-approver-moderator [selectedEnterpriseCategory]="selectedEnterpriseCategory()" />
+                <app-modal-roles [enterpriseCategory]="selectedEnterpriseCategory()" />
+                <app-modal-tags [selectedEnterpriseCategory]="selectedEnterpriseCategory()" />
+            </div>
+        </div>
+    </div>
+</div>

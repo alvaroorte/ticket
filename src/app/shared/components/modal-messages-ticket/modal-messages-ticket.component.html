@@ -1,0 +1,91 @@
+<div class="card">
+  <div class="card flex justify-content-center">
+    <p-dialog 
+      [focusOnShow]="false" 
+      [(visible)]="showModalMessages" 
+      styleClass="w-10 md:w-6 lg:w-4"
+      [contentStyle]="{ 'background': 'rgb(255 255 255 / 55%)', 'backdrop-filter': 'blur(5px)' }"
+      contentStyleClass="px-2 pb-0" 
+      (onHide)="onCloseModal()" 
+      [modal]="true">
+      <ng-template pTemplate="header">
+        <h3 class="flex-1 text-center capitalize">
+          <i class="font-semibold pi pi-comment mr-1 text-xl"></i> {{ dataOpenModal.ticketTitle }}
+        </h3>
+      </ng-template>
+      <ng-template pTemplate="content">
+        <p-image #imagePreview class="hidden" [preview]="true" appendTo="body" />
+        @if (messagesChat().length > 0) {
+        <section class="relative px-3 pb-3">
+          <div #cardsmessages class="grid">
+            @for (message of messagesChat(); track message; let i = $index) {
+            <div class="col-12">
+              <div [ngClass]="['flex', message.isUserGenerated? 'justify-content-end': '']">
+                <div
+                  [ngClass]="['border-round-2xl px-3 py-2 shadow-4', message.isUserGenerated? 'message-mine': 'message-others']"
+                  [style]="{'max-width': '75%'}">
+                  <p class="text-right text-sm">{{ message.userName }}</p>
+                  @if (message.fileName) {
+                    <app-view-file 
+                      class="flex justify-content-center align-items-center my-2"
+                      [fileName]="message.fileName"
+                      [isUserGenerated]="message.isUserGenerated"
+                    />
+                  }
+                  @if ((messagesChat().length-1) == i) {
+                    <p #lastMessage class="mr-5 py-2 break-word" [innerHTML]="message.comment"></p>
+                  } @else {
+                    <p class="mr-5 py-2 break-word" [innerHTML]="message.comment | sanitizeHtml"></p>
+                  }
+                  <p class="text-right text-xs">{{ message.createdAt | formatDateWhitHour }}</p>
+                </div>
+              </div>
+            </div>
+            }
+          </div>
+        </section>
+        } @else {
+        <h3 class="py-2 lynch-800 text-center mb-4">{{ messages.noMessagesInThisConversation }}</h3>
+        }
+        <div class="sticky bottom-0 left-0 ">
+          <div class="grid">
+            <div class="flex-1">
+              <p-editor 
+                [(ngModel)]="comment"
+                (ngModelChange)="verifyComment()" 
+                class="border-none break-word"
+                placeholder="Escriba un mensaje...">
+                <ng-template #header>
+                  <div class="grid mt-1">
+                    <div class="col-4 flex align-items-center p-0">
+                      <span class="ql-formats ">
+                        <button type="button" class="ql-bold" aria-label="Bold"></button>
+                        <button type="button" class="ql-italic" aria-label="Italic"></button>
+                        <button type="button" class="ql-underline" aria-label="Underline"></button>
+                      </span>
+                    </div>
+                    <div class="col-8 button-message align-items-center flex justify-content-end p-0 pr-3">
+                      <app-input-file 
+                        [typeFileAccept]="allowedFormats"
+                        [mode]="modeInputFile.BASIC" 
+                        (onFileUploaded)="loadFile($event)" 
+                      />
+                      <p-button
+                        styleClass="ml-2 hover-primary shadow-3 bg-primary-500"
+                        icon="pi pi-send"
+                        [rounded]="true"
+                        size="small"
+                        [pTooltip]="tooltips.sendMessage"
+                        (onClick)="sendMessage()"
+                      ></p-button>
+                    </div>
+                  </div>
+                </ng-template>
+              </p-editor>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </p-dialog>
+  </div>
+</div>

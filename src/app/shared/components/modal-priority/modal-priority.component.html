@@ -1,0 +1,58 @@
+<div class="grid">
+    <div class="col-12">
+        <p-dialog 
+            [focusOnShow]="false" 
+            [(visible)]="openModal" 
+            [header]="labels.changePriority" 
+            styleClass="w-11 md:w-4" 
+            [modal]="true" 
+            class="p-fluid"
+            appendTo="body">
+            <ng-template pTemplate="content">
+            
+                <div class="grid">
+                    <div class="form-group field mt-5 col-12">
+                        <p-floatlabel>
+                            <p-select inputId="priority"
+                                [options]="priorities()"
+                                optionLabel="value"
+                                appendTo="body"
+                                optionValue="id"
+                                [(ngModel)]="selectedPriority"
+                                class="w-full"
+                                [showClear]="false"
+                             />
+                            <label for="priority" class="text-lg font-bold text-800 required-field">
+                                {{ labels.priority }}
+                            </label>
+                        </p-floatlabel>
+                    </div>
+                </div>
+                
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <div class="p-2 pb-3">
+                    <button 
+                        type="button" 
+                        (click)="openModal = false" 
+                        pButton pRipple 
+                        [label]="labels.cancel" 
+                        [size]="'small'"
+                        icon="pi pi-times" 
+                        class="p-button-secondary p-button-rounded mr-2 sombra-black hover-secondary"
+                    ></button>
+                    <button 
+                        type="submit" 
+                        pButton pRipple 
+                        [label]="labels.save"
+                        [size]="'small'"
+                        [disabled]="!selectedPriority()"
+                        icon="pi pi-sign-in" 
+                        class="p-button-rounded mr-2 sombra-black hover-primary"
+                        (click)="updatePriority()"
+                    ></button>
+                </div>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>

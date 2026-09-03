@@ -1,39 +1,64 @@
 
-<div class="grid">
-    <div class="col-6">
-        <div *ngIf="havePermissions" class="flex flex-row flex-wrap">
-            <div class="flex align-items-center justify-content-center background-gray-blured p-2">
-                <label for="enterprise" class="lynch-800 pr-3"><h4>Empresa:</h4></label>
-                <div class="search-border-bottom">
-                    <p-dropdown 
-                        inputId="enterprise"
-                        [options]="enterprises" 
-                        [(ngModel)]="enterpriseSelected" 
-                        (onChange)="getCategoriesByEnterprise()" 
-                        optionLabel="name" 
-                        styleClass="input-search w-full" 
-                        appendTo="body"
-                        placeholder="Empresas..."
-                    />
-                </div>
-            </div>
-        </div>
+<div class="grid mt-2">
+  <div class="col-6">
+    @if (showEnterprise()) {
+      <div class="flex align-items-center">
+          <label for="enterprise" class="font-semibold text-xl lynch-800 mr-1"><h4> {{ labels.enterprise }}: </h4></label>
+          <p-select
+            inputId="enterprise"
+            [options]="enterprises()"
+            [(ngModel)]="enterpriseSelectedId"
+            (onChange)="getCategoriesByEnterprise()"
+            [filter]="true"
+            filterBy="name"
+            optionLabel="name"
+            optionValue="id"
+            class="border-round-xl surface-100 mr-4"
+            appendTo="body"
+            [placeholder]="labels.placeholderSelectAOption"
+          />
+      </div>
+    }
+  </div>
+  <div class="col-6">
+    <div class="flex flex-wrap justify-content-end gap-2">
+      <p-iconfield>
+        <input
+          type="text"
+          pInputText
+          id="search-categories"
+          class="border-round-xl surface-100"
+          [placeholder]="labels.search"
+          [(ngModel)]="searchInput"
+          (ngModelChange)="filterCategories()"
+          [pTooltip]="tooltips.thisFieldSearchByCategoryAndYoursSubcategories"
+          tooltipPosition="top"
+        >
+        <p-inputicon styleClass="pi pi-search" />
+      </p-iconfield>
+
+      <div class="flex align-items-center border-round-xl surface-100 px-2 inputtext-hover">
+        <i
+          class="pi pi-sync text-lg lynch-800 cursor-pointer"
+          [pTooltip]="tooltips.reload"
+          tooltipPosition="left"
+          (click)="getEnterprises()"
+        ></i>
+      </div>
     </div>
-    <div class="col-6">
-        <div class="flex flex-row-reverse flex-wrap">
-            <div class="flex align-items-center justify-content-center background-gray-blured p-2 shadow-2">
-                <div class="search-border-bottom">
-                    <input type="text" class="input-search pl-2" placeholder="Buscar..." (keyup)="filterCategories($event)">
-                    <i class="pi pi-search"></i>
-                </div>
-                <div class="refresh-card" pTooltip="Refrescar Datos" tooltipPosition="left">
-                    <i class="pi pi-sync text-xl cursor-pointer" (click)="getData()" ></i>
-                </div>
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
 
 <div class="background-gray-blured">
-    <app-card-category [categories]="categories" [columnsNumber]="numberColumns()" (selectedCategory)="setSelectedCategory($event)" class="mb-5"></app-card-category>
+  <div class="grid mt-3 justify-content-center">
+    @for (category of categories(); track category.id;) {
+      <app-card-category 
+        class="col-12 md:col-6 lg:col-3 mb-5 align-items-center container justify-content-center fadeinleft animation-ease-in-out animation-duration-500" 
+        [category]="category" 
+        (click)="setSelectedCategory(category)"
+      />
+    } @empty {
+      <h1 class="py-2 lynch-800">{{ labels.selectedAEnterprise }}</h1>
+    }
+  </div>
 </div>

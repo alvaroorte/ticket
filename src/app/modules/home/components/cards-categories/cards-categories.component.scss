@@ -1,0 +1,11 @@
+.container {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 1.5rem 0;
+    transition: transform 0.3s ease-in-out;
+}
+
+.container:hover {
+    transform: scale(1.05);
+}

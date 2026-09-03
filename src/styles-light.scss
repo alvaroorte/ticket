@@ -1,15 +1,24 @@
-/* You can add global styles to this file, and also import other style files */
-@import "primeng/resources/themes/lara-light-teal/theme.css";
-@import "primeng/resources/primeng.css";
-@import "primeicons/primeicons.css";
-@import "primeflex/primeflex.css";
-@import url('https://cdn.quilljs.com/1.3.6/quill.snow.css');
-// Open Sans font 
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,400;0,500;0,700;1,300&display=swap');
+@use "styles/general.scss";
 
-// General Styles Commoms
-@import "styles/general.scss";
-@import "./style-colors.scss";
+$lynch-50: #f6f7f9;
+$lynch-100: #eceef2;
+$lynch-200: #d5d9e2;
+$lynch-300: #b1bbc8;
+$lynch-400: #8695aa;
+$lynch-500: #64748b;
+$lynch-600: #526077;
+$lynch-700: #434e61;
+$lynch-800: #3a4252;
+$lynch-900: #343a46;
+$lynch-950: #23272e;
+
+$background-main-primary: var(--p-teal-800);
+$background-main-secondary: var(--p-teal-600);
+$background-main-tertiary: var(--p-teal-500);
+$background-main-blur: rgb(111 163 153 / 32%);
+
+$border-yellow: #d1a000;
+
 
 .lynch-50 { color: #f6f7f9 !important};
 .lynch-100 { color: #eceef2 !important};
@@ -37,68 +46,97 @@
 
 .bg-transparent { background-color: rgba(255, 255, 255, 0) !important};
 
+.bg-main-primary {
+    background-color: $background-main-primary !important;
+}
+
+.bg-main-secondary {
+    background-color: $background-main-secondary !important;
+}
+
+.bg-main-tertiary {
+    background-color: $background-main-tertiary !important;
+}
+
 .border-yellow {
     border-color: $border-yellow;
 }
 
-.color-yellow {
-    color: $border-yellow;
+body {
+    position: relative;
+    background-color: $lynch-200;
+    background-attachment: fixed;
+    z-index: 0;
 }
 
-body {
-    background-image: url(/assets/images/fondo.webp);
-    background-color: $lynch-200;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat; 
-    background-attachment: fixed;
-    transition: background-color 0.8s ease-in-out;
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/assets/images/background_image.avif');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  opacity: 0.7;
+  z-index: -1;
+  pointer-events: none;
 }
 
 .p-fieldset {
-    border-radius: 10px;
-    border: none;
-    background-color: rgba(156, 159, 172, 0.4);
+    border-radius: 10px !important;
+    border: none !important;
+    background-color: $background-main-blur !important;
+    backdrop-filter: blur(3px);
 }
 
 .hover-success:hover {
-    color: #22C55E !important;
+    color: var(--p-button-success-background) !important;
     background-color: white !important;
     font-weight: bold;
 }
 
 .hover-primary:hover {
-    color: #14B8A6 !important;
+    color: var(--p-button-primary-background) !important;
     background-color: white !important;
     font-weight: bold;
 }
 
 .hover-danger:hover {
-    color: #EF4444 !important;
+    color: var(--p-button-danger-background) !important;
     background-color: white !important;
     font-weight: bold;
 }
 
-.hover-warning:hover {
-    color: #F59E0B !important;
+.hover-warn:hover {
+    color: var(--p-button-warn-background) !important;
     background-color: white !important;
     font-weight: bold;
 }
 
 .hover-help:hover {
-    color: #A855F7 !important;
+    color: var(--p-button-help-background) !important;
     background-color: white !important;
     font-weight: bold;
 }
 
 .hover-info:hover {
-    color: #3B82F6 !important;
+    color: var(--p-button-info-background) !important;
     background-color: white !important;
     font-weight: bold;
 }
 
 .hover-secondary:hover {
-    color: #64748B !important;
+    color: var(--p-button-secondary-background) !important;
+    background-color: white !important;
+    font-weight: bold;
+}
+
+.hover-contrast:hover {
+    color: var(--p-button-secondary-contrast) !important;
     background-color: white !important;
     font-weight: bold;
 }
@@ -107,30 +145,24 @@ table.p-datatable-table thead th:first-child, table.p-datatable-table thead td:f
     border-top-left-radius: 12px;
 }
 table.p-datatable-table thead th:last-child, table.p-datatable-table thead td:last-child {
-border-top-right-radius: 12px;
+    border-top-right-radius: 12px;
 }
 
 .p-datatable .p-datatable-thead > tr > th {
     text-align: center;
     color: #ffffff;
-    // background: #5a9bdd;
-    background: $background-secundario;
+    background: $background-main-secondary;
+    background: $background-main-secondary;
 }
 
 .p-datatable .p-datatable-tbody > tr.p-highlight {
-    background: #b8cce4;
-    color: $background-primario;
+    background: #b8cce4 !important;
+    color: $background-main-primary;
     font-weight: 600;
 }
 
 .p-datatable .p-datatable-tbody > tr:focus {
     outline: none;
-}
-.animation-duration-400 {
-    animation-duration: 400ms !important;
-}
-.fadeinleft {
-    animation: fadeinleft 0.15s linear;
 }
 
 legend.p-fieldset-legend {
@@ -139,44 +171,36 @@ legend.p-fieldset-legend {
     @extend .fadeinleft;
     @extend .animation-duration-400;
     border-radius: 50px !important;
-    background-color: $background-primario !important;
+    background-color: $background-main-primary !important;
     border: none !important;
 }
 
 .p-datatable .p-sortable-column.p-highlight {
     background: #e7ecf1;
-    color: $background-primario;
+    color: $background-main-primary;
 }
 
-.p-button.p-button-sm {
-    font-size: .700rem;
-    padding: 0.55625rem 1.05375rem;
+.p-listbox {
+    border-radius: 9px !important;
 }
 
-.p-button.p-button-icon-only.p-button-rounded {
-    height: 2.6rem;
-}
-
-.p-button.p-button-icon-only {
-    width: 2.6rem;
-}
-
-.p-picklist .p-picklist-header {
-    background: $background-secundario;
+.p-listbox > .p-listbox-header:first-of-type {
+    background: $background-main-secondary;
+    background: $background-main-secondary;
     color: #ffffff;
-    border-top-right-radius: 14px;
-    border-top-left-radius: 14px;
+    border-top-right-radius: 8px;
+    border-top-left-radius: 8px;
+    padding: 0.8rem;
 }
 
-.p-picklist .p-picklist-buttons .p-button {
-    @extend .sombra-black;
-    border-radius: 50%;
-    width: 3.0rem;
+.p-listbox-filter-container {
+    padding: 1rem 0.5rem;
 }
 
 .p-menuitem-link-active {
     @extend .sombra-black;
-    background-color: $background-secundario;
+    background-color: $background-main-secondary;
+    background-color: $background-main-secondary;
     border-radius: 12px;
     
 }
@@ -186,8 +210,7 @@ legend.p-fieldset-legend {
 }
 
 .footer {
-    background-color: $background-primario;
-    color: white;
+    background-color: $background-main-secondary;
 }
 
 .p-toolbar {
@@ -202,13 +225,9 @@ legend.p-fieldset-legend {
 }
 
 .input-search {
-    border: none;
+    border: none !important;
     outline: none;
-    background: none;
-    width: 11rem;
-    font-size: 1.1rem;
-    color: $lynch-500;
-    padding-right: 0.5rem;
+    background: none !important;
 }
 
 .input-search:focus .search-border-bottom {
@@ -217,7 +236,7 @@ legend.p-fieldset-legend {
 
 .background-gray-blured {
     border-radius: 15px;
-    background-color: rgb(156 159 172 / 40%);
+    background-color: $background-main-blur;
     backdrop-filter: blur(5px);
 }
 
@@ -225,12 +244,8 @@ legend.p-fieldset-legend {
     z-index: 222 !important;
 }
 
-.p-dialog {
-    border-radius: 15px !important;
-}
-
 .p-dialog-header {
-    background: $lynch-800 !important;
+    background: $background-main-secondary !important;
     color: $lynch-50 !important;
     padding-block: 1rem !important;
     border-top-right-radius: 15px !important;
@@ -241,12 +256,12 @@ legend.p-fieldset-legend {
     padding: 0px !important;
     border-bottom-right-radius: 15px !important;
     border-bottom-left-radius: 15px !important;
+    background-color: white;
 }
 
 .p-dialog-content {
-    padding-top: 1.5rem !important;
+    padding-top: 1rem !important;
 }
-
 
 // TICKETS CARDS
 .ticket-container {
@@ -270,6 +285,11 @@ legend.p-fieldset-legend {
 .ticket-body-card {
     overflow: hidden;
     background-color: $lynch-100;
+}
+
+.gradiant-orange-ticket {
+    overflow: hidden;
+    background: linear-gradient(90deg, $lynch-100 10%, var(--p-orange-300));
 }
 
 .ticket-card:hover .ticket-body-card {
@@ -315,8 +335,6 @@ legend.p-fieldset-legend {
     width: 100%;
 }
 
-
-
 // STEPPER
 .stepper-wrapper {
     font-family: Arial;
@@ -331,9 +349,6 @@ legend.p-fieldset-legend {
     align-items: center;
     flex: 1;
     font-size: clamp(0.8rem, 1vw, 1.2rem);
-    // @media (max-width: 768px) {
-    //   font-size: 12px;
-    // }
   }
   
   .stepper-item::before {
@@ -374,10 +389,10 @@ legend.p-fieldset-legend {
   }
   
   .stepper-item.active .step-counter {
-    border: 3px solid $border-yellow;
+    border: 3px solid var(--p-inputtext-hover-border-color);
   }
   .stepper-item.completed .step-counter {
-    background-color: $border-yellow;
+    background-color: var(--p-inputtext-hover-border-color);
     color: $lynch-100;
   }
 
@@ -389,7 +404,7 @@ legend.p-fieldset-legend {
   .stepper-item.completed::after {
     position: absolute;
     content: "";
-    border-bottom: 2px solid $border-yellow;
+    border-bottom: 2px solid var(--p-inputtext-hover-border-color);
     width: 100%;
     top: 20px;
     left: 50%;
@@ -405,21 +420,8 @@ legend.p-fieldset-legend {
   }
   
   .step-name {
-    color: $lynch-600;
-  }
-
-//HEADER LAYOUT
-.image-logo-header {
-    max-width: 7rem;
-    border-color: $border-yellow !important;
-}
-
-
-//REFRESH CARD
-.refresh-card {
     color: $lynch-800;
-    margin-left: 2rem;
-}
+  }
 
 .rotate-360-active {
     transition: transform 0.8s ease-in-out;
@@ -431,41 +433,6 @@ legend.p-fieldset-legend {
 
 .p-sidebar-header {
     background: $lynch-800 !important
-}
-
-.p-tabmenu .p-tabmenu-nav {
-    background-color: transparent !important;
-    border: none ;
-    gap: 1rem;
-}
-
-.p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link {
-    background-color: $lynch-200 ;
-    padding-inline: 0.75rem;
-    padding-block: 0.5rem;
-    border-radius: 8px;
-    border: none;
-    border-bottom: 3px solid $border-yellow;
-}
-
-.p-tabmenu .p-tabmenu-nav {
-    flex-wrap: wrap;
-}
-
-.p-tabmenu .p-tabmenu-nav .p-tabmenuitem.p-highlight .p-menuitem-link {
-    background: $lynch-50;
-    border-color: $border-yellow;
-    border-width: 5px;
-    font-size: 1.2rem;
-    color: $lynch-600;
-}
-
-.p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link:not(.p-disabled):focus {
-    box-shadow: none ;
-}
-
-.p-tabmenu-nav-content {
-    padding-block: 0.5rem;
 }
 
 .p-card .p-card-content { 
@@ -485,13 +452,32 @@ legend.p-fieldset-legend {
     padding-block: 0 !important;
 }
 
-.p-fieldset .p-fieldset-legend {
-    padding: 1rem;
-}
-
 img.full-screen {
     transition: transform 0.3s ease;
     &:hover {
         transform: scale(1.02);
     }
+}
+
+.ql-editor {
+    max-height: 35vh;
+}
+
+.message-mine {
+    background-color: var(--p-green-100);
+    color: $lynch-700;
+}
+
+.message-others {
+    background-color: var(--p-gray-50);
+    color: $lynch-700;
+}
+
+p-togglebutton.p-togglebutton-checked {
+    border: solid;
+    border-bottom-width: 5px !important;
+    background: var(--p-primary-contrast-color) !important;
+    border-bottom-color: $background-main-secondary !important;
+    color: $background-main-primary !important;
+    font-size: 1.1rem;
 }

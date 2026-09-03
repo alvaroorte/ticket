@@ -1,0 +1,79 @@
+<div class="flex mt-0 mb-3 fadeinup animation-duration-400 z-2 sticky top-4-half-rem">
+  @if (typeOfListTicket() == typeOfListTicketMyTicket) {
+    <div class="col-auto p-0 flex align-items-center px-2">
+      <a routerLink="/new-ticket" >
+        <button
+          pButton
+          pRipple
+          [label]="labels.newTicket"
+          icon="pi pi-plus"
+          class="p-button-rounded p-button sombra-black hover-primary mr-2 py-2 px-3"
+        ></button>
+      </a>
+      @if (showButtonIncident) {
+        <a routerLink="/incidents" >
+          <button
+            pButton
+            pRipple
+            [label]="labels.newIncident"
+            icon="pi pi-exclamation-triangle"
+            class="p-button-warn p-button-rounded p-button sombra-black hover-warn py-2 px-3"
+          ></button>
+        </a>
+      }
+    </div>
+  }
+  <div class="flex-grow-1 align-items-center p-0">
+    <div class="flex flex-wrap justify-content-end gap-2">
+
+      <div class="flex align-items-center border-round-xl surface-100 px-2 inputtext-hover">
+        <i
+          [pTooltip]="tooltips.orderAs"
+          class="pi pi-arrow-circle-down text-xl lynch-800 cursor-pointer mr-3"
+          (click)="setSort('asc')"
+        ></i>
+        <i
+          [pTooltip]="tooltips.orderDes"
+          class="pi pi-arrow-circle-up text-xl lynch-800 cursor-pointer"
+          (click)="setSort('desc')"
+        ></i>
+      </div>
+
+      <p-select [options]="orderFields"
+        [(ngModel)]="selectedOrderField"
+        (onChange)="reloadTickets()"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="border-round-xl surface-100"
+        appendTo="body"
+        [showClear]="true"
+        [pTooltip]="tooltips.orderBy"
+        [placeholder]="labels.placeholderSelectAOption"
+       />
+
+      <p-iconfield>
+        <input
+          type="text"
+          pInputText
+          class="border-round-xl surface-100"
+          placeholder="Buscar..."
+          [(ngModel)]="searchInput"
+          (ngModelChange)="filterTickets()"
+          [pTooltip]="tooltipSearch"
+          tooltipPosition="top"
+        >
+        <p-inputicon styleClass="pi pi-search" />
+      </p-iconfield>
+
+      <div class="flex align-items-center border-round-xl surface-100 px-2 inputtext-hover">
+        <i
+          class="pi pi-sync text-lg lynch-800 cursor-pointer"
+          [pTooltip]="tooltips.reload"
+          tooltipPosition="left"
+          (click)="reloadTickets()"
+        ></i>
+      </div>
+
+    </div>
+  </div>
+</div>

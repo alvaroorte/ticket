@@ -1,86 +1,105 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable, Output, EventEmitter, inject  } from '@angular/core';
-import { DataCommon } from '@core/models/FieldsCommons';
-import { Category, CategoryResponse, ServicesByUser } from 'src/app/core/models/Category';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, Output, EventEmitter, inject, signal  } from '@angular/core';
+import { Category, CategoryResponse, CategoryShort, SubcategoryForAsignToCategory, SubcategorySendAddToCategory, SubcategoryShort } from 'src/app/core/models/Category';
 import { environment } from '@core/environments/environment.development';
 import { Observable } from 'rxjs';
+import { IServiceCommon } from '@core/interfaces/service-common.interface';
+import { ModalDeleteComponent } from '@shared/components/modal-delete/modal-delete.component';
+import { CategoryFolderEnum } from '@core/enums/category-folder';
+import { GenericTableComponent } from '@shared/components/generic-table/generic-table.component';
+import { IGenericModalForm } from '@core/interfaces/generic-modal-form.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CategoriesService {
+export class CategoryService implements IServiceCommon {
 
-  @Output() eventFormComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventTableComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventModalDeleteComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventToolbarComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventTableDobleComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventModalAssingSubcategory: EventEmitter<any> = new EventEmitter();
-  @Output() eventDeleteRow: EventEmitter<any> = new EventEmitter();
+  public eventFormComponent = signal<IGenericModalForm>(null);
+  public eventTableComponent = signal<GenericTableComponent<CategoryResponse>>(null);
+  public eventModalDeleteComponent = signal<ModalDeleteComponent>(null);
+  @Output() eventOpenModalAssingSubcategory: EventEmitter<void> = new EventEmitter();
   
   private http = inject(HttpClient);
   
   private serverUrl: string = environment.server_url;
-
-  public getAll() {
-    return this.http.get<Category[]>(this.serverUrl+'catalog')
-  }
   
   public getById(id: number) {
-    return this.http.get<Category>(this.serverUrl + 'catalog/' + id)
+    return this.http.get<Category>(this.serverUrl + 'category/' + id)
   }
   
   public create(category: Category) {
-    return this.http.post<Category>(this.serverUrl + 'catalog', category)
+    return this.http.post<Category>(this.serverUrl + 'category', category)
   }
   
   public update(id: number, category: Category) {
-    return this.http.put<Category>(this.serverUrl + 'catalog/' + id, category)
+    return this.http.put<Category>(this.serverUrl + 'category/' + id, category)
   }
 
-  public delete(id: number): Observable<Object> | Observable<string>  {
-    return this.http.delete(this.serverUrl + 'catalog/' + id, { responseType:'text'})
+  public delete(id: number): Observable<string>  {
+    return this.http.delete(this.serverUrl + 'category/' + id, { responseType:'text'})
   }
   
-  public listServices() {
-    return this.http.get<ServicesByUser>(this.serverUrl + 'catalog/listServices')
+  
+  public getListCategoriesByEnterprise(enterpriseId: number, folder?: CategoryFolderEnum) {
+    const params: HttpParams = new HttpParams()
+      .set('enterpriseId', enterpriseId?? '')
+      .set('ticketType', folder?? '')
+    return this.http.get<CategoryShort[]>(this.serverUrl + 'category/listCategoriesByEnterprise', { params })
   }
   
-  public listServicesByEnterprise(body: {domain: string}) {
-    return this.http.post<ServicesByUser>(this.serverUrl + 'catalog/listServicesByEnterprise', body)
+  public getSubCategoriesByCategory(enterpriseId: number, categoryId: number) {
+    const params: HttpParams = new HttpParams()
+      .set('enterpriseId', enterpriseId)
+      .set('categoryId', categoryId)
+    return this.http.get<SubcategoryShort[]>(this.serverUrl + 'category/subCategoriesByCategory', { params })
   }
   
-  public search(folder: string | undefined) {
-    let params: any = {};
-    ( folder )? params['folder'] = folder : "";
-    return this.http.get<CategoryResponse[]>(this.serverUrl+'catalog/catalogSearch', { params })
+  public search(folder: string) {
+    const params: HttpParams = new HttpParams()
+      .set('type', folder);
+    return this.http.get<CategoryResponse[]>(this.serverUrl+'category/search', { params })
   }
   
-  public createOne( body:any ) {
+  public createOne( body: SubcategorySendAddToCategory ) {
     return this.http.post(this.serverUrl + 'catalogConfiguration', body);
   }
   
-  public createList( body:any ) {
+  public createList( body: SubcategorySendAddToCategory[] ) {
     return this.http.post(this.serverUrl + 'catalogConfiguration/createList', body);
   }
   
   public detailByCategory(idCategory: number) {
-    return this.http.get<DataCommon[]>(this.serverUrl + 'catalogConfiguration/proyection/' + idCategory)
+    return this.http.get<SubcategoryForAsignToCategory[]>(this.serverUrl + 'catalogConfiguration/proyection/' + idCategory)
   }
   
   public deleteOne(id: string) {
     return this.http.delete(this.serverUrl + 'catalogConfiguration/' + id)
   }
   
-  public deleteList( body:any ) {
+  public deleteList( body: {id: string}[] ) {
     return this.http.post(this.serverUrl + 'catalogConfiguration/deleteList', body);
   }
  
-  public onlyInclude( id:number ) {
+  public onlyInclude( id: number ) {
     return this.http.get<Category[]>(this.serverUrl + 'catalogConfiguration/onlyInclude/' + id);
   }
   
-  public getSubCategory( body: { enterprise: number, category: number } ) {
-    return this.http.post<Category[]>(this.serverUrl + 'catalog/getSubCategory', body);
+  public getSubCategory(enterpriseId: number, categoryId: number ) {
+    const body = { 
+      enterprise: enterpriseId, 
+      category: categoryId 
+    };
+    return this.http.post<CategoryShort[]>(this.serverUrl + 'category/getSubCategory', body);
+  }
+  
+  public getCategoryIncidentByEnterprise( enterpriseId: number ) {
+    return this.http.get<CategoryShort[]>(this.serverUrl + 'category/incidents/' + enterpriseId);
+  }
+  
+  public getSubCategoriesByCategories(enterpriseId: number, categoryIds: number[] ) {
+    const params: HttpParams = new HttpParams()
+      .set('enterpriseId', enterpriseId)
+      .set('categoryIds', categoryIds.toString())
+    return this.http.get<CategoryShort[]>(this.serverUrl + 'category/subCategoriesByCategories', {params});
   }
 }

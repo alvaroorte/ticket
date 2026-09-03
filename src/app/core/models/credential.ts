@@ -10,5 +10,6 @@ export interface StatusTechnical  {
     isEnabled: boolean,
     technicalOf: string;
     leaderOf: string
+    active: boolean,
+    email: string,
 }
-

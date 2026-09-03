@@ -1,123 +1,288 @@
-<p-accordion [(activeIndex)]="activeIndex">
-    <p-accordionTab header="Filtros" [headerStyleClass]="'bg-lynch-600 lynch-50 border-round-top-xl'">
-        <form [formGroup]="formTicket">
-            <div class="grid">
-                <div class="col form-group field mt-2 px-3" style="min-width: 20rem; max-width: 20rem;">
-                    <span class="p-float-label">
-                        <input type="text" pInputText id="code" formControlName="code" class="p-inputtext-sm capitalize mt-1 w-full" />
-                        <label htmlFor="code" class="text-lg font-bold text-800 text-800"> Código</label>
-                    </span>
-                </div>
-                
-                <div class="col form-group field mt-2 px-3" style="min-width: 20rem; max-width: 20rem;">
-                    <span class="p-float-label">
-                        <p-calendar 
-                            id="initialDate" 
-                            formControlName="initialDate" 
-                            styleClass="w-full mt-1"
-                            [showIcon]="true"
-                            dateFormat="dd/mm/yy"
-                            [maxDate]="maxDate" >
-                        </p-calendar>
-                        <label htmlFor="initialDate" class="text-lg font-bold text-800 text-800"> Desde</label>
-                    </span>
-                </div>
-                
-                <div class="col form-group field mt-2 px-3" style="min-width: 20rem; max-width: 20rem;">
-                    <span class="p-float-label">
-                        <p-calendar 
-                            id="endDate" 
-                            formControlName="endDate" 
-                            styleClass="w-full mt-1"
-                            [showIcon]="true"
-                            dateFormat="dd/mm/yy"
-                            [maxDate]="maxDate" >
-                        </p-calendar>
-                        <label htmlFor="endDate" class="text-lg font-bold text-800 text-800"> Hasta</label>
-                    </span>
-                </div>
+<p-accordion [(value)]="activeIndex">
+    <p-accordion-panel value="0">
+        <p-accordion-header class="bg-main-secondary lynch-50 border-round-top-xl">
+            <span class="text-gray-100"> {{ labels.filters }} </span>
+        </p-accordion-header>
+        <p-accordion-content>
+            <form [formGroup]="formTicket">
+                <div class="grid mt-2">
+                    <div class="col form-group field mt-0 px-3" style="min-width: 15rem; max-width: 20rem;">
+                        <p-floatlabel>
+                            <input type="text" pInputText id="code" formControlName="code" class="p-inputtext capitalize w-full" />
+                            <label htmlFor="code" class="text-lg font-bold text-800 text-800"> {{ labels.code }}</label>
+                        </p-floatlabel>
+                    </div>
+                    
+                    <div class="col form-group field mt-0 px-3" style="min-width: 15rem; max-width: 20rem;">
+                        <p-floatlabel>
+                            <input type="text" pInputText id="title" formControlName="title" class="p-inputtext capitalize w-full" />
+                            <label htmlFor="title" class="text-lg font-bold text-800 text-800"> {{ labels.title }}</label>
+                        </p-floatlabel>
+                    </div>
+                    
+                    <div class="col form-group field mt-0 px-3" style="min-width: 15rem; max-width: 20rem;">
+                        <p-floatlabel>
+                            <input type="text" pInputText id="description" formControlName="description" class="p-inputtext capitalize w-full" />
+                            <label htmlFor="description" class="text-lg font-bold text-800 text-800"> {{ labels.description }}</label>
+                        </p-floatlabel>
+                    </div>
+                    
+                    <div class="col form-group field mt-0 px-3" style="min-width: 15rem; max-width: 20rem;">
+                        <p-floatlabel>
+                            <p-datepicker id="createdFrom"
+                                formControlName="createdFrom" 
+                                styleClass="w-full"
+                                [showIcon]="true"
+                                dateFormat="dd/mm/yy"
+                                selectionMode="range"
+                                [readonlyInput]="true"
+                                [showButtonBar]="true"
+                                [maxDate]="maxDate"
+                                appendTo="body" />
+                            <label htmlFor="createdFrom" class="text-lg font-bold text-800 text-800"> {{ labels.creationDate }} </label>
+                        </p-floatlabel>
+                    </div>
+                    
+                    <div class="col form-group field mt-0 px-3" style="min-width: 15rem; max-width: 20rem;">
+                        <p-floatlabel>
+                            <p-datepicker id="initiatedFrom"
+                                formControlName="initiatedFrom" 
+                                styleClass="w-full"
+                                [showIcon]="true"
+                                dateFormat="dd/mm/yy"
+                                selectionMode="range"
+                                [readonlyInput]="true"
+                                [showButtonBar]="true"
+                                [maxDate]="maxDate"
+                                appendTo="body" />
+                            <label htmlFor="initiatedFrom" class="text-lg font-bold text-800 text-800"> {{ labels.initialDate }} </label>
+                        </p-floatlabel>
+                    </div>
+                    
+                    <div class="col form-group field mt-0 px-3" style="min-width: 15rem; max-width: 20rem;">
+                        <p-floatlabel>
+                            <p-datepicker id="resolvedFrom"
+                                formControlName="resolvedFrom" 
+                                styleClass="w-full"
+                                [showIcon]="true"
+                                dateFormat="dd/mm/yy"
+                                selectionMode="range"
+                                [readonlyInput]="true"
+                                [showButtonBar]="true"
+                                [maxDate]="maxDate"
+                                appendTo="body" />
+                            <label htmlFor="resolvedFrom" class="text-lg font-bold text-800 text-800"> {{ labels.finishDate }} </label>
+                        </p-floatlabel>
+                    </div>
+                    
+                    <div class="col form-group field mt-0 px-3" style="min-width: 15rem; max-width: 20rem;">
+                        <p-floatlabel>
+                            <p-datepicker id="closedFrom"
+                                formControlName="closedFrom" 
+                                styleClass="w-full"
+                                [showIcon]="true"
+                                dateFormat="dd/mm/yy"
+                                selectionMode="range"
+                                [readonlyInput]="true"
+                                [showButtonBar]="true"
+                                [maxDate]="maxDate"
+                                appendTo="body" />
+                            <label htmlFor="closedFrom" class="text-lg font-bold text-800 text-800"> {{ labels.closeDate }} </label>
+                        </p-floatlabel>
+                    </div>
 
-                <div class="col form-group field mt-2 px-3" style="min-width: 20rem; max-width: 20rem;">
-                    <span class="p-float-label">
-                        <p-dropdown 
-                            inputId="enterpriseId" 
-                            formControlName="enterpriseId" 
-                            [options]="enterprises()"  
-                            optionLabel="name" 
-                            optionValue="id" 
-                            [filter]="true" 
-                            filterBy="name" 
-                            styleClass="p-inputtext-sm mt-1 w-full" 
-                            [showClear]="true" 
-                            placeholder="Empresas">
-                        </p-dropdown>
-                        <label for="enterpriseId" class="text-lg font-bold text-800"> Empresas</label>
-                    </span>
+                    @if (isOnlyRequester()) {
+                        <div class="col form-group field mt-0 px-3" style="min-width: 15rem; max-width: 20rem;">
+                            <p-floatlabel>
+                                <p-select
+                                    inputId="enterpriseId" 
+                                    formControlName="enterpriseId" 
+                                    [options]="enterprises()"  
+                                    optionLabel="name" 
+                                    optionValue="id" 
+                                    [filter]="true" 
+                                    filterBy="name" 
+                                    styleClass="w-full" 
+                                    [showClear]="true"
+                                    (onChange)="changedEnterprise()"
+                                    appendTo="body"
+                                />
+                                <label for="enterpriseId" class="text-lg font-bold text-800">{{ labels.enterprise }}</label>
+                            </p-floatlabel>
+                        </div>
+                    }
+    
+                    <div class="col form-group field mt-0 px-3" style="min-width: 15rem; max-width: 20rem;">
+                        <p-floatlabel>
+                            <p-multiSelect
+                                inputId="categoryIds" 
+                                formControlName="categoryIds" 
+                                [options]="categories()"  
+                                optionLabel="name" 
+                                optionValue="id" 
+                                [filter]="true" 
+                                filterBy="name" 
+                                (onChange)="getSubCategories()" 
+                                styleClass="w-full" 
+                                [showClear]="true"
+                                appendTo="body"
+                            />
+                            <label for="categoryIds" [ngClass]="{'text-lg font-bold text-800': formTicket.value.enterpriseId}"> {{ labels.categories }} </label>
+                        </p-floatlabel>
+                    </div>
+    
+                    <div class="col form-group field mt-0 px-3" style="min-width: 15rem; max-width: 20rem;">
+                        <p-floatlabel>
+                            <p-multiSelect
+                                inputId="subCategoryIds" 
+                                formControlName="subCategoryIds" 
+                                [options]="subCategories()"  
+                                optionLabel="name" 
+                                optionValue="id" 
+                                [filter]="true" 
+                                filterBy="name" 
+                                styleClass="w-full" 
+                                [showClear]="true"
+                                appendTo="body"
+                             />
+                            <label for="subCategoryIds" [ngClass]="{'text-lg font-bold text-800': formTicket.value.categoryIds}"> {{ labels.subcategories }} </label>
+                        </p-floatlabel>
+                    </div>
+                    
+                    @if (enterpriseHasCostCenter()) {
+                        <div class="col form-group field mt-0 px-3" style="min-width: 15rem; max-width: 20rem;">
+                            <p-floatlabel>
+                                <p-select
+                                    inputId="costCenterId" 
+                                    formControlName="costCenterId" 
+                                    [options]="costCenters()"  
+                                    optionLabel="name" 
+                                    optionValue="id" 
+                                    [filter]="true" 
+                                    filterBy="name"
+                                    styleClass="w-full" 
+                                    [showClear]="true"
+                                    appendTo="body"
+                                />
+                                <label for="costCenterId" [ngClass]="{'text-lg font-bold text-800': formTicket.get('costCenterId').enabled}"> {{ labels.costCenter }} </label>
+                            </p-floatlabel>
+                        </div>
+                    }
+                    
+                    <div class="col form-group field mt-0 px-3" style="min-width: 15rem; max-width: 20rem;">
+                        <p-floatlabel>
+                            <p-select
+                                inputId="requesterCredentialId" 
+                                formControlName="requesterCredentialId" 
+                                [options]="requesters()"  
+                                optionLabel="email" 
+                                optionValue="credentialId" 
+                                [filter]="true" 
+                                filterBy="email" 
+                                class="w-full" 
+                                [showClear]="true"
+                                appendTo="body"
+                                [filterPlaceholder]="placeholders.onDemandFilterInput"
+                                (onFilter)="tryGetUsers($event.filter, false)"
+                            />
+                            <label for="requesterCredentialId" class="text-lg font-bold text-800"> {{ labels.requester }} </label>
+                        </p-floatlabel>
+                    </div>
+                    
+                    <div class="col form-group field mt-0 px-3" style="min-width: 15rem; max-width: 20rem;">
+                        <p-floatlabel>
+                            <p-select
+                                inputId="technicianCredentialId" 
+                                formControlName="technicianCredentialId" 
+                                [options]="technicians()"  
+                                optionLabel="email" 
+                                optionValue="credentialId" 
+                                [filter]="true" 
+                                filterBy="email" 
+                                class="w-full" 
+                                [showClear]="true"
+                                appendTo="body"
+                                [filterPlaceholder]="placeholders.onDemandFilterInput"
+                                (onFilter)="tryGetUsers($event.filter, true)"
+                            />
+                            <label for="technicianCredentialId" class="text-lg font-bold text-800"> {{ labels.technician }} </label>
+                        </p-floatlabel>
+                    </div>
+    
+                    <div class="col form-group field mt-0 px-3" style="min-width: 15rem; max-width: 20rem;">
+                        <p-floatlabel>
+                            <p-select
+                                inputId="ticketPriorityParameterId" 
+                                formControlName="ticketPriorityParameterId" 
+                                [options]="priorities()"  
+                                optionLabel="value" 
+                                optionValue="id" 
+                                [filter]="true" 
+                                filterBy="value" 
+                                styleClass="w-full" 
+                                [showClear]="true"
+                                appendTo="body"
+                            />
+                            <label for="ticketPriorityParameterId" class="text-lg font-bold text-800"> {{ labels.priority }} </label>
+                        </p-floatlabel>
+                    </div>
+                    
+                    @if (isOnlyRequester()) {
+                        <div class="col form-group field mt-0 px-3" style="min-width: 15rem; max-width: 20rem;">
+                            <p-floatlabel>
+                                <p-select
+                                    inputId="ticketTypeParameterId" 
+                                    formControlName="ticketTypeParameterId" 
+                                    [options]="ticketTypes()"  
+                                    optionLabel="value" 
+                                    optionValue="id" 
+                                    [filter]="true" 
+                                    filterBy="value" 
+                                    styleClass="w-full" 
+                                    [showClear]="true"
+                                    appendTo="body"
+                                />
+                                <label for="ticketTypeParameterId" class="text-lg font-bold text-800"> {{ labels.ticketType }} </label>
+                            </p-floatlabel>
+                        </div>
+                    }
+                    
+                    <div class="col form-group field mt-0 px-3" style="min-width: 15rem; max-width: 20rem;">
+                        <p-floatlabel>
+                            <p-multiSelect [maxSelectedLabels]="2"
+                                [selectedItemsLabel]="'Varios estados seleccionados'"
+                                inputId="flowStatusId" 
+                                formControlName="flowStatusId"
+                                [options]="flowStatus()"
+                                optionLabel="name"
+                                optionValue="id"
+                                appendTo="body"
+                                [filter]="true"
+                                filterBy="name"
+                                styleClass="w-full"
+                             />
+                            <label htmlFor="flowStatusId" class="text-lg font-bold text-800">{{ labels.status }}</label>
+                        </p-floatlabel>
+                    </div>
+                    
+                    <div class="col flex justify-content-end px-3" >
+                        <p-button icon="pi pi-eraser" 
+                            [label]="labels.cleanFilters"
+                            size="small"
+                            [rounded]="true"
+                            styleClass="mr-2 p-button-secondary sombra-black hover-secondary"
+                            (onClick)="resetForm()" 
+                             />
+                            <p-button icon="pi pi-search" 
+                            [label]="labels.filter"
+                            size="small"
+                            [rounded]="true"
+                            styleClass="mr-2 sombra-black hover-primary"
+                            (onClick)="sendParams()" 
+                         />
+                    </div>
                 </div>
-
-                <div class="col form-group field mt-2 px-3" style="min-width: 20rem; max-width: 20rem;">
-                    <span class="p-float-label">
-                        <p-dropdown 
-                            inputId="subCatecategoryIdoryId" 
-                            formControlName="categoryId" 
-                            [options]="categories()"  
-                            optionLabel="value" 
-                            optionValue="id" 
-                            [filter]="true" 
-                            filterBy="value" 
-                            (onChange)="getSubCategories($event.value)" 
-                            styleClass="p-inputtext-sm mt-1 w-full" 
-                            [showClear]="true" 
-                            placeholder="Categoría">
-                        </p-dropdown>
-                        <label for="subCatecategoryIdoryId" class="text-lg font-bold text-800"> Categoría</label>
-                    </span>
-                </div>
-
-                <div class="col form-group field mt-2 px-3" style="min-width: 20rem; max-width: 20rem;">
-                    <span class="p-float-label">
-                        <p-dropdown inputId="subCategoryId" 
-                            formControlName="subCategoryId" 
-                            [options]="subCategories()"  
-                            optionLabel="name" 
-                            optionValue="id" 
-                            [filter]="true" 
-                            filterBy="name" 
-                            styleClass="p-inputtext-sm mt-1 w-full" 
-                            [showClear]="true" 
-                            placeholder="Subcategoría">
-                        </p-dropdown>
-                        <label for="subCategoryId" class="text-lg font-bold text-800"> SubcCategoría</label>
-                    </span>
-                </div>
-                
-                <div class="col form-group field mt-2 px-3" style="min-width: 20rem; max-width: 20rem;">
-                    <span class="p-float-label">
-                        <p-dropdown inputId="statusId" 
-                            formControlName="statusId" 
-                            [options]="flowStatus()"  
-                            optionLabel="name" 
-                            optionValue="id" 
-                            [filter]="true" 
-                            filterBy="name" 
-                            styleClass="p-inputtext-sm mt-1 w-full" 
-                            [showClear]="true" 
-                            placeholder="Estado">
-                        </p-dropdown>
-                        <label for="statusId" class="text-lg font-bold text-800"> Estado</label>
-                    </span>
-                </div>
-                
-                <div class="col flex justify-content-end mt-3 px-3" >
-                    <p-button 
-                        icon="pi pi-search" 
-                        label="Filtrar" 
-                        pTooltip="Filtrar" 
-                        styleClass="p-button-sm p-button-rounded mr-2 p-button-primary sombra-black hover-primary"
-                        (onClick)="sendParams()" >
-                    </p-button>
-                </div>
-            </div>
-        </form>
-    </p-accordionTab>
+            </form>
+        </p-accordion-content>
+    </p-accordion-panel>
 </p-accordion>

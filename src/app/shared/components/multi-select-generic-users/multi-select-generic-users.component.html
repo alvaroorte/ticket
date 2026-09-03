@@ -1,0 +1,55 @@
+<p-floatlabel>
+  <p-multiSelect
+    inputId="multi-users-generic"
+    appendTo="body"
+    class="w-full"
+    [(ngModel)]="selectedUserIds"
+    [options]="users()"
+    optionLabel="email"
+    optionValue="credentialId"
+    [filter]="true"
+    filterBy="email"
+    (onChange)="setUserIds($event.value)"
+    (onClear)="setUserIds([])"
+    [showClear]="true"
+    [maxSelectedLabels]="maxSelectedLabels()"
+    [selectedItemsLabel]="'Varios usuarios seleccionados'"
+    [filterPlaceHolder]="placeholders.onDemandFilterInput"
+    (onFilter)="tryGetUsers($event.filter)"
+    [resetFilterOnHide]="true"
+    [placeholder]="withFloatLabel()? '': placeholders.select"
+    (onPanelHide)="onPanelHide()"
+  />
+  @if (withFloatLabel()) {
+    <label for="multi-users-generic" [ngClass]="['text-lg font-bold text-800', required()? 'required-field': '']"> {{ label() }} </label>
+  }
+</p-floatlabel>
+@if (showListNames()) {
+  <div class="flex justify-content-center">
+    <p-table
+      [value]="listSelected()"
+      [scrollable]="true"
+      scrollHeight="350px"
+      size="small">
+      <ng-template #body let-user>
+        <tr>
+          <td>
+            <p-button icon="pi pi-minus"
+              severity="danger"
+              size="small"
+              class="shadow-2 mr-2"
+              pTooltip="Eliminar de la lista"
+              [rounded]="true"
+              [outlined]="true"
+              [text]="true" 
+              (click)="deleteUserOfList(user.credentialId)"
+             />
+            {{ user.email }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+}
+
+

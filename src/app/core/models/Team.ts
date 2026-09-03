@@ -1,13 +1,33 @@
 import { CredentialLeader } from "./credential";
 
 export class Team  {
-    id: number | null = null;
-    name: string | null = null;
-    username: number | null = null;
-    phone: string | null = null;
-    technical: boolean = false;
-    status: boolean = false;
-    credentialLeaderId: number | null = null
+    id: number;
+    active: boolean;
+    name: string;
+    leaderCredentialId: number
+    leaderCredentialEmail: string
+    technicalAutomatic: boolean;
+}
+
+export interface technicianShort {
+    technicianCredentialId: number;
+    technicianCredentialEmail: string
+}
+
+export interface TeamWithMembers  {
+    id: number;
+    active: boolean;
+    name: string;
+    leaderCredentialId: number
+    leaderCredentialEmail: string
+    technicalAutomatic: boolean;
+    teamMembers: technicianShort[]
+    teamMembersString: string;
+}
+
+export interface TeamSelect  {
+    id: number;
+    name: string;
 }
 
 export class TeamSend  {
@@ -19,15 +39,16 @@ export class TeamSend  {
     status: boolean = false;
 }
 
-export class TeamResponse  {
-    id: number | null = null;
-    name: string | null = null;
-    credentialLeaderId: CredentialLeader | null = null;
-    phone: string | null = null;
-    technicalAutomatic: boolean = false;
+export class TeamMember  {
+    id: number;
+    active: boolean;
+    technicianCredentialId: number;
+    technicianCredentialEmail: string;
+    teamId: number;
+    teamName: string;
 }
 
-export class TeamMember  {
+export class TeamMemberForManagementTeam  {
     id: number | null = null;
     credentialId?: number;
     member: string | null = null;
@@ -36,7 +57,7 @@ export class TeamMember  {
 }
 
 export class TeamMemberSend  {
-    credential: number | null = null;
-    team: number | null = null;
-    status?: boolean | null = null;
+    technicianCredentialId: number;
+    teamId: number;
+    active: boolean;
 }

@@ -1,135 +1,111 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HelpersService } from 'src/app/core/services/helpers.service';
-import { SupervisorSend } from 'src/app/core/models/Supervisor';
-import { TableComponent } from '../table/table.component';
 import { SupervisorService } from 'src/app/modules/supervisor/services/supervisor.service';
-import { limits, regex, messages } from '@core/constants/constants';
-import { Parameter } from '@core/models/Parameter';
 import { noSpaceValidator } from '@core/validators/noSpaceValidator';
+import { MESSAGES } from '@core/constants/messages';
+import { LIMITS } from '@core/constants/limits';
+import { regex } from '@core/constants/regexs';
+import { LABELS } from '@core/constants/labels';
+import { Severity } from '@core/enums/severity';
+import { TypeSubmitEnum } from '@core/enums/type-submit';
+import { Supervisor } from '@core/models/Supervisor';
+import { MessageRequiredFieldComponent } from '../../../../shared/components/message-required-field/message-required-field.component';
+import { SelectGenericUsersComponent } from '../../../../shared/components/select-generic-users/select-generic-users.component';
+import { PrimeModules } from '@shared/prime-components/prime-components.module';
 
 @Component({
-  selector: 'app-form',
-  templateUrl: './form.component.html'
+    selector: 'app-form',
+    templateUrl: './form.component.html',
+    imports: [ReactiveFormsModule, MessageRequiredFieldComponent, SelectGenericUsersComponent, PrimeModules]
 })
 export class FormComponent {
 
+  
   private formBuilder = inject(FormBuilder);
   private helpersService = inject(HelpersService);
   private supervisorService = inject(SupervisorService);
-
-  messages = messages;
-  supervisorId: number = 0;
-  openModal: boolean = false;
-  tittleForm: string = "";
-  tableComponent!: TableComponent;
-  isLoading = false;
-  dedicationTime = signal<Parameter[]>([]);
-  user!: number | null;
+  
+  public readonly messages = MESSAGES;
+  public readonly labels = LABELS;
+  public openModal = false;
+  public titleForm = "";
+  public supervisorEdited = signal<Supervisor>(null);
+  private isEdit = false;
+  private tableComponent = this.supervisorService.eventTableComponent;
 
   public formSupervisor: FormGroup = this.formBuilder.group({
     id: [],
-    name: [, [Validators.required, Validators.minLength(limits.minLength), Validators.pattern(regex.fieldName), noSpaceValidator]],
-    credential: [],
-    status: []
+    name: [, [Validators.required, Validators.minLength(LIMITS.minLengthFive), Validators.pattern(regex.fieldName), noSpaceValidator]],
+    supervisorCredentialId: [, Validators.required],
+    active: []
   });
 
   ngOnInit() {
-    this.supervisorService.eventFormComponent.emit(this);
-    this.supervisorService.eventTableComponent.subscribe((tableComponent) => {
-      this.tableComponent = tableComponent;
-    });
+    this.supervisorService.eventFormComponent.set(this);
   };
 
-  hideModal() {
+  public hideModal() {
     this.openModal = false;
-    this.isLoading = false;
     this.reset();
   };
 
-  openCreate(){
+  public openCreate(){
+    this.isEdit = false;
     this.reset();
-    this.tittleForm = "Nuevo Supervisor";
+    this.titleForm = this.labels.newRegistration("supervisor");
     this.openModal = true;
   };
 
-  openEdit(id: number ){
+  public openEdit(id: number ) {
+    this.isEdit = true;
     this.reset();
-    this.tittleForm="Editar Supervisor";
+    this.titleForm = this.labels.editRegistration("supervisor");
     this.supervisorService.getById(id).subscribe({
       next: (res) => {
-        this.user = res.credential.id!;
-        this.formSupervisor.patchValue({ name: res.name });
+        this.supervisorEdited.set(res);
+        this.formSupervisor.patchValue(res);
         this.openModal = true;
-      },
-      error: (err) => {
-        console.log(err);
-        this.helpersService.messageNotification("error", 'Error', err.message, 3000);
       }
     })
   };
 
-  setUser(idUser: number) {
-    this.user = idUser;
+  public setUser(userId: number) {
+    this.formSupervisor.patchValue({ supervisorCredentialId: userId })
   }
 
-  saveSupervisor() {
-    this.isLoading = true;
-    if (this.formSupervisor.valid && this.user! > 0) {
-      if (this.supervisorId > 0) {
-        this.submitUpdate(this.supervisorId);
-      } else{
-        this.submitCreate();
-      }
-    } else {
-      this.helpersService.messageNotification("warn", "Por Favor", "Seleccione un usuario", 3000);
-      this.isLoading = false;
+  public saveSupervisor() {
+    if (this.formSupervisor.valid) {
+      this.isEdit?
+        this.submit(TypeSubmitEnum.UPDATE)
+        : this.submit(TypeSubmitEnum.CREATE);
     }
   };
 
-  reset(): void {
+  private reset(): void {
     this.formSupervisor.reset();
-    this.supervisorId = 0;
-    this.user = null;
+    this.formSupervisor.patchValue({ active: true });
+    this.supervisorEdited.set(null);
   };
 
-  submitCreate() {
-    const data: SupervisorSend = {
-      ...this.formSupervisor.value,
+  private submit(type: TypeSubmitEnum) {
+    const data: Supervisor = {
+      ...this.formSupervisor.value
     };
-    data.credential = this.user;
-    this.supervisorService.create(data).subscribe({
-      next: (res) => {
-        this.tableComponent.reload();
-        this.helpersService.messageNotification("success", "Correcto", `El supervisor ${res.name} ha sido creado.`, 3000);
+    const service = type == TypeSubmitEnum.CREATE?
+      this.supervisorService.create(data)
+      : this.supervisorService.update(this.supervisorEdited().id, data);
+    const message: string = type == TypeSubmitEnum.CREATE?
+      this.messages.recordCreated
+      : this.messages.recordUpdated;
+    service.subscribe({
+      next: () => {
+        this.helpersService.messageNotification(Severity.success, "Correcto", message);
         this.hideModal();
         this.reset();
-      },
-      error: (err) => {
-        this.isLoading = false;
-        console.log(err);
-        this.helpersService.messageNotification("error", 'Error', err.message, 3000);
+      }, complete: () => {
+        this.tableComponent().reload();
       }
     })
-  };
-
-  submitUpdate(idSupervisor : number) {
-    const data: SupervisorSend = {
-      ...this.formSupervisor.value,
-    };
-    data.credential = this.user;
-    this.supervisorService.update(idSupervisor, data).subscribe({
-        next: (res) => {
-          this.tableComponent.reload();
-          this.helpersService.messageNotification("success", "Correcto", `La empresa ${res.name} ha sido actualizada.`, 3000);
-          this.hideModal();
-          this.reset();
-        },
-        error: (err) => {
-          console.log(err);
-          this.helpersService.messageNotification("error", 'Error', err.message, 3000);
-          this.isLoading = false;
-        }
-    });
   }
 }

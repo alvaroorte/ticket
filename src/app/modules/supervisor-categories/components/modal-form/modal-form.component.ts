@@ -1,60 +1,119 @@
-import { Component, inject } from '@angular/core';
-import { TableComponent } from '../table/table.component';
-import { TableComponent as TableSupervisorComponent } from '@supervisor/components/table/table.component';
-import { TableDoubleHelper } from './helpers/table-double.helper';
-import { EnterprisesService } from '@enterprise/services/enterprises.service';
+import { Component, inject, signal, input } from '@angular/core';
+import { EnterpriseService } from '@enterprise/services/enterprises.service';
+import { SupervisorCategoryService } from '@supervisorCategory/services/supervisor-categories.service';
+import { HelpersService } from '@core/services/helpers.service';
+import { Enterprise } from '@core/models/Enterprise';
+import { DataCommon } from '@core/models/FieldsCommons';
+import { ISupervisorCategorySave } from '@core/interfaces/supervisor-category.interface';
+import { LABELS } from '@core/constants/labels';
+import { FormsModule } from '@angular/forms';
+import { TableDoubleComponent } from '../../../../shared/components/table-double/table-double.component';
+import { PrimeModules } from '@shared/prime-components/prime-components.module';
 
 @Component({
-  selector: 'app-modal-form',
-  templateUrl: './modal-form.component.html'
+    selector: 'app-modal-form',
+    templateUrl: './modal-form.component.html',
+    imports: [TableDoubleComponent, PrimeModules, FormsModule]
 })
-export class ModalFormComponent extends TableDoubleHelper {
+export class ModalFormComponent {
 
-  private enterpriseService = inject(EnterprisesService);
+  readonly supervisorId = input<number>();
 
-  openModal: boolean = false;
-  tittleForm: string = "";
-  tableComponent!: TableComponent;
-  tableSupervisorComponent!: TableSupervisorComponent;
-  isLoading = false;
+  private enterpriseService = inject(EnterpriseService);
+  private supervisorCategoryService = inject(SupervisorCategoryService);
+  private helpersService = inject(HelpersService);
+
+  public readonly labels = LABELS;
+  public openModal = false;
+  public titleForm = "Asignar Categorías";
+  private tableComponent = this.supervisorCategoryService.eventTableComponent;
+
+  public sourceProducts = signal<DataCommon[]>([]);
+  public targetProducts = signal<DataCommon[]>([]);
+  public enterprises = signal<Enterprise[]>([]);
+  public enterpriseId!: number;
 
   ngOnInit() {
-    this.supervisorCategoriesService.eventFormComponent.emit(this);
-    this.supervisorCategoriesService.eventTableComponent.subscribe((tableComponent) => {
-      this.tableComponent = tableComponent;
-    });
-
+    this.supervisorCategoryService.eventFormComponent.set(this);
     this.getEnterprises();
   };
 
-  getEnterprises() {
-    this.enterpriseService.getAll().subscribe({
-      next: (res) => {
-        this.enterprises = res
-      },
-      error: (err) => {
-        console.log(err);
-        this.helpersService.messageNotification("error", 'Error', err.message, 3000);
-      }
-    });
-  }
-
-  hideModal() {
-    this.openModal = false;
-    this.isLoading = false;
-  };
-
-  actionsHideModal() {
-    this.tableComponent.reload();
-  }
-
-  openCreate(){
-    if ( this.tableComponent.supervisor() && this.tableComponent.supervisor().id ) {
-      this.supervisorId = this.tableComponent.supervisor().id as number;
-      this.tittleForm = "Asignar Categorías";
+  public openCreate() {
+    if ( this.supervisorId() ) {
+      this.enterpriseId = null;
+      this.getCategories();
       this.openModal = true;
     } else {
       this.helpersService.messageNotification("warn", "Por favor", `Seleccione un supervisor.`, 3000);
     }
   };
+
+  public getCategories() {
+    if (this.enterpriseId) {
+      this.supervisorCategoryService.getAssignedUnassigned(this.supervisorId(), this.enterpriseId).subscribe({
+        next: (res) => {
+          this.targetProducts.set(res.assigned.map(row => {
+            return {
+              id: row.categoryId,
+              name: row.categoryName + ' - ' + row.subCategoryName,
+              subId: row.subCategoryId
+            }
+          }));
+          this.sourceProducts.set(res.unassigned.map(row => {
+            return {
+              id: row.categoryId,
+              name: row.categoryName + ' - ' + row.subCategoryName,
+              subId: row.subCategoryId
+            }
+          }));
+        }
+      });
+    } else {
+      this.cleanSubCategories();
+    }
+  }
+
+  private cleanSubCategories() {
+    this.targetProducts.set([]);
+    this.sourceProducts.set([]);
+  }
+
+  public updateSupervisorCategories() {
+    const body: ISupervisorCategorySave = {
+      supervisorId: this.supervisorId(),
+      enterpriseId: this.enterpriseId,
+      categorySubCategory: this.targetProducts().map( item => {
+        return {
+          categoryId: item.id,
+          subCategoryId: item.subId
+        }
+      })
+    };
+    this.supervisorCategoryService.save(body).subscribe({
+      next: () => {
+        this.helpersService.messageNotification("success", "Correcto", `Se asignó la categoría correctamente.`, 2000);
+        this.getCategories();
+      },
+      error: () => {
+        this.getCategories();
+      }
+    });
+  }
+
+  private getEnterprises() {
+    this.enterpriseService.select().subscribe({
+      next: (res) => {
+        this.enterprises.set(res);
+      }
+    });
+  }
+
+  public hideModal() {
+    this.openModal = false;
+  };
+
+  public actionsHideModal() {
+    this.tableComponent().reload();
+  }
+
 }

@@ -1,13 +1,12 @@
-import { CommonModule } from '@angular/common';
+
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-nout-found',
-  templateUrl: './nout-found.component.html',
-  standalone: true,
-  imports: [ CommonModule, RouterModule ],
-  styles: [`
+    selector: 'app-nout-found',
+    templateUrl: './nout-found.component.html',
+    imports: [RouterModule],
+    styles: [`
     .container-not-found {
       display: flex;
       justify-content: center;
@@ -49,7 +48,7 @@ import { RouterModule } from '@angular/router';
     a:hover {
         text-decoration: underline;
     }`
-  ]
+    ]
 })
 export class NoutFoundComponent {
 

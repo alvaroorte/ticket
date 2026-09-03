@@ -1,19 +1,21 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, Output, EventEmitter, inject  } from '@angular/core';
-import { Supervisor, SupervisorSend } from 'src/app/core/models/Supervisor';
+import { Injectable, inject, signal  } from '@angular/core';
+import { Supervisor } from 'src/app/core/models/Supervisor';
 import { environment } from '@core/environments/environment.development';
-import { DataCommon } from '@core/models/FieldsCommons';
 import { Observable } from 'rxjs';
+import { IServiceCommon } from '@core/interfaces/service-common.interface';
+import { GenericTableComponent } from '@shared/components/generic-table/generic-table.component';
+import { ModalDeleteComponent } from '@shared/components/modal-delete/modal-delete.component';
+import { IGenericModalForm } from '@core/interfaces/generic-modal-form.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SupervisorService {
+export class SupervisorService implements IServiceCommon {
 
-  @Output() eventFormComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventTableComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventModalDeleteComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventToolbarComponent: EventEmitter<any> = new EventEmitter();
+  public eventFormComponent = signal<IGenericModalForm>(null);
+  public eventTableComponent = signal<GenericTableComponent<Supervisor>>(null);
+  public eventModalDeleteComponent = signal<ModalDeleteComponent>(null);
 
   private http = inject(HttpClient);
 
@@ -27,7 +29,7 @@ export class SupervisorService {
     return this.http.get<Supervisor>(this.serverUrl + 'supervisor/' + id)
   }
 
-  public create(supervisor: SupervisorSend) {
+  public create(supervisor: Supervisor) {
     return this.http.post<Supervisor>(this.serverUrl + 'supervisor', supervisor)
   }
 
@@ -35,11 +37,7 @@ export class SupervisorService {
     return this.http.delete(this.serverUrl + 'supervisor/' + id, { responseType:'text'})
   }
 
-  public search() {
-    return this.http.get<DataCommon[]>(this.serverUrl+'supervisor/search')
-  }
-
-  public update(idSupervisor: number, body: SupervisorSend) {
+  public update(idSupervisor: number, body: Supervisor) {
     return this.http.put<Supervisor>(this.serverUrl+'supervisor/' + idSupervisor, body)
   }
 }

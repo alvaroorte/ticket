@@ -6,3 +6,11 @@ export function formatDate(date: string): string {
 
     return `${year}-${month}-${day}`;
 }
+
+export function removeTextIntoParentheses( text: string ): string {
+    let result = text?? '';
+    if ( result && result.indexOf('(') >= 0 ) {
+        result = text.substring(0, text.indexOf('(')) + text.substring(text.indexOf(')')+1, text.length);
+    }
+    return result;
+}

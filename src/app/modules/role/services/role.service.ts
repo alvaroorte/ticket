@@ -1,57 +1,53 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, Output, EventEmitter, inject  } from '@angular/core';
-import { DataCommon } from '@core/models/FieldsCommons';
+import { Injectable, Output, EventEmitter, inject, signal  } from '@angular/core';
 import { environment } from '@core/environments/environment.development';
 import { Observable } from 'rxjs';
 import { Role, RoleWithPermissions } from '@core/models/Role';
+import { IServiceCommon } from '@core/interfaces/service-common.interface';
+import { RolePermission } from '@core/interfaces/role-permission';
+import { GenericTableComponent } from '@shared/components/generic-table/generic-table.component';
+import { ModalDeleteComponent } from '@shared/components/modal-delete/modal-delete.component';
+import { IGenericModalForm } from '@core/interfaces/generic-modal-form.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class RoleService {
+export class RoleService implements IServiceCommon {
 
-  @Output() eventFormComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventTableComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventModalDeleteComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventToolbarComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventToolbarCategoryComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventTableDobleComponent: EventEmitter<any> = new EventEmitter();
-  @Output() eventDeleteRow: EventEmitter<any> = new EventEmitter();
+  public eventFormComponent = signal<IGenericModalForm>(null);
+  public eventTableComponent = signal<GenericTableComponent<Role>>(null);
+  public eventModalDeleteComponent = signal<ModalDeleteComponent>(null);
+  @Output() eventReloadPermissionByRol: EventEmitter<void> = new EventEmitter();
 
   private http = inject(HttpClient);
 
-  private serverUrl: string = environment.server_url;
-  private serverUrlSecurity: string = environment.server_security_url;
+  private serverUrlRole: string = environment.server_url + 'roles';
 
   public getAll() {
-    return this.http.get<Role[]>(this.serverUrlSecurity+'roles')
+    return this.http.get<Role[]>(this.serverUrlRole)
   }
 
   public getById(id: number) {
-    return this.http.get<Role>(this.serverUrlSecurity + 'roles/' + id)
+    return this.http.get<Role>(`${this.serverUrlRole}/${id}`)
   }
 
   public create(role: Role) {
-    return this.http.post<Role>(this.serverUrlSecurity + 'roles', role)
+    return this.http.post<Role>(this.serverUrlRole, role)
   }
 
   public update(id: number, role: Role) {
-    return this.http.put<Role>(this.serverUrlSecurity + 'roles/' + id, role)
+    return this.http.put<Role>(`${this.serverUrlRole}/${id}`, role)
   }
 
-  public delete(id: number): Observable<Object> | Observable<string>  {
-    return this.http.delete(this.serverUrlSecurity + 'roles/' + id, { responseType:'text'})
+  public delete(id: number): Observable<string>  {
+    return this.http.delete(`${this.serverUrlRole}/${id}`, { responseType:'text'})
   }
 
-  public permissionAssignedByRole(idRole: number) {
-    return this.http.get<DataCommon[]>(this.serverUrlSecurity + 'roles/permissionAssignedByRole/' + idRole)
+  public permissionAssignedByRole(roleId: number) {
+    return this.http.get<RolePermission>(`${this.serverUrlRole}/role-permissions/${roleId}`)
   }
 
-  public createList( body:RoleWithPermissions ) {
-    return this.http.post(this.serverUrlSecurity + 'roles/addPermissions', body);
-  }
-
-  public deleteList( body:RoleWithPermissions ) {
-    return this.http.post(this.serverUrlSecurity + 'roles/removeRolePermissions', body);
+  public addPermissions( body:RoleWithPermissions ) {
+    return this.http.post(`${this.serverUrlRole}/addPermissions`, body);
   }
 }

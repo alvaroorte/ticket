@@ -2,16 +2,45 @@
     <p-fieldset styleClass="sombra-black">
         <ng-template pTemplate="header">
             <div class="flex align-items-center text-primary fadeinleft animation-duration-400">
-                <h2 class="text-white">Parámetros <span class="text-sm"> Gestión de parámetros</span> </h2>
+                <h1 class="text-white text-2xl"> {{ labels.parameters }} <span class="text-sm"> Gestión de parámetros</span> </h1>
             </div>
         </ng-template>
         <div class="grid">
             <div class="col-12 fadeindown animation-duration-400">
                 <div class="sombra-black border-round-xl p-2 surface-0">
-                    <app-toolbar-common [serviceGeneric]="parametersService" [object]="object"></app-toolbar-common>
-                    <app-form></app-form> 
-                    <app-modal-delete [serviceGeneric]="parametersService" [object]="object.id"></app-modal-delete>
-                    <app-table (rowSelected)="setObject($event)"></app-table>
+                    <app-toolbar-common [showCreate]="showButtons()"
+                        [showEdit]="showButtons()"
+                        [showDelete]="showButtons()"
+                        [serviceGeneric]="parameterService" 
+                        [object]="parameterSelected()"
+                     />
+                    <app-form [folderNameSelected]="folderNameSelected" /> 
+                    <app-modal-delete [serviceGeneric]="parameterService" [objectId]="parameterSelected()?.id" />
+                    <app-generic-table
+                        [titleTable]="titleTable"
+                        [items]="parameters()"
+                        [tableColumnDefinitions]="tableColumnParameterDefinitions"
+                        (onSelection)="setParameter($event)"
+                        (requestData)="getParameters()"
+                        (selfEmitter)="onTableSelfEmision($event)"
+                    >
+                        <ng-container rightToolbarTemplate>
+                            <h4> {{ labels.folder }}: </h4>
+                            <p-select
+                                inputId="folder"
+                                [options]="folders"
+                                [filter]="true"
+                                [showClear]="false"
+                                [placeholder]="labels.placeholderSelectAOption"
+                                appendTo="body"
+                                class="ml-2 mr-4"
+                                [(ngModel)]="folderNameSelected"
+                                optionLabel="name"
+                                optionValue="name"
+                                (onChange)="onChangedFolder()"
+                            />
+                        </ng-container>
+                    </app-generic-table>
                 </div>
             </div>
         </div>

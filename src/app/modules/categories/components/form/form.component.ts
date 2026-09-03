@@ -1,128 +1,153 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HelpersService } from 'src/app/core/services/helpers.service';
-import { TableComponent as TableCategoryComponent } from '../table/table.component';
-import { CategoriesService } from '../../services/categories.service';
+import { CategoryService } from '../../services/categories.service';
 import { Category } from 'src/app/core/models/Category';
-import { regex, messages } from '@core/constants/constants';
-import { CommonModule } from '@angular/common';
-import { PrimeComponentsModule } from '@shared/prime-components/prime-components.module';
+
+import { PrimeModules } from '@shared/prime-components/prime-components.module';
 import { noSpaceValidator } from '@core/validators/noSpaceValidator';
+import { FileService } from '@core/services/file-service.service';
+import { CategoryFolderEnum } from '@core/enums/category-folder';
+import { MESSAGES } from '@core/constants/messages';
+import { fileTypeAllowed, maxImageSizeAllowed } from '@core/constants/file';
+import { regex } from '@core/constants/regexs';
+import { InputFileComponent } from "../../../../shared/components/input-file/input-file.component";
+import { LABELS } from '@core/constants/labels';
+import { MessageRequiredFieldComponent } from "../../../../shared/components/message-required-field/message-required-field.component";
+import { ModeInputFile } from '@core/enums/file.enum';
+import { TypeSubmitEnum } from '@core/enums/type-submit';
+import { Severity } from '@core/enums/severity';
+import { MimeTypeEnum } from '@core/enums/mime-type';
 
 
 @Component({
-   selector: 'app-form',
-   standalone: true,
-   templateUrl: './form.component.html',
-   imports: [
-      CommonModule,
+    selector: 'app-form',
+    templateUrl: './form.component.html',
+    imports: [
       ReactiveFormsModule,
       FormsModule,
-      PrimeComponentsModule,
+      PrimeModules,
+      InputFileComponent,
+      MessageRequiredFieldComponent
    ]
 })
 export class FormComponent {
-   @Input({ required: true }) folder: string;
+   readonly folder = input.required<CategoryFolderEnum>();
 
-   public readonly messages = messages;
-   public openModal: boolean = false;
-   public tittleForm: string = 'Crear nuevo registro';
-   private categoryId: number = 0;
-   private tableComponent: TableCategoryComponent;
    private formBuilder = inject(FormBuilder);
    private helpersService = inject(HelpersService);
-   private categoriesService = inject(CategoriesService);
+   private categoryService = inject(CategoryService);
+   private fileService = inject(FileService);
 
+   public readonly messages = MESSAGES;
+   public readonly labels = LABELS;
+   public readonly allowedImageFormat = fileTypeAllowed.allowedImageFormat;
+   public readonly maxImageSizeAllowed = maxImageSizeAllowed;
+   public readonly modeInputFile = ModeInputFile;
+   public readonly categoryFolderEnum = CategoryFolderEnum;
+   public openModal = false;
+   public titleForm = '';
+   private categoryId = 0;
+   public file: File = null;
+   private tableComponent = this.categoryService.eventTableComponent;
    public formCategory: FormGroup = this.formBuilder.group({
       id: [],
       folder: [, Validators.required],
       value: [, [ Validators.required, Validators.minLength(5), Validators.pattern(regex.fieldName), noSpaceValidator]],
-      urlImage: [, [Validators.required]],
-      status: [ ,Validators.required],
+      image: [],
+      description: [],
+      active: [, Validators.required],
    });
 
    ngOnInit() {
-      this.categoriesService.eventFormComponent.emit(this);
-      this.categoriesService.eventTableComponent.subscribe((tableComponent) => this.tableComponent = tableComponent);
+      this.categoryService.eventFormComponent.set(this);
+   }
+   
+   private changeFormByFolder(): void {
+      this.formCategory.get('image')?.clearValidators();
+      if (this.folder() == CategoryFolderEnum.Category) 
+         this.formCategory.get('image')?.addValidators(Validators.required);
    }
 
    public hideModal() {
       this.openModal = false;
    }
-
-   public openCreate() {
-      this.reset();
-      this.openModal = true;
-      this.formCategory.patchValue({ folder: this.folder });
+  
+   private async convertFileToBase64(file: File) {
+      const base64Image:string = await this.fileService.convertFileToBase64(file, true);
+      this.formCategory.get('image').patchValue(base64Image);
    }
 
-   public openEdit(id: number) {
+   public openCreate() {
+      this.changeFormByFolder();
       this.reset();
-      this.categoriesService.getById(id).subscribe({
+      this.titleForm = this.folder() == CategoryFolderEnum.Category? "Crear categoría": "Crear subcategoría";
+      this.openModal = true;
+      this.formCategory.patchValue({ folder: this.folder() });
+   }
+   
+   public openEdit(id: number) {
+      this.changeFormByFolder();
+      this.reset();
+      this.categoryService.getById(id).subscribe({
          next: (categoryResponse) => {
-            this.formCategory.patchValue(categoryResponse)
+            this.updateDataForm(categoryResponse);
             this.categoryId = categoryResponse.id!;
+            this.titleForm = this.folder() == CategoryFolderEnum.Category? "Editar categoría": "Editar subcategoría";
             this.openModal = true;
-         },
-         error: (err) => {
-            console.log(err);
-            this.helpersService.messageNotification('error', 'Error', err.message, 3000);
          }
       });
    }
 
+   private updateDataForm(category: Category) {
+      const fileName = "logo.png";
+      this.file = this.fileService.convertBase64ToFile(category.image, fileName, MimeTypeEnum.IMAGE);
+      this.formCategory.patchValue({
+         ...category,
+         active: category.active?? false,
+      })
+   }
+
+   public loadFile(dataFile: File) {
+      dataFile? 
+         this.convertFileToBase64(dataFile)
+         : this.formCategory.get('image').patchValue(null);
+  }
+
    public saveCategory() {
-      const texto = this.formCategory.value.value.trim();
-      if (texto.length <= 5) {
-         this.helpersService.messageNotification('error', 'Error', 'Este campo requiere como mínimo 5 caracteres', 3000);
-         return;
-      }
       if (this.formCategory.valid) {
-         this.formCategory.value.value = this.formCategory.value.value.trim();
-         this.categoryId > 0 ? this.submitUpdate(this.categoryId) : this.submitCreate();
+         this.categoryId > 0 ? 
+            this.submit(TypeSubmitEnum.UPDATE, this.categoryId) 
+            : this.submit(TypeSubmitEnum.CREATE);
       }
    }
 
    private reset() {
       this.formCategory.reset();
-      this.formCategory.patchValue({'status': true});
+      this.formCategory.patchValue({'active': true});
+      this.file = null;
       this.categoryId = 0;
    }
 
-   private submitCreate() {
+   private submit(type: TypeSubmitEnum, id?: number) {
       const data: Category = {
          ...this.formCategory.value,
       };
-      data.folder = this.folder;
-      this.categoriesService.create(data).subscribe({
+      data.folder = this.folder();
+      const service = type == TypeSubmitEnum.CREATE?
+      this.categoryService.create(data)
+      : this.categoryService.update(id, data);
+      service.subscribe({
          next: () => {
-            this.tableComponent.reload();
-            this.helpersService.messageNotification('success', 'Correcto', `La categoría ha sido creada.`, 3000);
+            const message: string = type == TypeSubmitEnum.CREATE?
+               this.messages.recordCreated
+               : this.messages.recordUpdated;
+            this.helpersService.messageNotification(Severity.success, LABELS.ok, message);
             this.hideModal();
             this.reset();
-         },
-         error: (err) => {
-            console.log(err);
-            this.helpersService.messageNotification('error', 'Error', err.message, 3000);
+         }, complete: () => {
+           this.tableComponent().reload();
          }
-      });
-   }
-
-   private submitUpdate(idCategory: number) {
-      const data: Category = {
-         ...this.formCategory.value,
-      };
-      this.categoriesService.update(idCategory, data).subscribe({
-         next: () => {
-            this.tableComponent.reload();
-            this.helpersService.messageNotification('success', 'Correcto', `La categoría ha sido actualizada.`, 3000);
-            this.hideModal();
-            this.reset();
-         },
-         error: (err) => {
-            console.log(err);
-            this.helpersService.messageNotification('error', 'Error', err.message, 3000);
-         }
-      });
-   }
+       })
+     };
 }

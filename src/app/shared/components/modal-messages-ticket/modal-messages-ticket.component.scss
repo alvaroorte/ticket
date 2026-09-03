@@ -1,0 +1,18 @@
+:host ::ng-deep .p-dialog {
+    background: none;
+}
+
+:host ::ng-deep .p-editor .p-editor-content .ql-editor {
+    background-color: white !important;
+    color: #334155;
+}
+
+:host ::ng-deep .ql-snow.ql-toolbar .p-fileupload-choose-button {
+    background: var(--p-button-primary-background);
+    &:hover {
+        color: var(--p-button-primary-background) !important;
+        background-color: white !important;
+        font-weight: bold;
+        border-color: var(--p-button-primary-background) !important; 
+    }
+}

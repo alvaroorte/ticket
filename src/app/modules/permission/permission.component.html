@@ -1,4 +1,21 @@
-<app-toolbar></app-toolbar> 
-<app-form></app-form> 
-<app-modal-delete [serviceGeneric]="permissionService" [object]="idDelete()" ></app-modal-delete>
-<app-table (changePermission)="changePermission()"></app-table>
+<app-toolbar-common 
+    [serviceGeneric]="permissionService"
+    [object]="permissionSelected()"    
+/>
+<app-form /> 
+<app-modal-delete [serviceGeneric]="permissionService" 
+    [objectId]="permissionSelected()?.id" 
+    (onDeleteSuccess)="updatePermissionInRole()"
+ />
+
+<app-table-on-demand 
+    [columns]="columns"
+    [dataList]="permissions()"
+    [rows]="5"
+    [showFilterButton]="false"
+    [totalElements]="totalElements"
+    [titleTable]="titleTable"
+    (eventloadItems)="loadPermissions($event)"
+    (eventRowSelected)="setPermission($event)"
+    (selfEmitter)="onTableSelfEmision($event)"
+ />

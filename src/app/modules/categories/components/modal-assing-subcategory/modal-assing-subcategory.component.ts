@@ -1,34 +1,32 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, Input, signal } from '@angular/core';
-import { CategoriesService } from '@category/services/categories.service';
-import { CategoryResponse } from '@core/models/Category';
-import { DataCommon } from '@core/models/FieldsCommons';
+
+import { Component, inject, signal, input } from '@angular/core';
+import { CategoryService } from '@category/services/categories.service';
+import { CategoryResponse, SubcategoryForAsignToCategory, SubcategorySendAddToCategory } from '@core/models/Category';
 import { HelpersService } from '@core/services/helpers.service';
 import { TableDoubleComponent } from '@shared/components/table-double/table-double.component';
-import { PrimeComponentsModule } from '@shared/prime-components/prime-components.module';
+import { PrimeModules } from '@shared/prime-components/prime-components.module';
 
 
 @Component({
-   selector: 'app-modal-assing-subcategory',
-   standalone: true,
-   templateUrl: './modal-assing-subcategory.component.html',
-   imports: [CommonModule, PrimeComponentsModule, TableDoubleComponent]
+    selector: 'app-modal-assing-subcategory',
+    templateUrl: './modal-assing-subcategory.component.html',
+    imports: [PrimeModules, TableDoubleComponent]
 })
 export class ModalAssingSubcategoryComponent {
 
-   @Input({required: true}) selectedCategory: CategoryResponse;
+   readonly categorySelected = input.required<CategoryResponse>();
 
-   public showModal: boolean = false;
-   public titleForm: string = 'Asignar subcategoria';
+   public showModal = false;
+   public titleForm = 'Asignar subcategoría';
 
-   public categoriesService = inject(CategoriesService);
+   public categoryService = inject(CategoryService);
    private helpersService = inject(HelpersService);
 
-   public sourceProducts = signal<DataCommon[]>([]);
-   public targetProducts = signal<DataCommon[]>([]);
+   public sourceProducts = signal<SubcategoryForAsignToCategory[]>([]);
+   public targetProducts = signal<SubcategoryForAsignToCategory[]>([]);
 
    ngOnInit() {
-      this.categoriesService.eventModalAssingSubcategory.emit(this);
+      this.categoryService.eventOpenModalAssingSubcategory.subscribe(() => this.openModal());
    }
 
    public openModal() {
@@ -38,13 +36,10 @@ export class ModalAssingSubcategoryComponent {
 
    private getSubCategories() {
       this.cleanSubCategories();
-      this.categoriesService.detailByCategory(this.selectedCategory.id).subscribe({
+      this.categoryService.detailByCategory(this.categorySelected().id).subscribe({
          next: (res) => {
-         this.targetProducts.set(res.filter( dato => dato.code != null ));
-         this.sourceProducts.set(res.filter( dato => dato.code == null ));
-         },
-         error: (err) => {
-         console.log(err);
+            this.targetProducts.set(res.filter( dato => dato.code != null ));
+            this.sourceProducts.set(res.filter( dato => dato.code == null ));
          }
       });
    }
@@ -54,75 +49,62 @@ export class ModalAssingSubcategoryComponent {
       this.sourceProducts.set([]);
    }
 
-   public add(items:any){
-      let subcategory = items[0];
-      let body = {
-         category: this.selectedCategory.id,
+   public add(items: SubcategoryForAsignToCategory[]){
+      const subcategory: SubcategoryForAsignToCategory = items[0];
+      const body: SubcategorySendAddToCategory = {
+         category: this.categorySelected().id,
          subCategory: subcategory.id
       };
-      this.categoriesService.createOne(body).subscribe({
+      this.categoryService.createOne(body).subscribe({
          next: () => {
-         this.helpersService.messageNotification("success", "Correcto", `Se asignó la Subcategoría correctamente.`, 2000);
-         this.getSubCategories();
-         },
-         error: (err) => {
-         console.log(err);
-         this.getSubCategories();
+            this.helpersService.messageNotification("success", "Correcto", `Se asignó la Subcategoría correctamente.`, 2000);
+         }, complete: () => {
+            this.getSubCategories();
          }
       });
    }
 
-   public allAdd(items:any){
-      let subcategories = items;
-      let body:any[] = [];
-      subcategories.map( (subCategory: DataCommon) => {
+   public allAdd(items: SubcategoryForAsignToCategory[]) {
+      let body: SubcategorySendAddToCategory[] = [];
+      items.map( (subCategory: SubcategoryForAsignToCategory) => {
          body.push({
-            category: this.selectedCategory.id,
+            category: this.categorySelected().id,
             subCategory: subCategory.id
          })
       });
-      this.categoriesService.createList(body).subscribe({
+      this.categoryService.createList(body).subscribe({
          next: () => {
-         this.helpersService.messageNotification("success", "Correcto", `Se asignó todas las Subcategorías correctamente.`, 3000);
-         this.getSubCategories();
-         },
-         error: (err) => {
-         console.log(err);
-         this.getSubCategories();
+            this.helpersService.messageNotification("success", "Correcto", `Se asignó todas las Subcategorías correctamente.`, 3000);
+         }, complete: () => {
+            this.getSubCategories();
          }
       });
    }
 
-   public remove(items:any){
-      let subcategory: DataCommon = items[0];
-      this.categoriesService.deleteOne(subcategory.code as string ).subscribe({
+   public remove(items: SubcategoryForAsignToCategory[]){
+      let subcategory: SubcategoryForAsignToCategory = items[0];
+      this.categoryService.deleteOne(subcategory.code).subscribe({
          next: () => {
-         this.helpersService.messageNotification("warn", "Correcto", `Se quitó la Subcategoría correctamente.`, 2000);
-         this.getSubCategories();
-         },
-         error: (err) => {
-         console.log(err);
-         this.getSubCategories();
+            this.helpersService.messageNotification("warn", "Correcto", `Se quitó la Subcategoría correctamente.`, 2000);
+         }, complete: () => {
+            this.getSubCategories();
          }
       });
    }
 
-   public allRemove(items:any){
+   public allRemove(items: SubcategoryForAsignToCategory[]){
       let subcategories = items;
-      let body:any[] = [];
-      subcategories.map( (subCategory: DataCommon) => {
+      let body:{id: string}[] = [];
+      subcategories.map( (subCategory: SubcategoryForAsignToCategory) => {
          body.push({
             id: subCategory.code
          })
       });
-      this.categoriesService.deleteList(body).subscribe({
+      this.categoryService.deleteList(body).subscribe({
          next: () => {
-         this.helpersService.messageNotification("warn", "Correcto", `Se quitó todas las Subcategorías correctamente.`, 3000);
-         this.getSubCategories();
-         },
-         error: (err) => {
-         console.log(err);
-         this.getSubCategories();
+            this.helpersService.messageNotification("warn", "Correcto", `Se quitó todas las Subcategorías correctamente.`, 3000);
+         }, complete: () => {
+            this.getSubCategories();
          }
       });
    }

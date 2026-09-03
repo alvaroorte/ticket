@@ -1,43 +1,41 @@
-import { Component, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, inject, input } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HelpersService } from 'src/app/core/services/helpers.service';
 import { Parameter } from 'src/app/core/models/Parameter';
-import { TableComponent } from '../table/table.component';
-import { ParametersService } from 'src/app/modules/parameters/services/parameters.service';
+import { ParameterService } from 'src/app/modules/parameters/services/parameters.service';
 import { iconsPrime as IconsPrime } from 'src/app/shared/icons/icons-pime';
-import { Icon } from 'src/app/core/models/Icon';
 import { DataCommon } from '@core/models/FieldsCommons';
 import { noSpaceValidator } from '@core/validators/noSpaceValidator';
+import { MESSAGES } from '@core/constants/messages';
+import { LABELS } from '@core/constants/labels';
+import { MessageRequiredFieldComponent } from '../../../../shared/components/message-required-field/message-required-field.component';
+import { PrimeModules } from '@shared/prime-components/prime-components.module';
+import { TypeSubmitEnum } from '@core/enums/type-submit';
+import { Severity } from '@core/enums/severity';
 
 
 @Component({
-  selector: 'app-form',
-  templateUrl: './form.component.html'
+    selector: 'app-form',
+    templateUrl: './form.component.html',
+    imports: [MessageRequiredFieldComponent, PrimeModules, ReactiveFormsModule]
 })
 export class FormComponent {
 
+  readonly folderNameSelected = input.required<string>();
+
   private formBuilder = inject(FormBuilder);
   private helpersService = inject(HelpersService);
-  private parametersService = inject(ParametersService);
+  private parameterService = inject(ParameterService);
 
-  iconsPrime!: Icon[];
-  selectedIcon: Icon | null = null;
-  folders!: DataCommon[];
-
-  ngOnInit() {
-    this.parametersService.eventFormComponent.emit(this);
-    this.parametersService.eventTableComponent.subscribe((tableComponent) => {
-      this.tableComponent = tableComponent;
-    });
-    this.iconsPrime = IconsPrime;
-  };
-
-  parameters!: Parameter[];
-  parameterId: number = 0;
-  openModal: boolean = false;
-  tittleForm: string = "";
-  tableComponent!: TableComponent;
-  public isLoading = false;
+  public readonly messages = MESSAGES;
+  public readonly labels = LABELS;
+  public iconsPrime = IconsPrime;
+  public folders: DataCommon[] = [];
+  public parameters: Parameter[] = [];
+  private parameterId = 0;
+  public openModal = false;
+  public titleForm = "";
+  private tableComponent = this.parameterService.eventTableComponent;
 
   public formParameter: FormGroup = this.formBuilder.group({
     id: [],
@@ -46,96 +44,74 @@ export class FormComponent {
     value: [, [Validators.required, noSpaceValidator]],
     icon: [],
     color: [],
-    status:[]
+    status:[],
+    active: [, [Validators.required]]
   });
+
+  ngOnInit() {
+    this.parameterService.eventFormComponent.set(this);
+  };
+
 
   hideModal() {
     this.openModal = false;
-    this.isLoading = false;
   };
 
-  openCreate() {
+  public openCreate() {
     this.reset();
-    if ( this.tableComponent.folderNameSelected ) {
-      this.tittleForm = "Nuevo Parámetro";
-      this.formParameter.patchValue({ folder: this.tableComponent.folderNameSelected });
+    const folderNameSelected = this.folderNameSelected();
+    if ( folderNameSelected ) {
+      this.titleForm = "Nuevo parámetro";
+      this.formParameter.patchValue({ folder: folderNameSelected });
       this.openModal = true;
     } else {
       this.helpersService.messageNotification('warn', 'Por favor', 'Seleccione un folder.');
     }
   };
 
-  openEdit(id: number ){
+  public openEdit(id: number ) {
     this.reset();
-    this.tittleForm="Editar Parámetro";
-    this.parametersService.getById(id).subscribe({
+    this.titleForm = "Editar parámetro";
+    this.parameterService.getById(id).subscribe({
       next: (res) => {
         this.parameterId = res.id!;
         this.formParameter.patchValue(res)
         this.openModal=true;
-      },
-      error: (err) => {
-        console.log(err);
-        this.helpersService.messageNotification("error", 'Error', err.message, 3000);
       }
     })
   };
 
-  saveParameter() {
-    this.isLoading = true;
-    if (this.formParameter.valid) {
-      if(this.parameterId > 0){
-        this.submitUpdate(this.parameterId);
-      }else{
-        this.submitCreate();
-      }
+  public saveParameter() {
+    if (this.formParameter.valid ) {
+      this.parameterId > 0? this.submit(TypeSubmitEnum.UPDATE): this.submit(TypeSubmitEnum.CREATE);
     }
   };
 
-  reset(): void {
+  private reset(): void {
     this.formParameter.reset();
+    this.formParameter.patchValue({active: true});
     this.parameterId = 0;
   };
 
-  submitCreate() {
+  private submit(type: TypeSubmitEnum) {
     const data: Parameter = {
       ...this.formParameter.value,
     };
-    this.parametersService.create(data).subscribe({
-      next: (res) => {
-        this.tableComponent.reload();
-        this.helpersService.messageNotification("success", "Correcto", `El parámetro ${res.folder} ha sido creado.`, 3000);
+    const service = type == TypeSubmitEnum.CREATE
+      ? this.parameterService.create(data)
+      : this.parameterService.update(this.parameterId, data)
+    service.subscribe({
+      next: () => {
+        const message = type == TypeSubmitEnum.CREATE
+          ? MESSAGES.recordCreated
+          : MESSAGES.recordUpdated;
+        this.helpersService.messageNotification(Severity.success, "Correcto", message);
         this.hideModal();
         this.reset();
-      },
-      error: (err) => {
-        console.log(err);
-        this.helpersService.messageNotification("error", 'Error', err.message, 3000);
-        setTimeout(() => {
-          this.isLoading = false;
-          
-        }, 2000);
+      }, complete: () => {
+        this.tableComponent().reload();
       }
     })
   };
 
-  submitUpdate(idParameter : number) {
-    const data: Parameter = {
-      ...this.formParameter.value,
-    };
-    this.parametersService.update(idParameter, data).subscribe({
-        next: (res) => {
-          this.tableComponent.reload();
-          this.tableComponent.selectedParameter.set( res );
-          this.helpersService.messageNotification("success", "Correcto", `El parámetro ${res.folder} ha sido actualizado.`, 3000);
-          this.hideModal();
-          this.reset();
-        },
-        error: (err) => {
-          console.log(err);
-          this.helpersService.messageNotification("error", 'Error', err.message, 3000);
-          this.isLoading = false;
-        }
-    });
-  }
 }

@@ -1,0 +1,36 @@
+<div class="container mx-3 mb-0 pb-4">
+  <p-fieldset styleClass="sombra-black">
+    <ng-template pTemplate="header">
+      <div class="flex align-items-center text-primary fadeinleft animation-duration-400">
+        <h1 class="text-white text-2xl">País <span class="text-sm"> Gestión de países</span> </h1>
+      </div>
+    </ng-template>
+    <div class="grid">
+      <div class="col-12 fadeindown animation-duration-400">
+        <div class="sombra-black border-round-xl p-2 surface-0">
+          <app-toolbar-common 
+            tooltipCreate="Crear país" 
+            [serviceGeneric]="countryService"
+            [object]="countrySelected()" 
+          />
+          <app-modal-form />
+          <app-modal-delete [serviceGeneric]="countryService" 
+            [objectId]="countrySelected()?.id"
+           />
+          <app-generic-table [titleTable]="titleTable"
+            [items]="countries()"
+            [tableColumnDefinitions]="tableColumnCountryDefinitions"
+            (onSelection)="setCountry($event)"
+            (requestData)="getCountries()"
+            (selfEmitter)="onTableSelfEmision($event)"
+           />
+        </div>
+      </div>
+    </div>
+  </p-fieldset>
+  @if (countrySelected()?.id) {
+    <div class="col-12 fadeindown animation-duration-400 p-0 mt-3">
+      <app-territorial-division [countryId]="countrySelected()!.id!" />
+    </div>
+  }
+</div>

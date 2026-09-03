@@ -1,12 +1,10 @@
-import { Parameter } from "./Parameter";
+import { Base } from "./base";
 
-export class Enterprise  {
-    id: number | null = null;
-    code: string | null = null;
-    name: string | null = null;
-    domain: string | null = null;
-    urlLogo: string | null = null;
-    status?: boolean | null = null;
-    dedicationTime?: number | null = null;
-    parameterDedicationTimeId: Parameter = new Parameter;
+export class Enterprise extends Base  {
+    id: number;
+    code: string;
+    name: string;
+    domain: string;
+    logo: string;
+    hasCostCenter: boolean;
 }

@@ -1,0 +1,189 @@
+<form [formGroup]="formBranch">
+
+  <div class="grid">
+    <div class="col-12">
+      <p-dialog [focusOnShow]="false" [(visible)]="openModal" [styleClass]="activeIndex() == 1? 'w-4': 'w-10'" [header]="titleForm" [modal]="true" class="p-fluid" appendTo="body">
+        <ng-template #content>
+
+          <app-message-required-field />
+
+          <p-stepper [value]="activeIndex()" (valueChange)="changeIndexTab()">
+            <p-step-list>
+              <p-step [value]="1">Datos generales</p-step>
+              <p-step [value]="2">Horarios</p-step>
+            </p-step-list>
+            <p-step-panels>
+              <p-step-panel [value]="1">
+                 <ng-template #content>
+                   <div class="p-fluid p-formgrid grid mt-3">
+     
+                     <div class="form-group field mt-2 col-12">
+                       <p-floatlabel>
+                         <input 
+                           type="text" 
+                           pInputText
+                           formControlName="name" 
+                           class="capitalize w-full" 
+                         />
+                         <label htmlFor="name" class="text-lg font-bold text-800 required-field"> {{ labels.name }} </label>
+                       </p-floatlabel>
+                       @if (formBranch.controls['name'].touched && formBranch.get('name')?.hasError('required')) {
+                         <small class="p-error block mt-2" >{{ messages.requiredField }}</small>
+                       }
+                       @if (formBranch.get('name')?.hasError('pattern')) {
+                         <small class="p-error block mt-2">{{ messages.deniedCharactersName }}</small>
+                       }
+                       @if (formBranch.get('name')?.hasError('minlength')) {
+                         <small class="p-error block mt-2">{{ messages.requiredMinLength }}</small>
+                       }
+                       @if (formBranch.get('name')?.hasError('noSpace')) {
+                         <small class="p-error block mt-2">{{ messages.noOnlySpace }}</small>
+                       }
+                     </div>
+     
+                     <div class="form-group field mt-2 col-12">
+                       <p-floatlabel>
+                         <input type="text" pInputText id="location" formControlName="location" class="capitalize w-full" />
+                         <label htmlFor="location" class="text-lg font-bold text-800 required-field"> {{ labels.ubication }} </label>
+                       </p-floatlabel>
+                       @if (formBranch.controls['location'].touched && formBranch.get('location')?.hasError('required')) {
+                         <small class="p-error block mt-2" >{{ messages.requiredField }}</small>
+                       }
+                       @if (formBranch.get('location')?.hasError('pattern')) {
+                         <small class="p-error block mt-2">{{ messages.deniedCharactersName }}</small>
+                       }
+                       @if (formBranch.get('location')?.hasError('minlength')) {
+                         <small class="p-error block mt-2">{{ messages.requiredMinLength }}</small>
+                       }
+                       @if (formBranch.get('location')?.hasError('noSpace')) {
+                         <small class="p-error block mt-2">{{ messages.noOnlySpace }}</small>
+                       }
+                     </div>
+     
+                     <div class="form-group field mt-2 col-12">
+                       <p-floatlabel>
+                         <p-select inputId="countryId"
+                           formControlName="countryId"
+                           [options]="countries"
+                           optionLabel="name"
+                           optionValue="id"
+                           [filter]="true"
+                           filterBy="name"
+                           class="w-full"
+                           appendTo="body"
+                           (onChange)="getTerritorialDivisions()" />
+                         <label for="countryId" class="text-lg font-bold text-800 required-field"> {{ labels.country }} </label>
+                       </p-floatlabel>
+                     </div>
+     
+                     <div class="form-group field mt-2 col-12">
+                      <p-floatlabel>
+                        <p-select formControlName="territorialDivisionId"
+                          [options]="territorialDivisions"
+                          optionLabel="name"
+                          optionValue="id"
+                          [filter]="true"
+                          filterBy="name"
+                          class="w-full"
+                          appendTo="body" />
+                        <label for="territorialDivisionId" class="text-lg font-bold text-800 required-field"> {{ labels.territorialDivision }} </label>
+                      </p-floatlabel>
+                     </div>
+     
+                   </div>
+                 </ng-template>
+              </p-step-panel>
+              <p-step-panel [value]="2">
+                 <ng-template #content>
+                   <div class="grid col-12 mb-4">
+                     <h3 class="mt-1 required-field">Horarios seleccionados: </h3>
+                     @if (selectedSchedules.length == 0) {
+                       <h4 class="text-orange-500 ml-4 mt-1"> (Aún no existen horarios seleccionados.)</h4>
+                     } @else {
+                       @for (chip of selectedSchedules; track chip) {
+                         <p-chip
+                           class="custom-chip"
+                           styleClass="ml-3 sombra-black px-2 py-1"
+                           [removable]="true"
+                           (onRemove)="removeSchedule(chip.scheduleId)">
+                           <h3>{{ chip.scheduleName }}</h3>
+                         </p-chip>
+                       }
+
+                     }
+                   </div>
+
+                  <div class="form-group field mt-3 mx-5 flex justify-content-center align-items-center">
+                    <label class="text-lg font-bold text-800 mr-3"><span class="text-red-500">*</span> Horarios: </label>
+                    <p-select inputId="scheduleId"
+                      formControlName="scheduleId"
+                      [options]="schedules"
+                      optionLabel="name"
+                      [filter]="true"
+                      filterBy="name"
+                      appendTo="body"
+                      [placeholder]="labels.placeholderSelectAOption"
+                      (onChange)="getScheduleDetail()" />
+                     <button
+                       type="button"
+                       pButton
+                       pRipple
+                       label="Añadir horario"
+                       icon="pi pi-plus"
+                       class="p-button-success p-button-rounded mr-2 p-button-sm sombra-black w-auto ml-4"
+                       (click)="addSchedule()"
+                     ></button>
+                  </div>
+
+                  <div [ngStyle]="{'height': scheduleDetails.length > 0? '60vh': 'auto'}">
+                    <app-gantt-for-hours-of-week [hoursWithDays]="scheduleDetails" />
+                  </div>
+                 </ng-template>
+              </p-step-panel>
+            </p-step-panels>
+          </p-stepper>
+
+
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <div class="p-2 pb-3">
+            <input type="hidden" pInputText id="id" formControlName="id"/>
+            <button 
+              type="button" 
+              pButton pRipple 
+              [label]="labels.cancel" 
+              icon="pi pi-times"
+              severity="secondary"
+              [rounded]="true"
+              size="small"
+              class="mr-2 shadow-3" 
+              (click)="hideModal()"
+            ></button>
+            <button
+              type="button"
+              pButton pRipple
+              [label]="labelButtonTab()"
+              [icon]="iconButtonTab()"
+              severity="warn"
+              [rounded]="true"
+              size="small"
+              class="mr-2 shadow-3 hover-warn"
+              (click)="changeIndexTab()"
+            ></button>
+            <button
+              type="button"
+              pButton pRipple
+              [label]="labels.save"
+              icon="pi pi-check"
+              [rounded]="true"
+              size="small"
+              class="mr-2 shadow-3 hover-primary"
+              (click)="save()"
+              [disabled]="formBranch.invalid"
+            ></button>
+          </div>
+        </ng-template>
+      </p-dialog>
+    </div>
+  </div>
+</form>
