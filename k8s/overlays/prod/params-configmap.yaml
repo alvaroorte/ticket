@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ticket-frontend-params
+  labels:
+    et.bo/params: "true"
+data:
+  # =========================
+  # Identity
+  # =========================
+  appName: ticket-frontend
+  deploymentName: ticket-frontend-deployment
+
+
+  # =========================
+  # Image & redeploy
+  # =========================
+  image: registrycbbadev.et.bo/ticket/ticket-frontend:latest
+  redeployAt: "{{TIMESTAMP}}"
+
+  # =========================
+  # Puertos
+  # =========================
+  servicePort: "9032"  # Service.port

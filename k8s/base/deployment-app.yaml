@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ticket-frontend-deployment
+  labels:
+    app: ticket-frontend
+spec:
+  selector:
+    matchLabels:
+      app: ticket-frontend
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ticket-frontend
+      annotations:
+        redeployAt: "0"
+    spec:
+      imagePullSecrets:
+      - name: registrycbbadev
+      containers:
+      - name: ticket-frontend
+        image: registrycbbadev.et.bo/ticket/ticket-frontend:qa
+        imagePullPolicy: Always
+        ports:
+          - name: http
+            containerPort: 80
+
+        startupProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          failureThreshold: 30
+          timeoutSeconds: 2
+
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          failureThreshold: 12
+          timeoutSeconds: 2
+
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          failureThreshold: 6
+          timeoutSeconds: 2
+
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "256Mi"

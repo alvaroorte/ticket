@@ -1,0 +1,85 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: ticket-prod
+
+resources:
+  - ../../base
+  - params-configmap.yaml
+  - ingress.yaml
+
+replicas:
+  - name: ticket-frontend-deployment
+    count: 1
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+replacements:
+  # Deployment name
+  - source:
+      kind: ConfigMap
+      name: ticket-frontend-params
+      fieldPath: data.deploymentName
+    targets:
+      - select:
+          kind: Deployment
+          name: ticket-frontend-deployment
+        fieldPaths:
+          - metadata.name
+
+  # Labels app (Deployment + Service)
+  - source:
+      kind: ConfigMap
+      name: ticket-frontend-params
+      fieldPath: data.appName
+    targets:
+      - select:
+          kind: Deployment
+          name: ticket-frontend-deployment
+        fieldPaths:
+          - metadata.labels.app
+          - spec.selector.matchLabels.app
+          - spec.template.metadata.labels.app
+      - select:
+          kind: Service
+          name: ticket-frontend
+        fieldPaths:
+          - metadata.labels.app
+          - spec.selector.app
+
+  # Imagen
+  - source:
+      kind: ConfigMap
+      name: ticket-frontend-params
+      fieldPath: data.image
+    targets:
+      - select:
+          kind: Deployment
+          name: ticket-frontend-deployment
+        fieldPaths:
+          - spec.template.spec.containers.[name=ticket-frontend].image
+
+  # Service port (9022)
+  - source:
+      kind: ConfigMap
+      name: ticket-frontend-params
+      fieldPath: data.servicePort
+    targets:
+      - select:
+          kind: Service
+          name: ticket-frontend
+        fieldPaths:
+          - spec.ports.[name=http].port
+
+  # Redeploy annotation
+  - source:
+      kind: ConfigMap
+      name: ticket-frontend-params
+      fieldPath: data.redeployAt
+    targets:
+      - select:
+          kind: Deployment
+          name: ticket-frontend-deployment
+        fieldPaths:
+          - spec.template.metadata.annotations.redeployAt
