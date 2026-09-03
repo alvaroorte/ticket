@@ -1,7 +1,7 @@
 version: '3.8'
 services:
-  clicket-frontend:
-    image: registrycbbadev.et.bo/clicket/clicket-frontend:$TAG_IMAGE
+  ticket-frontend:
+    image: registrycbbadev.et.bo/ticket/ticket-frontend:$TAG_IMAGE
     ports:
       - "9032:80"
     networks:

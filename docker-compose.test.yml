@@ -1,8 +1,8 @@
 version: '3.8'
 services:
-  clicket-frontend:
-    image: registrycbbadev.et.bo/clicket/clicket-frontend:test
-    container_name: clicket-frontend
+  ticket-frontend:
+    image: registrycbbadev.et.bo/ticket/ticket-frontend:test
+    container_name: ticket-frontend
     ports:
       - "9012:80"
     networks:
